@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Plus } from 'lucide-react'
 import { SchoolForm } from './school-form'
-import { School } from '@/types/schools'
-import { Plus, Edit } from 'lucide-react'
+import type { School, SchoolFormData } from '@/types/schools'
 
 interface SchoolDialogProps {
   school?: School
-  onSubmit: (data: any) => Promise<void>
+  onSubmit: (data: SchoolFormData) => Promise<void>
   trigger?: React.ReactNode
 }
 
@@ -17,13 +17,13 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: SchoolFormData) => {
     setLoading(true)
     try {
       await onSubmit(data)
       setOpen(false)
     } catch (error) {
-      console.error('Erro ao salvar escola:', error)
+      console.error('Error submitting school:', error)
     } finally {
       setLoading(false)
     }
@@ -39,21 +39,15 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
         {trigger || (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nova Escola
+            {school ? 'Editar Escola' : 'Nova Escola'}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {school ? 'Editar Escola' : 'Nova Escola'}
           </DialogTitle>
-          <DialogDescription>
-            {school 
-              ? 'Atualize as informações da escola.'
-              : 'Preencha as informações para criar uma nova escola.'
-            }
-          </DialogDescription>
         </DialogHeader>
         <SchoolForm
           school={school}

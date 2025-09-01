@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, Search, Plus } from 'lucide-react'
+import { Users, Search } from 'lucide-react'
 import { useParticipants } from '@/hooks/useParticipants'
+import { useAuth } from '@/contexts/AuthContext'
 import { ParticipantsTable } from '@/components/tables/participants-table'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
-import type { ParticipantWithRelations } from '@/types/participants'
+import type { ParticipantWithRelations, ParticipantFormData, ParticipantInsert } from '@/types/participants'
 
 export default function ParticipantsPage() {
+  const { user } = useAuth()
   const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant } = useParticipants()
   const [searchTerm, setSearchTerm] = useState('')
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
@@ -20,19 +21,33 @@ export default function ParticipantsPage() {
     participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     participant.school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     participant.event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (participant.email && participant.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    (participant.class && participant.class.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (participant.qr_code && participant.qr_code.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
-  const handleCreateParticipant = async (data: any) => {
+  const handleCreateParticipant = async (data: ParticipantFormData) => {
+    if (!user) {
+      console.error('Usuário não autenticado')
+      return
+    }
+
     try {
-      await createParticipant(data)
+      // Converter ParticipantFormData para ParticipantInsert
+      const participantData: ParticipantInsert = {
+        ...data,
+        qr_code: generateQRCode(), // Função para gerar QR code único
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      await createParticipant(participantData)
     } catch (error) {
       console.error('Erro ao criar participante:', error)
       throw error
     }
   }
 
-  const handleUpdateParticipant = async (data: any) => {
+  const handleUpdateParticipant = async (data: ParticipantFormData) => {
     if (!editingParticipant) return
 
     try {
@@ -59,9 +74,11 @@ export default function ParticipantsPage() {
     setEditDialogOpen(true)
   }
 
-  const handleCloseEditDialog = () => {
-    setEditingParticipant(null)
-    setEditDialogOpen(false)
+  // Função para gerar QR code único (7 dígitos)
+  const generateQRCode = (): string => {
+    const min = 1000000
+    const max = 9999999
+    return Math.floor(Math.random() * (max - min + 1) + min).toString()
   }
 
   const stats = [
@@ -72,12 +89,12 @@ export default function ParticipantsPage() {
     },
     {
       title: 'Escolas',
-      value: new Set(participants.map(p => p.school_id)).size,
+      value: new Set(participants.map(p => p.school.name)).size,
       description: 'Escolas com participantes'
     },
     {
       title: 'Eventos',
-      value: new Set(participants.map(p => p.event_id)).size,
+      value: new Set(participants.map(p => p.event.name)).size,
       description: 'Eventos com participantes'
     }
   ]

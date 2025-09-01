@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { Tables } from '@/types/database'
@@ -25,9 +25,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Buscar dados do tenant
-  const fetchTenant = async (userId: string) => {
+  // Cache local para evitar chamadas desnecessárias
+  const [tenantCache, setTenantCache] = useState<Map<string, Tenant>>(new Map())
+
+  // Buscar dados do tenant com cache
+  const fetchTenant = useCallback(async (userId: string): Promise<Tenant | null> => {
     try {
+      // Verificar cache primeiro
+      if (tenantCache.has(userId)) {
+        return tenantCache.get(userId) || null
+      }
+
       const { data, error } = await supabase
         .from('tenants')
         .select('*')
@@ -39,23 +47,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null
       }
 
+      // Atualizar cache
+      if (data) {
+        setTenantCache(prev => new Map(prev.set(userId, data)))
+      }
+
       return data
     } catch (error) {
       console.error('Erro ao buscar tenant:', error)
       return null
     }
-  }
+  }, [tenantCache])
 
-  // Atualizar tenant (para onboarding)
-  const refreshTenant = async () => {
+  // Atualizar tenant (para onboarding) com cache
+  const refreshTenant = useCallback(async () => {
     if (user) {
       const tenantData = await fetchTenant(user.id)
       setTenant(tenantData)
+      
+      // Limpar cache para forçar atualização
+      setTenantCache(prev => {
+        const newCache = new Map(prev)
+        newCache.delete(user.id)
+        return newCache
+      })
     }
-  }
+  }, [user, fetchTenant])
 
-  // Login com Google
-  const signInWithGoogle = async () => {
+  // Login com Google otimizado
+  const signInWithGoogle = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -72,11 +92,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Erro no login:', error)
       throw error
     }
-  }
+  }, [])
 
-  // Logout
-  const signOut = async () => {
+  // Logout otimizado
+  const signOut = useCallback(async () => {
     try {
+      // Limpar cache local
+      setTenantCache(new Map())
+      setTenant(null)
+      setUser(null)
+      setSession(null)
+      
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Erro no logout:', error)
@@ -86,30 +112,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Erro no logout:', error)
       throw error
     }
-  }
+  }, [])
 
-  // Listener de mudanças de autenticação
+  // Listener de mudanças de autenticação otimizado
   useEffect(() => {
+    let mounted = true
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+
         setSession(session)
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          const tenantData = await fetchTenant(session.user.id)
-          setTenant(tenantData)
+          // Buscar tenant apenas se não estiver em cache
+          if (!tenantCache.has(session.user.id)) {
+            const tenantData = await fetchTenant(session.user.id)
+            if (mounted) {
+              setTenant(tenantData)
+            }
+          } else {
+            // Usar cache se disponível
+            const cachedTenant = tenantCache.get(session.user.id)
+            if (mounted) {
+              setTenant(cachedTenant || null)
+            }
+          }
         } else {
           setTenant(null)
         }
 
-        setLoading(false)
+        if (mounted) {
+          setLoading(false)
+        }
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [])
+    // Cleanup function
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [fetchTenant, tenantCache])
 
-  const value = {
+  // Memoizar o valor do contexto para evitar re-renders desnecessários
+  const value = useMemo(() => ({
     user,
     tenant,
     session,
@@ -117,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signOut,
     refreshTenant
-  }
+  }), [user, tenant, session, loading, signInWithGoogle, signOut, refreshTenant])
 
   return (
     <AuthContext.Provider value={value}>

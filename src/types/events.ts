@@ -1,8 +1,48 @@
-import type { Tables } from './database'
+// Definir tipos explícitos para evitar problemas de inferência
+export interface Event {
+  id: string
+  tenant_id: string
+  school_id: string
+  name: string
+  event_date: string | null
+  event_end_date: string | null
+  commission_percent: number | null
+  notes: string | null
+  status: string
+  products_enabled: string[] | null
+  created_at: string
+  updated_at: string
+}
 
-export type Event = Tables<'events'>
-export type EventInsert = Tables<'events'>['Insert']
-export type EventUpdate = Tables<'events'>['Update']
+export interface EventInsert {
+  id?: string
+  tenant_id: string
+  school_id: string
+  name: string
+  event_date?: string | null
+  event_end_date?: string | null
+  commission_percent?: number | null
+  notes?: string | null
+  status?: string
+  products_enabled?: string[] | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface EventUpdate {
+  id?: string
+  tenant_id?: string
+  school_id?: string
+  name?: string
+  event_date?: string | null
+  event_end_date?: string | null
+  commission_percent?: number | null
+  notes?: string | null
+  status?: string
+  products_enabled?: string[] | null
+  created_at?: string
+  updated_at?: string
+}
 
 export interface EventFormData {
   name: string

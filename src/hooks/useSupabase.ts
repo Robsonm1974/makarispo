@@ -1,16 +1,15 @@
-// Custom hooks for Supabase operations
-// PHOTOMANAGER V2 - Multi-tenant SaaS
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { supabase, createServerSupabaseClient } from '@/lib/supabase-config'
-import type { Tables, Inserts, Updates } from '@/types/database'
+import { supabase, createServerSupabaseClient } from '@/lib/supabase'
+import type { Tables } from '@/types/database'
 
-// Generic data fetching hook
-export function useSupabaseData<T extends keyof Tables>(
+// Hook for table operations
+export function useSupabaseTable<T extends keyof Tables>(
   table: T,
   query?: {
     select?: string
-    filters?: Record<string, any>
+    filters?: Record<string, unknown>
     orderBy?: { column: string; ascending?: boolean }
     limit?: number
   }
@@ -22,35 +21,37 @@ export function useSupabaseData<T extends keyof Tables>(
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      
-      let queryBuilder = supabase.from(table)
-      
-      if (query?.select) {
-        queryBuilder = queryBuilder.select(query.select)
-      }
-      
+      let queryBuilder = supabase.from(table).select(query?.select || '*')
+
+      // Apply filters
       if (query?.filters) {
         Object.entries(query.filters).forEach(([key, value]) => {
-          queryBuilder = queryBuilder.eq(key, value)
+          if (value !== undefined && value !== null) {
+            queryBuilder = queryBuilder.eq(key, value)
+          }
         })
       }
-      
+
+      // Apply ordering
       if (query?.orderBy) {
         queryBuilder = queryBuilder.order(query.orderBy.column, {
           ascending: query.orderBy.ascending ?? true
         })
       }
-      
+
+      // Apply limit
       if (query?.limit) {
         queryBuilder = queryBuilder.limit(query.limit)
       }
-      
-      const { data: result, error: queryError } = await queryBuilder
-      
-      if (queryError) throw queryError
-      
+
+      const { data: result, error: fetchError } = await queryBuilder
+
+      if (fetchError) {
+        throw fetchError
+      }
+
       setData(result || [])
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
@@ -62,9 +63,16 @@ export function useSupabaseData<T extends keyof Tables>(
     fetchData()
   }, [fetchData])
 
-  const refresh = () => fetchData()
+  const refresh = useCallback(() => {
+    fetchData()
+  }, [fetchData])
 
-  return { data, loading, error, refresh }
+  return {
+    data,
+    loading,
+    error,
+    refresh
+  }
 }
 
 // Hook for single record operations
@@ -79,88 +87,20 @@ export function useSupabaseRecord<T extends keyof Tables>(
   const fetchRecord = useCallback(async (recordId: string) => {
     try {
       setLoading(true)
-      setError(null)
-      
-      const { data: result, error: queryError } = await supabase
+      const { data: result, error: fetchError } = await supabase
         .from(table)
         .select('*')
         .eq('id', recordId)
         .single()
-      
-      if (queryError) throw queryError
-      
-      setData(result)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
-    } finally {
-      setLoading(false)
-    }
-  }, [table])
 
-  const createRecord = useCallback(async (record: Inserts<T>) => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const { data: result, error: queryError } = await supabase
-        .from(table)
-        .insert(record)
-        .select()
-        .single()
-      
-      if (queryError) throw queryError
-      
-      setData(result)
-      return result
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [table])
+      if (fetchError) {
+        throw fetchError
+      }
 
-  const updateRecord = useCallback(async (id: string, updates: Updates<T>) => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const { data: result, error: queryError } = await supabase
-        .from(table)
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single()
-      
-      if (queryError) throw queryError
-      
       setData(result)
-      return result
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [table])
-
-  const deleteRecord = useCallback(async (id: string) => {
-    try {
-      setLoading(true)
       setError(null)
-      
-      const { error: queryError } = await supabase
-        .from(table)
-        .delete()
-        .eq('id', id)
-      
-      if (queryError) throw queryError
-      
-      setData(null)
-      return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
-      throw err
     } finally {
       setLoading(false)
     }
@@ -176,16 +116,13 @@ export function useSupabaseRecord<T extends keyof Tables>(
     data,
     loading,
     error,
-    createRecord,
-    updateRecord,
-    deleteRecord,
     refresh: () => id ? fetchRecord(id) : undefined
   }
 }
 
 // Hook for authentication
 export function useSupabaseAuth() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<unknown>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -239,7 +176,7 @@ export function useSupabaseAuth() {
 // Hook for real-time subscriptions
 export function useSupabaseRealtime<T extends keyof Tables>(
   table: T,
-  callback: (payload: any) => void
+  callback: (payload: unknown) => void
 ) {
   useEffect(() => {
     const subscription = supabase

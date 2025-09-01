@@ -1,17 +1,41 @@
-import type { Tables } from './database'
+// Definir tipos explícitos para evitar problemas de inferência
+export interface Participant {
+  id: string
+  event_id: string
+  name: string
+  class: string | null
+  qr_code: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
 
-export type Participant = Tables<'participants'>
-export type ParticipantInsert = Tables<'participants'>['Insert']
-export type ParticipantUpdate = Tables<'participants'>['Update']
+export interface ParticipantInsert {
+  id?: string
+  event_id: string
+  name: string
+  class?: string | null
+  qr_code: string
+  notes?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ParticipantUpdate {
+  id?: string
+  event_id?: string
+  name?: string
+  class?: string | null
+  qr_code?: string
+  notes?: string | null
+  created_at?: string
+  updated_at?: string
+}
 
 export interface ParticipantFormData {
   name: string
-  email?: string
-  phone?: string
-  school_id: string
   event_id: string
-  grade?: string
-  class_name?: string
+  class?: string
   notes?: string
 }
 

@@ -1,204 +1,174 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Event, School } from '@/types/events'
 import { useSchools } from '@/hooks/useSchools'
-
-const eventSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  school_id: z.string().min(1, 'Selecione uma escola'),
-  event_date: z.string().optional(),
-  event_end_date: z.string().optional(),
-  commission_percent: z.number().min(0, 'Comissão deve ser positiva').max(100, 'Comissão não pode ser maior que 100%').optional(),
-  notes: z.string().optional(),
-  status: z.enum(['planned', 'active', 'completed']).default('planned')
-})
-
-type EventFormData = z.infer<typeof eventSchema>
+import type { Event, EventFormData } from '@/types/events'
 
 interface EventFormProps {
   event?: Event
   onSubmit: (data: EventFormData) => Promise<void>
   onCancel: () => void
-  loading?: boolean
+  loading: boolean
 }
 
-export function EventForm({ event, onSubmit, onCancel, loading = false }: EventFormProps) {
+export function EventForm({ event, onSubmit, onCancel, loading }: EventFormProps) {
   const { schools } = useSchools()
-
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
-    defaultValues: {
-      name: event?.name || '',
-      school_id: event?.school_id || '',
-      event_date: event?.event_date ? new Date(event.event_date).toISOString().split('T')[0] : '',
-      event_end_date: event?.event_end_date ? new Date(event.event_end_date).toISOString().split('T')[0] : '',
-      commission_percent: event?.commission_percent || undefined,
-      notes: event?.notes || '',
-      status: event?.status || 'planned'
-    }
+  const [formData, setFormData] = useState<EventFormData>({
+    name: '',
+    school_id: '',
+    event_date: '',
+    event_end_date: '',
+    commission_percent: 0,
+    notes: '',
+    status: 'planned',
+    products_enabled: []
   })
 
-  const handleSubmit = async (data: EventFormData) => {
-    try {
-      await onSubmit(data)
-    } catch (error) {
-      console.error('Erro ao salvar evento:', error)
+  useEffect(() => {
+    if (event) {
+      setFormData({
+        name: event.name,
+        school_id: event.school_id,
+        event_date: event.event_date || '',
+        event_end_date: event.event_end_date || '',
+        commission_percent: event.commission_percent || 0,
+        notes: event.notes || '',
+        status: (event.status as 'planned' | 'active' | 'completed') || 'planned',
+        products_enabled: event.products_enabled || []
+      })
     }
+  }, [event])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await onSubmit(formData)
+  }
+
+  const handleChange = (field: keyof EventFormData, value: string | number | string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do Evento *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ex: Sessão Fotográfica 2024" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="school_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Escola *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma escola" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {schools.map((school) => (
-                      <SelectItem key={school.id} value={school.id}>
-                        {school.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Nome do Evento *</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="Nome do evento"
+            required
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="event_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Início</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="space-y-2">
+          <Label htmlFor="school_id">Escola *</Label>
+          <Select
+            value={formData.school_id}
+            onValueChange={(value) => handleChange('school_id', value)}
+            required
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione uma escola" />
+            </SelectTrigger>
+            <SelectContent>
+              {schools.map((school) => (
+                <SelectItem key={school.id} value={school.id}>
+                  {school.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-          <FormField
-            control={form.control}
-            name="event_end_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Fim</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="event_date">Data de Início</Label>
+          <Input
+            id="event_date"
+            type="date"
+            value={formData.event_date}
+            onChange={(e) => handleChange('event_date', e.target.value)}
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="commission_percent"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Comissão da Escola (%)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="0" 
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div className="space-y-2">
+          <Label htmlFor="event_end_date">Data de Término</Label>
+          <Input
+            id="event_end_date"
+            type="date"
+            value={formData.event_end_date}
+            onChange={(e) => handleChange('event_end_date', e.target.value)}
           />
+        </div>
+      </div>
 
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="planned">Planejado</SelectItem>
-                    <SelectItem value="active">Ativo</SelectItem>
-                    <SelectItem value="completed">Concluído</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="commission_percent">Comissão (%)</Label>
+          <Input
+            id="commission_percent"
+            type="number"
+            min="0"
+            max="100"
+            step="0.01"
+            value={formData.commission_percent}
+            onChange={(e) => handleChange('commission_percent', parseFloat(e.target.value) || 0)}
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observações</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Informações adicionais sobre o evento..."
-                  rows={3}
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <div className="space-y-2">
+          <Label htmlFor="status">Status</Label>
+          <Select
+            value={formData.status}
+            onValueChange={(value) => handleChange('status', value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="planned">Planejado</SelectItem>
+              <SelectItem value="active">Ativo</SelectItem>
+              <SelectItem value="completed">Concluído</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="notes">Observações</Label>
+        <Textarea
+          id="notes"
+          value={formData.notes}
+          onChange={(e) => handleChange('notes', e.target.value)}
+          placeholder="Observações sobre o evento"
+          rows={3}
         />
+      </div>
 
-        <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Salvando...' : (event ? 'Atualizar' : 'Criar')}
-          </Button>
-        </div>
-      </form>
-    </Form>
+      <div className="flex justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? 'Salvando...' : (event ? 'Atualizar' : 'Criar')}
+        </Button>
+      </div>
+    </form>
   )
 }
