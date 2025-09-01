@@ -45,7 +45,7 @@ export interface Database {
           name?: string
           event_date?: string | null
           event_end_date?: string | null
-          commission_percent?: number | null
+          commission_percent?: string | null
           notes?: string | null
           status?: string
           products_enabled?: string[] | null
@@ -118,57 +118,45 @@ export interface Database {
         Row: {
           id: string
           tenant_id: string
-          participant_id: string | null
-          buyer_name: string
-          buyer_email: string
-          buyer_phone: string | null
+          event_id: string
+          customer_name: string
+          customer_email: string
+          customer_phone: string
           total_amount: number
           status: string
-          payment_id: string | null
-          payment_method: string | null
-          delivery_date: string | null
-          notes: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           tenant_id: string
-          participant_id?: string | null
-          buyer_name: string
-          buyer_email: string
-          buyer_phone?: string | null
+          event_id: string
+          customer_name: string
+          customer_email: string
+          customer_phone: string
           total_amount: number
           status?: string
-          payment_id?: string | null
-          payment_method?: string | null
-          delivery_date?: string | null
-          notes?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           tenant_id?: string
-          participant_id?: string | null
-          buyer_name?: string
-          buyer_email?: string
-          buyer_phone?: string | null
+          event_id?: string
+          customer_name?: string
+          customer_email?: string
+          customer_phone?: string
           total_amount?: number
           status?: string
-          payment_id?: string | null
-          payment_method?: string | null
-          delivery_date?: string | null
-          notes?: string | null
           created_at?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "orders_participant_id_fkey"
-            columns: ["participant_id"]
+            foreignKeyName: "orders_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "participants"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -225,32 +213,35 @@ export interface Database {
         Row: {
           id: string
           participant_id: string
-          filename: string
-          original_filename: string | null
-          url: string
-          thumbnail_url: string | null
-          file_size: number | null
+          file_path: string
+          file_name: string
+          file_size: number
+          mime_type: string
           uploaded_at: string
+          created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
           participant_id: string
-          filename: string
-          original_filename?: string | null
-          url: string
-          thumbnail_url?: string | null
-          file_size?: number | null
+          file_path: string
+          file_name: string
+          file_size: number
+          mime_type: string
           uploaded_at?: string
+          created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
           participant_id?: string
-          filename?: string
-          original_filename?: string | null
-          url?: string
-          thumbnail_url?: string | null
-          file_size?: number | null
+          file_path?: string
+          file_name?: string
+          file_size?: number
+          mime_type?: string
           uploaded_at?: string
+          created_at?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -269,8 +260,7 @@ export interface Database {
           name: string
           description: string | null
           price: number
-          mockup_url: string | null
-          category: string
+          category: string | null
           active: boolean
           created_at: string
           updated_at: string
@@ -281,8 +271,7 @@ export interface Database {
           name: string
           description?: string | null
           price: number
-          mockup_url?: string | null
-          category?: string
+          category?: string | null
           active?: boolean
           created_at?: string
           updated_at?: string
@@ -293,8 +282,7 @@ export interface Database {
           name?: string
           description?: string | null
           price?: number
-          mockup_url?: string | null
-          category?: string
+          category?: string | null
           active?: boolean
           created_at?: string
           updated_at?: string
@@ -383,46 +371,25 @@ export interface Database {
       tenants: {
         Row: {
           id: string
-          email: string
           name: string
-          whatsapp: string | null
-          city: string | null
-          state: string | null
-          bio: string | null
-          plan: string
-          logo_url: string | null
-          slug: string | null
-          active: boolean
+          domain: string | null
+          settings: Json | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          email: string
           name: string
-          whatsapp?: string | null
-          city?: string | null
-          state?: string | null
-          bio?: string | null
-          plan?: string
-          logo_url?: string | null
-          slug?: string | null
-          active?: boolean
+          domain?: string | null
+          settings?: Json | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          email?: string
           name?: string
-          whatsapp?: string | null
-          city?: string | null
-          state?: string | null
-          bio?: string | null
-          plan?: string
-          logo_url?: string | null
-          slug?: string | null
-          active?: boolean
+          domain?: string | null
+          settings?: Json | null
           created_at?: string
           updated_at?: string
         }
@@ -443,3 +410,43 @@ export interface Database {
     }
   }
 }
+
+// Exportar tipos úteis para uso em outros arquivos
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]
+export type Views<T extends keyof Database['public']['Views']> = Database['public']['Views'][T]
+export type Functions<T extends keyof Database['public']['Functions']> = Database['public']['Functions'][T]
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
+export type CompositeTypes<T extends keyof Database['public']['CompositeTypes']> = Database['public']['CompositeTypes'][T]
+
+// Tipos específicos para cada tabela
+export type Events = Tables<'events'>
+export type EventsInsert = Tables<'events'>['Insert']
+export type EventsUpdate = Tables<'events'>['Update']
+
+export type Participants = Tables<'participants'>
+export type ParticipantsInsert = Tables<'participants'>['Insert']
+export type ParticipantsUpdate = Tables<'participants'>['Update']
+
+export type Schools = Tables<'schools'>
+export type SchoolsInsert = Tables<'schools'>['Insert']
+export type SchoolsUpdate = Tables<'schools'>['Update']
+
+export type Photos = Tables<'photos'>
+export type PhotosInsert = Tables<'photos'>['Insert']
+export type PhotosUpdate = Tables<'photos'>['Update']
+
+export type Products = Tables<'products'>
+export type ProductsInsert = Tables<'products'>['Insert']
+export type ProductsUpdate = Tables<'products'>['Update']
+
+export type Orders = Tables<'orders'>
+export type OrdersInsert = Tables<'orders'>['Insert']
+export type OrdersUpdate = Tables<'orders'>['Update']
+
+export type OrderItems = Tables<'order_items'>
+export type OrderItemsInsert = Tables<'order_items'>['Insert']
+export type OrderItemsUpdate = Tables<'order_items'>['Update']
+
+export type Tenants = Tables<'tenants'>
+export type TenantsInsert = Tables<'tenants'>['Insert']
+export type TenantsUpdate = Tables<'tenants'>['Update']

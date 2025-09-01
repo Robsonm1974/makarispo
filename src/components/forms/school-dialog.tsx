@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus } from 'lucide-react'
+import { Plus, Edit } from 'lucide-react'
 import { SchoolForm } from './school-form'
 import type { School, SchoolFormData } from '@/types/schools'
 
@@ -23,7 +23,7 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
       await onSubmit(data)
       setOpen(false)
     } catch (error) {
-      console.error('Error submitting school:', error)
+      console.error('Erro ao salvar escola:', error)
     } finally {
       setLoading(false)
     }
@@ -37,13 +37,22 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            {school ? 'Editar Escola' : 'Nova Escola'}
+          <Button variant="outline" size="sm">
+            {school ? (
+              <>
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Escola
+              </>
+            )}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {school ? 'Editar Escola' : 'Nova Escola'}
@@ -53,7 +62,6 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
           school={school}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          loading={loading}
         />
       </DialogContent>
     </Dialog>

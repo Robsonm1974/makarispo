@@ -1,49 +1,56 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, Search } from 'lucide-react'
+import { Users, Search, Plus } from 'lucide-react'
 import { useParticipants } from '@/hooks/useParticipants'
-import { useAuth } from '@/contexts/AuthContext'
 import { ParticipantsTable } from '@/components/tables/participants-table'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
-import type { ParticipantWithRelations, ParticipantFormData, ParticipantInsert } from '@/types/participants'
+import { createParticipantInsert } from '@/types/participants'
+import { useAuth } from '@/contexts/AuthContext'
+import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
+
+// Type guard para verificar se tenant tem ID válido
+function hasValidTenantId(tenant: unknown): tenant is { id: string } {
+  return typeof tenant === 'object' && tenant !== null && 'id' in tenant && typeof (tenant as Record<string, unknown>).id === 'string'
+}
 
 export default function ParticipantsPage() {
-  const { user } = useAuth()
+  const { tenant } = useAuth()
   const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant } = useParticipants()
+
   const [searchTerm, setSearchTerm] = useState('')
+  const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const filteredParticipants = participants.filter(participant =>
     participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    participant.school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    participant.event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (participant.class && participant.class.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (participant.qr_code && participant.qr_code.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   const handleCreateParticipant = async (data: ParticipantFormData) => {
-    if (!user) {
-      console.error('Usuário não autenticado')
+    if (!tenant) {
+      toast.error('Tenant não encontrado')
       return
     }
 
     try {
-      // Converter ParticipantFormData para ParticipantInsert
-      const participantData: ParticipantInsert = {
-        ...data,
-        qr_code: generateQRCode(), // Função para gerar QR code único
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+      // Usar type guard para verificar tenant
+      if (hasValidTenantId(tenant)) {
+        const participantData = createParticipantInsert(data, 'temp-event-id', tenant.id)
+        await createParticipant(participantData)
+        toast.success('Participante criado com sucesso!')
+        setShowAddDialog(false)
+      } else {
+        toast.error('Tenant inválido')
       }
-      
-      await createParticipant(participantData)
     } catch (error) {
       console.error('Erro ao criar participante:', error)
-      throw error
+      toast.error('Erro ao criar participante')
     }
   }
 
@@ -52,135 +59,122 @@ export default function ParticipantsPage() {
 
     try {
       await updateParticipant(editingParticipant.id, data)
+      toast.success('Participante atualizado com sucesso!')
       setEditingParticipant(null)
-      setEditDialogOpen(false)
     } catch (error) {
       console.error('Erro ao atualizar participante:', error)
-      throw error
+      toast.error('Erro ao atualizar participante')
     }
   }
 
   const handleDeleteParticipant = async (id: string) => {
     try {
       await deleteParticipant(id)
+      toast.success('Participante deletado com sucesso!')
     } catch (error) {
       console.error('Erro ao deletar participante:', error)
-      throw error
+      toast.error('Erro ao deletar participante')
     }
   }
 
   const handleEditParticipant = (participant: ParticipantWithRelations) => {
     setEditingParticipant(participant)
-    setEditDialogOpen(true)
   }
 
-  // Função para gerar QR code único (7 dígitos)
-  const generateQRCode = (): string => {
-    const min = 1000000
-    const max = 9999999
-    return Math.floor(Math.random() * (max - min + 1) + min).toString()
-  }
-
-  const stats = [
-    {
-      title: 'Total de Participantes',
-      value: participants.length,
-      description: 'Participantes cadastrados'
-    },
-    {
-      title: 'Escolas',
-      value: new Set(participants.map(p => p.school.name)).size,
-      description: 'Escolas com participantes'
-    },
-    {
-      title: 'Eventos',
-      value: new Set(participants.map(p => p.event.name)).size,
-      description: 'Eventos com participantes'
-    }
-  ]
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="border-b bg-white">
-        <div className="flex h-16 items-center px-6">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
-              <Users className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Participantes</h1>
-            </div>
-          </div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando participantes...</p>
         </div>
       </div>
+    )
+  }
 
-      {/* Main Content */}
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-3 mb-8">
-            {stats.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Search and Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Buscar participantes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <ParticipantDialog onSubmit={handleCreateParticipant} />
-          </div>
-
-          {/* Participants Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Participantes</CardTitle>
-              <CardDescription>
-                Gerencie todos os participantes dos seus eventos fotográficos.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-red-600">Erro: {error}</p>
-                </div>
-              )}
-              
-              <ParticipantsTable
-                participants={filteredParticipants}
-                onEdit={handleEditParticipant}
-                onDelete={handleDeleteParticipant}
-                loading={loading}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Edit Dialog */}
-          <ParticipantDialog
-            participant={editingParticipant || undefined}
-            onSubmit={handleUpdateParticipant}
-            open={editDialogOpen}
-            onOpenChange={setEditDialogOpen}
-            trigger={<div style={{ display: 'none' }} />}
-          />
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Erro ao carregar participantes</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Tentar novamente
+          </Button>
         </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Participantes</h1>
+              <p className="text-gray-600 mt-2">
+                Gerencie todos os participantes dos eventos
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowAddDialog(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Novo Participante
+            </Button>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Buscar participantes por nome, turma ou QR code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-3 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Participants Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Lista de Participantes
+            </CardTitle>
+            <CardDescription>
+              {filteredParticipants.length} participante(s) encontrado(s)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ParticipantsTable
+              participants={filteredParticipants}
+              onEdit={handleEditParticipant}
+              onDelete={handleDeleteParticipant}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Add/Edit Participant Dialog */}
+        {showAddDialog && (
+          <ParticipantDialog
+            onSubmit={handleCreateParticipant}
+            trigger={<div className="hidden" />}
+          />
+        )}
+
+        {editingParticipant && (
+          <ParticipantDialog
+            participant={editingParticipant}
+            onSubmit={handleUpdateParticipant}
+            trigger={<div className="hidden" />}
+          />
+        )}
       </div>
     </div>
   )

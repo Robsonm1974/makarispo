@@ -5,49 +5,34 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Edit, Trash2, User } from 'lucide-react'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Edit, MoreHorizontal, Trash2, User } from 'lucide-react'
 import type { ParticipantWithRelations } from '@/types/participants'
 
 interface ParticipantsTableProps {
   participants: ParticipantWithRelations[]
   onEdit: (participant: ParticipantWithRelations) => void
-  onDelete: (id: string) => void
-  loading?: boolean
+  onDelete: (id: string) => Promise<void>
 }
 
-export function ParticipantsTable({ participants, onEdit, onDelete, loading = false }: ParticipantsTableProps) {
+export function ParticipantsTable({ participants, onEdit, onDelete }: ParticipantsTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja excluir este participante?')) {
-      setDeletingId(id)
-      try {
-        await onDelete(id)
-      } finally {
-        setDeletingId(null)
-      }
+    setDeletingId(id)
+    try {
+      await onDelete(id)
+    } finally {
+      setDeletingId(null)
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR')
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex items-center space-x-4">
-            <Skeleton className="h-12 w-12 rounded-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-[200px]" />
-              <Skeleton className="h-4 w-[150px]" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Data não definida'
+    try {
+      return new Date(dateString).toLocaleDateString('pt-BR')
+    } catch {
+      return 'Data inválida'
+    }
   }
 
   if (participants.length === 0) {
@@ -70,8 +55,8 @@ export function ParticipantsTable({ participants, onEdit, onDelete, loading = fa
             <TableHead>Nome</TableHead>
             <TableHead>Escola</TableHead>
             <TableHead>Evento</TableHead>
-            <TableHead>Contato</TableHead>
             <TableHead>Turma</TableHead>
+            <TableHead>QR Code</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -81,16 +66,16 @@ export function ParticipantsTable({ participants, onEdit, onDelete, loading = fa
               <TableCell>
                 <div>
                   <div className="font-medium">{participant.name}</div>
-                  {participant.grade && (
-                    <div className="text-sm text-gray-500">{participant.grade}</div>
+                  {participant.notes && (
+                    <div className="text-sm text-gray-500">{participant.notes}</div>
                   )}
                 </div>
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium">{participant.school.name}</div>
+                  <div className="font-medium">{participant.event.school.name}</div>
                   <Badge variant="outline" className="text-xs">
-                    {participant.school.type === 'publica' ? 'Pública' : 'Privada'}
+                    {participant.event.school.type === 'publica' ? 'Pública' : 'Privada'}
                   </Badge>
                 </div>
               </TableCell>
@@ -103,18 +88,15 @@ export function ParticipantsTable({ participants, onEdit, onDelete, loading = fa
                 </div>
               </TableCell>
               <TableCell>
-                <div className="space-y-1">
-                  {participant.email && (
-                    <div className="text-sm">{participant.email}</div>
-                  )}
-                  {participant.phone && (
-                    <div className="text-sm text-gray-500">{participant.phone}</div>
-                  )}
-                </div>
+                {participant.class && (
+                  <Badge variant="secondary">{participant.class}</Badge>
+                )}
               </TableCell>
               <TableCell>
-                {participant.class_name && (
-                  <Badge variant="secondary">{participant.class_name}</Badge>
+                {participant.qr_code && (
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {participant.qr_code}
+                  </Badge>
                 )}
               </TableCell>
               <TableCell className="text-right">

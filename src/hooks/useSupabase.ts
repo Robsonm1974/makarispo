@@ -1,167 +1,61 @@
-'use client'
-
-import { useState, useEffect, useCallback } from 'react'
-import { supabase, createServerSupabaseClient } from '@/lib/supabase'
-import type { Tables } from '@/types/database'
-
-// Hook for table operations
-export function useSupabaseTable<T extends keyof Tables>(
-  table: T,
-  query?: {
-    select?: string
-    filters?: Record<string, unknown>
-    orderBy?: { column: string; ascending?: boolean }
-    limit?: number
-  }
-) {
-  const [data, setData] = useState<Tables<T>[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true)
-      let queryBuilder = supabase.from(table).select(query?.select || '*')
-
-      // Apply filters
-      if (query?.filters) {
-        Object.entries(query.filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            queryBuilder = queryBuilder.eq(key, value)
-          }
-        })
-      }
-
-      // Apply ordering
-      if (query?.orderBy) {
-        queryBuilder = queryBuilder.order(query.orderBy.column, {
-          ascending: query.orderBy.ascending ?? true
-        })
-      }
-
-      // Apply limit
-      if (query?.limit) {
-        queryBuilder = queryBuilder.limit(query.limit)
-      }
-
-      const { data: result, error: fetchError } = await queryBuilder
-
-      if (fetchError) {
-        throw fetchError
-      }
-
-      setData(result || [])
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
-    } finally {
-      setLoading(false)
-    }
-  }, [table, query])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  const refresh = useCallback(() => {
-    fetchData()
-  }, [fetchData])
-
-  return {
-    data,
-    loading,
-    error,
-    refresh
-  }
-}
-
-// Hook for single record operations
-export function useSupabaseRecord<T extends keyof Tables>(
-  table: T,
-  id?: string
-) {
-  const [data, setData] = useState<Tables<T> | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchRecord = useCallback(async (recordId: string) => {
-    try {
-      setLoading(true)
-      const { data: result, error: fetchError } = await supabase
-        .from(table)
-        .select('*')
-        .eq('id', recordId)
-        .single()
-
-      if (fetchError) {
-        throw fetchError
-      }
-
-      setData(result)
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
-    } finally {
-      setLoading(false)
-    }
-  }, [table])
-
-  useEffect(() => {
-    if (id) {
-      fetchRecord(id)
-    }
-  }, [id, fetchRecord])
-
-  return {
-    data,
-    loading,
-    error,
-    refresh: () => id ? fetchRecord(id) : undefined
-  }
-}
+import { useState, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
+import type { Database } from '@/types/database'
 
 // Hook for authentication
 export function useSupabaseAuth() {
-  const [user, setUser] = useState<unknown>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
-
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    if (error) throw error
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) throw error
+
+      setUser(data.user)
+      return data
+    } catch (err) {
+      throw err
+    }
   }, [])
 
   const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password
-    })
-    if (error) throw error
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      })
+
+      if (error) throw error
+
+      return data
+    } catch (err) {
+      throw err
+    }
   }, [])
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+
+      setUser(null)
+    } catch (err) {
+      throw err
+    }
+  }, [])
+
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email)
+      if (error) throw error
+    } catch (err) {
+      throw err
+    }
   }, [])
 
   return {
@@ -169,31 +63,205 @@ export function useSupabaseAuth() {
     loading,
     signIn,
     signUp,
-    signOut
+    signOut,
+    resetPassword
   }
 }
 
-// Hook for real-time subscriptions
-export function useSupabaseRealtime<T extends keyof Tables>(
-  table: T,
-  callback: (payload: unknown) => void
-) {
-  useEffect(() => {
-    const subscription = supabase
-      .channel(`${table}_changes`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: table
-        },
-        callback
-      )
-      .subscribe()
+// Hook específico para eventos
+export function useEvents() {
+  const [data, setData] = useState<Database['public']['Tables']['events']['Row'][]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-    return () => {
-      subscription.unsubscribe()
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const { data: result, error } = await supabase
+        .from('events')
+        .select('*')
+
+      if (error) throw error
+
+      setData(result || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+    } finally {
+      setLoading(false)
     }
-  }, [table, callback])
+  }, [])
+
+  const insertData = useCallback(async (insertData: Database['public']['Tables']['events']['Insert']) => {
+    try {
+      setError(null)
+
+      const { data: result, error } = await supabase
+        .from('events')
+        .insert([insertData])
+        .select()
+
+      if (error) throw error
+
+      if (result) {
+        setData(prev => [...result, ...prev])
+        return result
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao inserir dados')
+      throw err
+    }
+  }, [])
+
+  const updateData = useCallback(async (id: string, updateData: Partial<Database['public']['Tables']['events']['Update']>) => {
+    try {
+      setError(null)
+
+      const { data: result, error } = await supabase
+        .from('events')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+
+      if (error) throw error
+
+      if (result) {
+        setData(prev => prev.map(item => 
+          item.id === id ? result[0] : item
+        ))
+        return result[0]
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar dados')
+      throw err
+    }
+  }, [])
+
+  const deleteData = useCallback(async (id: string) => {
+    try {
+      setError(null)
+
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      setData(prev => prev.filter(item => item.id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao deletar dados')
+      throw err
+    }
+  }, [])
+
+  return {
+    data,
+    loading,
+    error,
+    fetchData,
+    insertData,
+    updateData,
+    deleteData
+  }
+}
+
+// Hook específico para escolas
+export function useSchools() {
+  const [data, setData] = useState<Database['public']['Tables']['schools']['Row'][]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const { data: result, error } = await supabase
+        .from('schools')
+        .select('*')
+
+      if (error) throw error
+
+      setData(result || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const insertData = useCallback(async (insertData: Database['public']['Tables']['schools']['Insert']) => {
+    try {
+      setError(null)
+
+      const { data: result, error } = await supabase
+        .from('schools')
+        .insert([insertData])
+        .select()
+
+      if (error) throw error
+
+      if (result) {
+        setData(prev => [...result, ...prev])
+        return result
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao inserir dados')
+      throw err
+    }
+  }, [])
+
+  const updateData = useCallback(async (id: string, updateData: Partial<Database['public']['Tables']['schools']['Update']>) => {
+    try {
+      setError(null)
+
+      const { data: result, error } = await supabase
+        .from('schools')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+
+      if (error) throw error
+
+      if (result) {
+        setData(prev => prev.map(item => 
+          item.id === id ? result[0] : item
+        ))
+        return result[0]
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar dados')
+      throw err
+    }
+  }, [])
+
+  const deleteData = useCallback(async (id: string) => {
+    try {
+      setError(null)
+
+      const { error } = await supabase
+        .from('schools')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      setData(prev => prev.filter(item => item.id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao deletar dados')
+      throw err
+    }
+  }, [])
+
+  return {
+    data,
+    loading,
+    error,
+    fetchData,
+    insertData,
+    updateData,
+    deleteData
+  }
 }

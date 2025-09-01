@@ -3,9 +3,16 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-import type { Tables } from '@/types/database'
 
-type Tenant = Tables<'tenants'>
+// Interface simplificada para tenant
+interface Tenant {
+  id: string
+  name: string
+  domain: string | null
+  settings: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
 
 interface AuthContextType {
   user: User | null
@@ -49,10 +56,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Atualizar cache
       if (data) {
-        setTenantCache(prev => new Map(prev.set(userId, data)))
+        const tenantData: Tenant = {
+          id: data.id,
+          name: data.name,
+          domain: data.domain,
+          settings: data.settings as Record<string, unknown> | null,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        }
+        setTenantCache(prev => new Map(prev.set(userId, tenantData)))
+        return tenantData
       }
 
-      return data
+      return null
     } catch (error) {
       console.error('Erro ao buscar tenant:', error)
       return null
@@ -64,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       const tenantData = await fetchTenant(user.id)
       setTenant(tenantData)
-      
+
       // Limpar cache para forçar atualização
       setTenantCache(prev => {
         const newCache = new Map(prev)
@@ -99,10 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Limpar cache local
       setTenantCache(new Map())
-      setTenant(null)
-      setUser(null)
-      setSession(null)
-      
+
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Erro no logout:', error)
@@ -114,50 +127,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Listener de mudanças de autenticação otimizado
+  // Efeito para inicializar autenticação
   useEffect(() => {
     let mounted = true
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
+    const initializeAuth = async () => {
+      try {
+        // Obter sessão atual
+        const { data: { session } } = await supabase.auth.getSession()
 
-        setSession(session)
-        setUser(session?.user ?? null)
+        if (mounted) {
+          setSession(session)
+          setUser(session?.user ?? null)
 
-        if (session?.user) {
-          // Buscar tenant apenas se não estiver em cache
-          if (!tenantCache.has(session.user.id)) {
+          if (session?.user) {
             const tenantData = await fetchTenant(session.user.id)
             if (mounted) {
               setTenant(tenantData)
             }
-          } else {
-            // Usar cache se disponível
-            const cachedTenant = tenantCache.get(session.user.id)
-            if (mounted) {
-              setTenant(cachedTenant || null)
-            }
           }
-        } else {
-          setTenant(null)
         }
-
+      } catch (error) {
+        console.error('Erro ao inicializar auth:', error)
+      } finally {
         if (mounted) {
           setLoading(false)
         }
       }
+    }
+
+    initializeAuth()
+
+    // Listener para mudanças de autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (mounted) {
+          setSession(session)
+          setUser(session?.user ?? null)
+
+          if (event === 'SIGNED_IN' && session?.user) {
+            const tenantData = await fetchTenant(session.user.id)
+            if (mounted) {
+              setTenant(tenantData)
+            }
+          } else if (event === 'SIGNED_OUT') {
+            setTenant(null)
+            setTenantCache(new Map())
+          }
+        }
+      }
     )
 
-    // Cleanup function
     return () => {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [fetchTenant, tenantCache])
+  }, [fetchTenant])
 
-  // Memoizar o valor do contexto para evitar re-renders desnecessários
-  const value = useMemo(() => ({
+  // Valor do contexto memoizado
+  const contextValue = useMemo(() => ({
     user,
     tenant,
     session,
@@ -168,12 +196,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }), [user, tenant, session, loading, signInWithGoogle, signOut, refreshTenant])
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )
 }
 
+// Hook personalizado para usar o contexto
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {

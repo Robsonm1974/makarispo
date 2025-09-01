@@ -11,30 +11,35 @@ import type { School, SchoolFormData } from '@/types/schools'
 interface SchoolFormProps {
   school?: School
   onSubmit: (data: SchoolFormData) => Promise<void>
-  onCancel: () => void
-  loading: boolean
+  onCancel?: () => void
 }
 
-export function SchoolForm({ school, onSubmit, onCancel, loading }: SchoolFormProps) {
+export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
   const [formData, setFormData] = useState<SchoolFormData>({
     name: '',
-    type: 'publica',
     address: '',
-    contact_person: '',
-    contact_email: '',
-    contact_phone: '',
+    director_name: '',
+    phone: '',
+    email: '',
+    type: 'publica',
+    students_count: undefined,
+    director_message: '',
     notes: ''
   })
+
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (school) {
       setFormData({
-        name: school.name,
-        type: school.type,
+        name: school.name || '',
         address: school.address || '',
-        contact_person: school.contact_person || '',
-        contact_email: school.contact_email || '',
-        contact_phone: school.contact_phone || '',
+        director_name: school.director_name || '',
+        phone: school.phone || '',
+        email: school.email || '',
+        type: school.type || 'publica',
+        students_count: school.students_count || undefined,
+        director_message: school.director_message || '',
         notes: school.notes || ''
       })
     }
@@ -42,10 +47,18 @@ export function SchoolForm({ school, onSubmit, onCancel, loading }: SchoolFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await onSubmit(formData)
+    setLoading(true)
+
+    try {
+      await onSubmit(formData)
+    } catch (error) {
+      console.error('Erro ao salvar escola:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleChange = (field: keyof SchoolFormData, value: string) => {
+  const handleChange = (field: keyof SchoolFormData, value: string | number | undefined) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -55,26 +68,27 @@ export function SchoolForm({ school, onSubmit, onCancel, loading }: SchoolFormPr
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
+        {/* Nome da Escola */}
+        <div className="md:col-span-2">
           <Label htmlFor="name">Nome da Escola *</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="Nome da escola"
+            placeholder="Digite o nome da escola"
             required
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="type">Tipo *</Label>
+        {/* Tipo de Escola */}
+        <div>
+          <Label htmlFor="type">Tipo de Escola</Label>
           <Select
             value={formData.type}
-            onValueChange={(value) => handleChange('type', value)}
-            required
+            onValueChange={(value) => handleChange('type', value as 'publica' | 'privada')}
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Selecione o tipo" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="publica">Pública</SelectItem>
@@ -82,73 +96,109 @@ export function SchoolForm({ school, onSubmit, onCancel, loading }: SchoolFormPr
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="address">Endereço</Label>
-        <Input
-          id="address"
-          value={formData.address}
-          onChange={(e) => handleChange('address', e.target.value)}
-          placeholder="Endereço completo"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="contact_person">Contato</Label>
+        {/* Número de Estudantes */}
+        <div>
+          <Label htmlFor="students_count">Número de Estudantes</Label>
           <Input
-            id="contact_person"
-            value={formData.contact_person}
-            onChange={(e) => handleChange('contact_person', e.target.value)}
-            placeholder="Nome do contato"
+            id="students_count"
+            type="number"
+            value={formData.students_count || ''}
+            onChange={(e) => handleChange('students_count', e.target.value ? parseInt(e.target.value) : undefined)}
+            placeholder="Ex: 500"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="contact_phone">Telefone</Label>
+        {/* Endereço */}
+        <div className="md:col-span-2">
+          <Label htmlFor="address">Endereço</Label>
           <Input
-            id="contact_phone"
-            value={formData.contact_phone}
-            onChange={(e) => handleChange('contact_phone', e.target.value)}
-            placeholder="Telefone"
+            id="address"
+            value={formData.address || ''}
+            onChange={(e) => handleChange('address', e.target.value)}
+            placeholder="Digite o endereço completo"
+          />
+        </div>
+
+        {/* Nome do Diretor */}
+        <div>
+          <Label htmlFor="director_name">Nome do Diretor</Label>
+          <Input
+            id="director_name"
+            value={formData.director_name || ''}
+            onChange={(e) => handleChange('director_name', e.target.value)}
+            placeholder="Nome do diretor"
+          />
+        </div>
+
+        {/* Telefone */}
+        <div>
+          <Label htmlFor="phone">Telefone</Label>
+          <Input
+            id="phone"
+            value={formData.phone || ''}
+            onChange={(e) => handleChange('phone', e.target.value)}
+            placeholder="(11) 99999-9999"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.email || ''}
+            onChange={(e) => handleChange('email', e.target.value)}
+            placeholder="escola@exemplo.com"
+          />
+        </div>
+
+        {/* Slug */}
+        <div>
+          <Label htmlFor="slug">Slug (URL amigável)</Label>
+          <Input
+            id="slug"
+            value={formData.slug || ''}
+            onChange={(e) => handleChange('slug', e.target.value)}
+            placeholder="nome-da-escola"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="contact_email">Email</Label>
-        <Input
-          id="contact_email"
-          type="email"
-          value={formData.contact_email}
-          onChange={(e) => handleChange('contact_email', e.target.value)}
-          placeholder="Email de contato"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="notes">Observações</Label>
+      {/* Mensagem do Diretor */}
+      <div>
+        <Label htmlFor="director_message">Mensagem do Diretor</Label>
         <Textarea
-          id="notes"
-          value={formData.notes}
-          onChange={(e) => handleChange('notes', e.target.value)}
-          placeholder="Observações sobre a escola"
+          id="director_message"
+          value={formData.director_message || ''}
+          onChange={(e) => handleChange('director_message', e.target.value)}
+          placeholder="Uma mensagem especial do diretor para os pais e alunos"
           rows={3}
         />
       </div>
 
-      <div className="flex justify-end gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={loading}
-        >
-          Cancelar
-        </Button>
+      {/* Observações */}
+      <div>
+        <Label htmlFor="notes">Observações</Label>
+        <Textarea
+          id="notes"
+          value={formData.notes || ''}
+          onChange={(e) => handleChange('notes', e.target.value)}
+          placeholder="Informações adicionais sobre a escola"
+          rows={3}
+        />
+      </div>
+
+      {/* Botões */}
+      <div className="flex gap-3 justify-end">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+        )}
         <Button type="submit" disabled={loading}>
-          {loading ? 'Salvando...' : (school ? 'Atualizar' : 'Criar')}
+          {loading ? 'Salvando...' : school ? 'Atualizar Escola' : 'Criar Escola'}
         </Button>
       </div>
     </form>

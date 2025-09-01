@@ -3,29 +3,25 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus } from 'lucide-react'
+import { Plus, Edit } from 'lucide-react'
 import { EventForm } from './event-form'
-import type { Event, EventFormData } from '@/types/events'
+import type { EventWithSchool, EventFormData } from '@/types/events'
 
 interface EventDialogProps {
-  event?: Event
+  event?: EventWithSchool
   onSubmit: (data: EventFormData) => Promise<void>
   trigger?: React.ReactNode
 }
 
 export function EventDialog({ event, onSubmit, trigger }: EventDialogProps) {
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (data: EventFormData) => {
-    setLoading(true)
     try {
       await onSubmit(data)
       setOpen(false)
     } catch (error) {
-      console.error('Error submitting event:', error)
-    } finally {
-      setLoading(false)
+      console.error('Erro ao salvar evento:', error)
     }
   }
 
@@ -37,13 +33,22 @@ export function EventDialog({ event, onSubmit, trigger }: EventDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            {event ? 'Editar Evento' : 'Novo Evento'}
+          <Button variant="outline" size="sm">
+            {event ? (
+              <>
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Evento
+              </>
+            )}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {event ? 'Editar Evento' : 'Novo Evento'}
@@ -53,7 +58,6 @@ export function EventDialog({ event, onSubmit, trigger }: EventDialogProps) {
           event={event}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          loading={loading}
         />
       </DialogContent>
     </Dialog>

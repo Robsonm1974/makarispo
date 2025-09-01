@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/hooks/useEvents'
 import { useParticipants } from '@/hooks/useParticipants'
@@ -14,8 +13,7 @@ import {
   Users, 
   Building2, 
   Image, 
-  TrendingUp, 
-  DollarSign,
+  TrendingUp,
   ArrowRight,
   Plus
 } from 'lucide-react'
@@ -143,13 +141,21 @@ export default function DashboardPage() {
 
   const loading = eventsLoading || participantsLoading || schoolsLoading
 
+  // Função para obter o nome do tenant de forma segura
+  const getTenantName = () => {
+    if (tenant && tenant.name) {
+      return tenant.name
+    }
+    return 'Usuário'
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Bem-vindo, {tenant.name}!
+            Bem-vindo, {getTenantName()}!
           </h1>
           <p className="text-gray-600 mt-2">
             Gerencie seus eventos, participantes e fotos em um só lugar.

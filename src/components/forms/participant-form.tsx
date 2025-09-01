@@ -1,163 +1,119 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEvents } from '@/hooks/useEvents'
-import { useSchools } from '@/hooks/useSchools'
-import type { Participant, ParticipantFormData } from '@/types/participants'
-
-// Schema baseado no ParticipantFormData real
-const participantSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  event_id: z.string().min(1, 'Evento é obrigatório'),
-  class: z.string().optional(),
-  notes: z.string().optional()
-})
+import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
 
 interface ParticipantFormProps {
-  participant?: Participant
+  participant?: ParticipantWithRelations
   onSubmit: (data: ParticipantFormData) => Promise<void>
-  onCancel: () => void
-  loading: boolean
+  onCancel?: () => void
 }
 
-export function ParticipantForm({ participant, onSubmit, onCancel, loading }: ParticipantFormProps) {
-  const { events } = useEvents()
-  const { schools } = useSchools()
-  
-  const form = useForm<ParticipantFormData>({
-    resolver: zodResolver(participantSchema),
-    defaultValues: {
-      name: '',
-      event_id: '',
-      class: '',
-      notes: ''
-    }
+export function ParticipantForm({ participant, onSubmit, onCancel }: ParticipantFormProps) {
+  const [formData, setFormData] = useState<ParticipantFormData>({
+    name: '',
+    class: '',
+    qr_code: '',
+    notes: ''
   })
+
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (participant) {
-      form.reset({
-        name: participant.name,
-        event_id: participant.event_id,
+      setFormData({
+        name: participant.name || '',
         class: participant.class || '',
+        qr_code: participant.qr_code || '',
         notes: participant.notes || ''
       })
     }
-  }, [participant, form])
+  }, [participant])
 
-  const handleSubmit = async (data: ParticipantFormData) => {
-    await onSubmit(data)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      await onSubmit(formData)
+    } catch (error) {
+      console.error('Erro ao salvar participante:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChange = (field: keyof ParticipantFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
+        {/* Nome do Participante */}
+        <div className="md:col-span-2">
           <Label htmlFor="name">Nome do Participante *</Label>
           <Input
             id="name"
-            {...form.register('name')}
-            placeholder="Nome completo"
-            className={form.formState.errors.name ? 'border-red-500' : ''}
+            value={formData.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="Digite o nome completo"
+            required
           />
-          {form.formState.errors.name && (
-            <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="event_id">Evento *</Label>
-          <Select
-            value={form.watch('event_id')}
-            onValueChange={(value) => form.setValue('event_id', value)}
-          >
-            <SelectTrigger className={form.formState.errors.event_id ? 'border-red-500' : ''}>
-              <SelectValue placeholder="Selecione um evento" />
-            </SelectTrigger>
-            <SelectContent>
-              {events.map((event) => (
-                <SelectItem key={event.id} value={event.id}>
-                  {event.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {form.formState.errors.event_id && (
-            <p className="text-sm text-red-500">{form.formState.errors.event_id.message}</p>
-          )}
+        {/* Turma */}
+        <div>
+          <Label htmlFor="class">Turma</Label>
+          <Input
+            id="class"
+            value={formData.class || ''}
+            onChange={(e) => handleChange('class', e.target.value)}
+            placeholder="Ex: 3º A, 2º B"
+          />
+        </div>
+
+        {/* QR Code */}
+        <div>
+          <Label htmlFor="qr_code">QR Code *</Label>
+          <Input
+            id="qr_code"
+            value={formData.qr_code}
+            onChange={(e) => handleChange('qr_code', e.target.value)}
+            placeholder="Código QR único"
+            required
+          />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="class">Turma</Label>
-        <Input
-          id="class"
-          {...form.register('class')}
-          placeholder="Turma (ex: 3º ano A)"
-        />
-      </div>
-
-      <div className="space-y-2">
+      {/* Observações */}
+      <div>
         <Label htmlFor="notes">Observações</Label>
         <Textarea
           id="notes"
-          {...form.register('notes')}
-          placeholder="Observações sobre o participante"
+          value={formData.notes || ''}
+          onChange={(e) => handleChange('notes', e.target.value)}
+          placeholder="Informações adicionais sobre o participante"
           rows={3}
         />
       </div>
 
-      {/* Informações do Evento Selecionado */}
-      {form.watch('event_id') && (
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-medium text-gray-900 mb-2">Informações do Evento</h4>
-          {(() => {
-            const selectedEvent = events.find(e => e.id === form.watch('event_id'))
-            const selectedSchool = selectedEvent ? schools.find(s => s.id === selectedEvent.school_id) : null
-            
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div>
-                  <span className="font-medium">Evento:</span> {selectedEvent?.name}
-                </div>
-                <div>
-                  <span className="font-medium">Escola:</span> {selectedSchool?.name}
-                </div>
-                {selectedEvent?.event_date && (
-                  <div>
-                    <span className="font-medium">Data:</span> {new Date(selectedEvent.event_date).toLocaleDateString('pt-BR')}
-                  </div>
-                )}
-                {selectedSchool?.type && (
-                  <div>
-                    <span className="font-medium">Tipo:</span> {selectedSchool.type === 'publica' ? 'Pública' : 'Privada'}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-        </div>
-      )}
-
-      <div className="flex justify-end gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={loading}
-        >
-          Cancelar
-        </Button>
+      {/* Botões */}
+      <div className="flex gap-3 justify-end">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+        )}
         <Button type="submit" disabled={loading}>
-          {loading ? 'Salvando...' : (participant ? 'Atualizar' : 'Criar')}
+          {loading ? 'Salvando...' : participant ? 'Atualizar Participante' : 'Criar Participante'}
         </Button>
       </div>
     </form>

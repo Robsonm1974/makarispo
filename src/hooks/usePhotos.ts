@@ -1,388 +1,277 @@
-'use client'
-
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/contexts/AuthContext'
-import { toast } from 'sonner'
 
-export interface Photo {
+interface Photo {
   id: string
-  participant_id: string | null
-  filename: string
-  original_filename: string | null
-  url: string
-  thumbnail_url: string | null
-  file_size: number | null
+  participant_id: string
+  file_path: string
+  file_name: string
+  file_size: number
+  mime_type: string
   uploaded_at: string
-  participant?: {
+  created_at: string
+  updated_at: string
+}
+
+interface PhotoWithRelations extends Photo {
+  participant: {
     id: string
     name: string
-    class: string | null
     event_id: string
-    school: {
-      name: string
-      type: string
-    }
     event: {
+      id: string
       name: string
-      event_date: string
+      school: {
+        name: string
+        type: string | null
+      }
     }
   }
 }
 
-export interface PhotoUpload {
-  file: File
-  participant_id?: string
-  event_id: string
-  progress: number
-  status: 'pending' | 'uploading' | 'completed' | 'error'
-  error?: string
-}
-
-export interface PhotoFilters {
-  event_id?: string
-  participant_id?: string
-  search?: string
-  date_from?: string
-  date_to?: string
-}
-
 export function usePhotos() {
-  const { user } = useAuth()
-  const [photos, setPhotos] = useState<Photo[]>([])
-  const [loading, setLoading] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const [photos, setPhotos] = useState<PhotoWithRelations[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Carregar fotos com filtros
-  const loadPhotos = useCallback(async (filters: PhotoFilters = {}) => {
-    if (!user) return
-
-    setLoading(true)
-    setError(null)
-
+  const fetchPhotos = useCallback(async () => {
     try {
-      let query = supabase
+      setLoading(true)
+      setError(null)
+
+      const { data, error } = await supabase
         .from('photos')
         .select(`
           *,
           participant:participants(
             id,
             name,
-            class,
             event_id,
-            school:schools(name, type),
-            event:events(name, event_date)
+            event:events(
+              id,
+              name,
+              school:schools(
+                name,
+                type
+              )
+            )
           )
         `)
-        .order('uploaded_at', { ascending: false })
+        .order('created_at', { ascending: false })
 
-      // Aplicar filtros
-      if (filters.event_id) {
-        query = query.eq('participant.event_id', filters.event_id)
+      if (error) {
+        throw error
       }
 
-      if (filters.participant_id) {
-        query = query.eq('participant_id', filters.participant_id)
-      }
-
-      if (filters.date_from) {
-        query = query.gte('uploaded_at', filters.date_from)
-      }
-
-      if (filters.date_to) {
-        query = query.lte('uploaded_at', filters.date_to)
-      }
-
-      const { data, error: fetchError } = await query
-
-      if (fetchError) throw fetchError
-
-      // Converter dados para tipo Photo
-      const photosData: Photo[] = (data || []).map(item => {
-        const participant = item.participant ? {
-          id: item.participant.id,
-          name: item.participant.name,
-          class: item.participant.class,
-          event_id: item.participant.event_id,
-          school: {
-            name: item.participant.school?.name || 'Escola não encontrada',
-            type: item.participant.school?.type || 'tipo_desconhecido'
-          },
-          event: {
-            name: item.participant.event?.name || 'Evento não encontrado',
-            event_date: item.participant.event?.event_date || new Date().toISOString()
-          }
-        } : undefined
-
-        return {
+      if (data) {
+        // Mapear os dados para o tipo correto
+        const mappedPhotos: PhotoWithRelations[] = data.map(item => ({
           id: item.id,
           participant_id: item.participant_id,
-          filename: item.filename,
-          original_filename: item.original_filename,
-          url: item.url,
-          thumbnail_url: item.thumbnail_url,
+          file_path: item.file_path,
+          file_name: item.file_name,
           file_size: item.file_size,
+          mime_type: item.mime_type,
           uploaded_at: item.uploaded_at,
-          participant
-        }
-      })
-
-      // Aplicar filtro de busca se especificado
-      let filteredPhotos = photosData
-      if (filters.search) {
-        filteredPhotos = photosData.filter(photo =>
-          photo.original_filename?.toLowerCase().includes(filters.search!.toLowerCase()) ||
-          photo.participant?.name.toLowerCase().includes(filters.search!.toLowerCase()) ||
-          photo.participant?.school.name.toLowerCase().includes(filters.search!.toLowerCase()) ||
-          photo.participant?.event.name.toLowerCase().includes(filters.search!.toLowerCase())
-        )
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          participant: {
+            id: item.participant.id,
+            name: item.participant.name,
+            event_id: item.participant.event_id,
+            event: {
+              id: item.participant.event.id,
+              name: item.participant.event.name,
+              school: {
+                name: item.participant.event.school.name || 'Escola não encontrada',
+                type: item.participant.event.school.type
+              }
+            }
+          }
+        }))
+        setPhotos(mappedPhotos)
       }
-
-      setPhotos(filteredPhotos)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar fotos'
-      setError(errorMessage)
-      toast.error(errorMessage)
+      console.error('Erro ao buscar fotos:', err)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [])
 
-  // Upload de foto única
-  const uploadPhoto = useCallback(async (
-    file: File,
-    eventId: string,
-    participantId?: string
-  ): Promise<Photo | null> => {
-    if (!user) {
-      toast.error('Usuário não autenticado')
-      return null
-    }
-
+  const createPhoto = useCallback(async (photoData: {
+    participant_id: string
+    file_path: string
+    file_name: string
+    file_size: number
+    mime_type: string
+  }) => {
     try {
-      // Validar arquivo
-      if (!file.type.startsWith('image/')) {
-        throw new Error('Arquivo deve ser uma imagem')
-      }
+      setError(null)
 
-      if (file.size > 10 * 1024 * 1024) { // 10MB
-        throw new Error('Arquivo muito grande (máximo 10MB)')
-      }
-
-      // Gerar nome único
-      const timestamp = Date.now()
-      const fileExtension = file.name.split('.').pop()
-      const filename = `IMG_${timestamp}.${fileExtension}`
-
-      // Upload para storage
-      const { error: uploadError } = await supabase.storage
+      const { data, error } = await supabase
         .from('photos')
-        .upload(`${user.id}/${eventId}/${filename}`, file)
-
-      if (uploadError) throw uploadError
-
-      // Obter URL pública
-      const { data: urlData } = supabase.storage
-        .from('photos')
-        .getPublicUrl(`${user.id}/${eventId}/${filename}`)
-
-      // Tentar associar por QR Code
-      let finalParticipantId = participantId
-      if (!finalParticipantId) {
-        const qrCode = extractQRCodeFromFilename(file.name)
-        if (qrCode) {
-          const { data: participantData } = await supabase
-            .from('participants')
-            .select('id')
-            .eq('qr_code', qrCode)
-            .eq('event_id', eventId)
-            .single()
-
-          if (participantData) {
-            finalParticipantId = participantData.id
-          }
-        }
-      }
-
-      // Salvar no banco
-      const { data: photoData, error: dbError } = await supabase
-        .from('photos')
-        .insert({
-          participant_id: finalParticipantId,
-          filename,
-          original_filename: file.name,
-          url: urlData.publicUrl,
-          file_size: file.size,
-          uploaded_at: new Date().toISOString()
-        })
-        .select()
+        .insert([photoData])
+        .select(`
+          *,
+          participant:participants(
+            id,
+            name,
+            event_id,
+            event:events(
+              id,
+              name,
+              school:schools(
+                name,
+                type
+              )
+            )
+          )
+        `)
         .single()
 
-      if (dbError) throw dbError
-
-      // Retornar foto criada
-      const newPhoto: Photo = {
-        id: photoData.id,
-        participant_id: photoData.participant_id,
-        filename: photoData.filename,
-        original_filename: photoData.original_filename,
-        url: photoData.url,
-        thumbnail_url: photoData.thumbnail_url,
-        file_size: photoData.file_size,
-        uploaded_at: photoData.uploaded_at
+      if (error) {
+        throw error
       }
 
-      toast.success('Foto enviada com sucesso!')
-      return newPhoto
+      if (data) {
+        // Mapear a nova foto para o tipo correto
+        const newPhoto: PhotoWithRelations = {
+          id: data.id,
+          participant_id: data.participant_id,
+          file_path: data.file_path,
+          file_name: data.file_name,
+          file_size: data.file_size,
+          mime_type: data.mime_type,
+          uploaded_at: data.uploaded_at,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+          participant: {
+            id: data.participant.id,
+            name: data.participant.name,
+            event_id: data.participant.event_id,
+            event: {
+              id: data.participant.event.id,
+              name: data.participant.event.name,
+              school: {
+                name: data.participant.event.school.name || 'Escola não encontrada',
+                type: data.participant.event.school.type
+              }
+            }
+          }
+        }
+        
+        setPhotos(prev => [newPhoto, ...prev])
+        return newPhoto
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro no upload'
-      toast.error(errorMessage)
+      console.error('Erro ao criar foto:', err)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
       throw err
     }
-  }, [user])
+  }, [])
 
-  // Upload em lote
-  const uploadPhotosBatch = useCallback(async (
-    files: File[],
-    eventId: string,
-    onProgress?: (progress: number) => void
-  ): Promise<Photo[]> => {
-    if (!user) {
-      toast.error('Usuário não autenticado')
-      return []
-    }
-
-    setUploading(true)
-    const uploadedPhotos: Photo[] = []
-    let completed = 0
-
+  const updatePhoto = useCallback(async (photoId: string, photoData: Partial<Photo>) => {
     try {
-      for (const file of files) {
-        try {
-          const photo = await uploadPhoto(file, eventId)
-          if (photo) {
-            uploadedPhotos.push(photo)
+      setError(null)
+
+      const { data, error } = await supabase
+        .from('photos')
+        .update(photoData)
+        .eq('id', photoId)
+        .select(`
+          *,
+          participant:participants(
+            id,
+            name,
+            event_id,
+            event:events(
+              id,
+              name,
+              school:schools(
+                name,
+                type
+              )
+            )
+          )
+        `)
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      if (data) {
+        // Mapear a foto atualizada para o tipo correto
+        const updatedPhoto: PhotoWithRelations = {
+          id: data.id,
+          participant_id: data.participant_id,
+          file_path: data.file_path,
+          file_name: data.file_name,
+          file_size: data.file_size,
+          mime_type: data.mime_type,
+          uploaded_at: data.uploaded_at,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+          participant: {
+            id: data.participant.id,
+            name: data.participant.name,
+            event_id: data.participant.event_id,
+            event: {
+              id: data.participant.event.id,
+              name: data.participant.event.name,
+              school: {
+                name: data.participant.event.school.name || 'Escola não encontrada',
+                type: data.participant.event.school.type
+              }
+            }
           }
-        } catch (error) {
-          console.error(`Erro no upload de ${file.name}:`, error)
         }
-
-        completed++
-        if (onProgress) {
-          onProgress((completed / files.length) * 100)
-        }
+        
+        setPhotos(prev => prev.map(photo => 
+          photo.id === photoId ? updatedPhoto : photo
+        ))
+        return updatedPhoto
       }
-
-      if (uploadedPhotos.length > 0) {
-        toast.success(`${uploadedPhotos.length} de ${files.length} fotos enviadas com sucesso!`)
-        // Recarregar lista
-        await loadPhotos({ event_id: eventId })
-      }
-
-      return uploadedPhotos
-    } finally {
-      setUploading(false)
+    } catch (err) {
+      console.error('Erro ao atualizar foto:', err)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      throw err
     }
-  }, [user, uploadPhoto, loadPhotos])
+  }, [])
 
-  // Deletar foto
-  const deletePhoto = useCallback(async (photoId: string): Promise<boolean> => {
+  const deletePhoto = useCallback(async (photoId: string) => {
     try {
+      setError(null)
+
       const { error } = await supabase
         .from('photos')
         .delete()
         .eq('id', photoId)
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
-      // Remover da lista local
-      setPhotos(prev => prev.filter(p => p.id !== photoId))
-      toast.success('Foto deletada com sucesso!')
-      return true
+      setPhotos(prev => prev.filter(photo => photo.id !== photoId))
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao deletar foto'
-      toast.error(errorMessage)
-      return false
+      console.error('Erro ao deletar foto:', err)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      throw err
     }
   }, [])
 
-  // Atualizar foto
-  const updatePhoto = useCallback(async (
-    photoId: string,
-    updates: Partial<Pick<Photo, 'participant_id'>>
-  ): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from('photos')
-        .update(updates)
-        .eq('id', photoId)
-
-      if (error) throw error
-
-      // Atualizar lista local
-      setPhotos(prev => prev.map(p => 
-        p.id === photoId ? { ...p, ...updates } : p
-      ))
-
-      toast.success('Foto atualizada com sucesso!')
-      return true
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao atualizar foto'
-      toast.error(errorMessage)
-      return false
-    }
-  }, [])
-
-  // Extrair QR Code do nome do arquivo
-  const extractQRCodeFromFilename = (filename: string): string | null => {
-    const match = filename.match(/IMG_\d+_(\d{7})\.(jpg|jpeg|png)/i)
-    return match ? match[1] : null
-  }
-
-  // Gerar thumbnail (simulado - em produção usar serviço de imagem)
-  const generateThumbnail = useCallback(async (photoUrl: string): Promise<string> => {
-    // Por enquanto, retorna a URL original
-    // Em produção, implementar geração de thumbnail
-    return photoUrl
-  }, [])
-
-  // Estatísticas
-  const getStats = useCallback(() => {
-    const total = photos.length
-    const associated = photos.filter(p => p.participant_id).length
-    const pending = total - associated
-
-    return { total, associated, pending }
-  }, [photos])
-
-  // Carregar fotos na inicialização
   useEffect(() => {
-    if (user) {
-      loadPhotos()
-    }
-  }, [user, loadPhotos])
+    fetchPhotos()
+  }, [fetchPhotos])
 
   return {
-    // Estado
     photos,
     loading,
-    uploading,
     error,
-    
-    // Ações
-    loadPhotos,
-    uploadPhoto,
-    uploadPhotosBatch,
-    deletePhoto,
+    createPhoto,
     updatePhoto,
-    
-    // Utilitários
-    extractQRCodeFromFilename,
-    generateThumbnail,
-    getStats,
-    
-    // Limpar erro
-    clearError: () => setError(null)
+    deletePhoto,
+    refetch: fetchPhotos
   }
 }
