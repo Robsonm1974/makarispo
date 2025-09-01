@@ -131,9 +131,9 @@ export default function DashboardPage() {
 
   if (!user || !tenant) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Carregando...</h1>
+      <div className="loading-container">
+        <div className="loading-content">
+          <h1 className="loading-text">Carregando...</h1>
         </div>
       </div>
     )
@@ -150,27 +150,27 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="page-container">
+      <div className="page-content">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="page-header-section">
+          <h1 className="page-header">
             Bem-vindo, {getTenantName()}!
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="page-description">
             Gerencie seus eventos, participantes e fotos em um só lugar.
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid-stats">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Eventos</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Total de Eventos</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{loading ? '...' : stats.totalEvents}</div>
+              <div className="text-2xl font-bold text-foreground">{loading ? '...' : stats.totalEvents}</div>
               <p className="text-xs text-muted-foreground">
                 Eventos criados
               </p>
@@ -179,11 +179,11 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Participantes</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Total de Participantes</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{loading ? '...' : stats.totalParticipants}</div>
+              <div className="text-2xl font-bold text-foreground">{loading ? '...' : stats.totalParticipants}</div>
               <p className="text-xs text-muted-foreground">
                 Participantes cadastrados
               </p>
@@ -192,11 +192,11 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Escolas</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Total de Escolas</CardTitle>
               <Building2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{loading ? '...' : stats.totalSchools}</div>
+              <div className="text-2xl font-bold text-foreground">{loading ? '...' : stats.totalSchools}</div>
               <p className="text-xs text-muted-foreground">
                 Escolas parceiras
               </p>
@@ -205,11 +205,11 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Fotos</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Total de Fotos</CardTitle>
               <Image className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{loading ? '...' : stats.totalPhotos}</div>
+              <div className="text-2xl font-bold text-foreground">{loading ? '...' : stats.totalPhotos}</div>
               <p className="text-xs text-muted-foreground">
                 Fotos capturadas
               </p>
@@ -218,15 +218,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <div className="grid-actions">
+          <Card className="card-hover card-interactive">
             <Link href="/dashboard/events">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Calendar className="h-5 w-5 text-primary" />
                   Gerenciar Eventos
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-muted-foreground">
                   Crie e gerencie seus eventos fotográficos
                 </CardDescription>
               </CardHeader>
@@ -239,14 +239,14 @@ export default function DashboardPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="card-hover card-interactive">
             <Link href="/dashboard/participants">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Users className="h-5 w-5 text-primary" />
                   Gerenciar Participantes
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-muted-foreground">
                   Cadastre e organize os participantes
                 </CardDescription>
               </CardHeader>
@@ -259,14 +259,14 @@ export default function DashboardPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="card-hover card-interactive">
             <Link href="/dashboard/photos">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Image className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Image className="h-5 w-5 text-primary" />
                   Gerenciar Fotos
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-muted-foreground">
                   Upload e organização de fotos
                 </CardDescription>
               </CardHeader>
@@ -281,60 +281,60 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Events */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid-content">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Calendar className="h-5 w-5 text-primary" />
                 Eventos Recentes
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 Últimos eventos criados
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="space-y-3">
+                <div className="content-spacing">
                   {[...Array(5)].map((_, i) => (
                     <div key={i} className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-32"></div>
-                        <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      <div className="content-spacing">
+                        <div className="skeleton-title"></div>
+                        <div className="skeleton-text"></div>
                       </div>
-                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      <div className="skeleton-text w-16"></div>
                     </div>
                   ))}
                 </div>
               ) : stats.recentEvents.length > 0 ? (
-                <div className="space-y-4">
+                <div className="content-spacing-lg">
                   {stats.recentEvents.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/50">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{event.name}</h4>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <h4 className="font-medium text-foreground">{event.name}</h4>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span>{event.school.name}</span>
                           <Badge variant="secondary">{event.school.type}</Badge>
                         </div>
                         {event.event_date && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             {new Date(event.event_date).toLocaleDateString('pt-BR')}
                           </p>
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-semibold text-blue-600">
+                        <div className="text-lg font-semibold text-primary">
                           {event.participant_count}
                         </div>
-                        <p className="text-xs text-gray-500">participantes</p>
+                        <p className="text-xs text-muted-foreground">participantes</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum evento ainda</h3>
-                  <p className="text-gray-600 mb-4">
+                <div className="empty-state">
+                  <Calendar className="empty-state-icon" />
+                  <h3 className="empty-state-title">Nenhum evento ainda</h3>
+                  <p className="empty-state-description">
                     Crie seu primeiro evento para começar a capturar fotos
                   </p>
                   <Link href="/dashboard/events">
@@ -351,57 +351,57 @@ export default function DashboardPage() {
           {/* Recent Participants */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Users className="h-5 w-5 text-primary" />
                 Participantes Recentes
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 Últimos participantes cadastrados
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="space-y-3">
+                <div className="content-spacing">
                   {[...Array(5)].map((_, i) => (
                     <div key={i} className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-32"></div>
-                        <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      <div className="content-spacing">
+                        <div className="skeleton-title"></div>
+                        <div className="skeleton-text"></div>
                       </div>
-                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      <div className="skeleton-text w-16"></div>
                     </div>
                   ))}
                 </div>
               ) : stats.recentParticipants.length > 0 ? (
-                <div className="space-y-4">
+                <div className="content-spacing-lg">
                   {stats.recentParticipants.map((participant) => (
-                    <div key={participant.id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <div key={participant.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/50">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{participant.name}</h4>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <h4 className="font-medium text-foreground">{participant.name}</h4>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span>{participant.event.name}</span>
                           <Badge variant="secondary">{participant.event.school.type}</Badge>
                         </div>
                         {participant.class && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             Turma: {participant.class}
                           </p>
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-semibold text-green-600">
+                        <div className="text-lg font-semibold text-primary">
                           ✓
                         </div>
-                        <p className="text-xs text-gray-500">cadastrado</p>
+                        <p className="text-xs text-muted-foreground">cadastrado</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum participante ainda</h3>
-                  <p className="text-gray-600 mb-4">
+                <div className="empty-state">
+                  <Users className="empty-state-icon" />
+                  <h3 className="empty-state-title">Nenhum participante ainda</h3>
+                  <p className="empty-state-description">
                     Cadastre participantes para seus eventos
                   </p>
                   <Link href="/dashboard/participants">
@@ -417,35 +417,35 @@ export default function DashboardPage() {
         </div>
 
         {/* Revenue Overview */}
-        <Card className="mt-8">
+        <Card className="section-spacing-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <TrendingUp className="h-5 w-5 text-primary" />
               Visão Geral de Receita
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Resumo financeiro dos eventos
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid-stats">
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">
+                <div className="text-3xl font-bold text-primary">
                   R$ {loading ? '0,00' : '0,00'}
                 </div>
-                <p className="text-sm text-gray-600">Receita Total</p>
+                <p className="text-sm text-muted-foreground">Receita Total</p>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-3xl font-bold text-accent">
                   {loading ? '0' : '0'}
                 </div>
-                <p className="text-sm text-gray-600">Fotos Vendidas</p>
+                <p className="text-sm text-muted-foreground">Fotos Vendidas</p>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">
+                <div className="text-3xl font-bold text-chart-4">
                   R$ {loading ? '0,00' : '0,00'}
                 </div>
-                <p className="text-sm text-gray-600">Comissão</p>
+                <p className="text-sm text-muted-foreground">Comissão</p>
               </div>
             </div>
           </CardContent>

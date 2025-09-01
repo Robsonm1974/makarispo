@@ -129,9 +129,9 @@ export default function PhotosPage() {
 
   if (!user || !tenant) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Carregando...</h1>
+      <div className="loading-container">
+        <div className="loading-content">
+          <h1 className="loading-text">Carregando...</h1>
         </div>
       </div>
     )
@@ -141,29 +141,29 @@ export default function PhotosPage() {
   const uniqueSchools = Array.from(new Set(schools.map(s => s.name)))
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="page-container">
+      <div className="page-content">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gerenciar Fotos</h1>
-          <p className="text-gray-600 mt-2">
+        <div className="page-header-section">
+          <h1 className="page-header">Gerenciar Fotos</h1>
+          <p className="page-description">
             Upload, organização e visualização de fotos dos participantes
           </p>
         </div>
 
         {/* Upload Section */}
-        <Card className="mb-8">
+        <Card className="section-spacing">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Upload className="h-5 w-5 text-primary" />
               Upload de Fotos
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               Faça upload de fotos em lote ou individualmente
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="content-spacing-lg">
               <div className="flex items-center gap-4">
                 <Input
                   type="file"
@@ -171,19 +171,20 @@ export default function PhotosPage() {
                   accept="image/*"
                   onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
                   disabled={uploading}
-                  className="flex-1"
+                  className="flex-1 input-default"
                 />
                 <Button 
                   onClick={triggerFileInput}
                   disabled={uploading}
+                  className="btn-primary"
                 >
                   {uploading ? 'Enviando...' : 'Selecionar Arquivos'}
                 </Button>
               </div>
               
               {uploading && (
-                <div className="flex items-center gap-2 text-sm text-blue-600">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <div className="flex items-center gap-2 text-sm text-primary">
+                  <div className="loading-spinner h-4 w-4"></div>
                   Processando upload...
                 </div>
               )}
@@ -192,27 +193,27 @@ export default function PhotosPage() {
         </Card>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid-filters">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Buscar
             </label>
             <Input
               placeholder="Nome, evento, escola..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
+              className="input-default"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Evento
             </label>
             <select
               value={selectedEvent}
               onChange={(e) => setSelectedEvent(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="select-default"
             >
               <option value="all">Todos os Eventos</option>
               {uniqueEvents.map(eventName => (
@@ -224,13 +225,13 @@ export default function PhotosPage() {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Escola
             </label>
             <select
               value={selectedSchool}
               onChange={(e) => setSelectedSchool(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="select-default"
             >
               <option value="all">Todas as Escolas</option>
               {uniqueSchools.map(schoolName => (
@@ -249,7 +250,7 @@ export default function PhotosPage() {
                 setSelectedEvent('all')
                 setSelectedSchool('all')
               }}
-              className="w-full"
+              className="w-full btn-outline"
             >
               Limpar Filtros
             </Button>
@@ -257,17 +258,17 @@ export default function PhotosPage() {
         </div>
 
         {/* Photos Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid-photos">
           {filteredPhotos.map((photo) => (
-            <Card key={photo.id} className="overflow-hidden">
-              <div className="aspect-square bg-gray-100 relative group">
+            <Card key={photo.id} className="overflow-hidden card-hover">
+              <div className="aspect-square bg-muted relative group">
                 <img
                   src={photo.file_path}
                   alt={`Foto de ${photo.participant.name}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     // Fallback para imagem não encontrada
-                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDExOSAxMTEuNDU3IDExOSAxMDFDMTE5IDkwLjU0MzQgMTEwLjQ1NyA4MiAxMDAgODJDODkuNTQzNCA4MiA4MSA5MC41NDM0IDgxIDEwMUM4MSAxMTEuNDU3IDg5LjU0MzQgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDExOSAxMzEuNDU3IDExOSAxMjFDMTE5IDExMC41NDMgMTEwLjQ1NyAxMDIgMTAwIDEwMkM4OS41NDM0IDEwMiA4MSAxMTAuNTQzIDgxIDEyMUM4MSAxMzEuNDU3IDg5LjU0MzQgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo='
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMkEyMDI4Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDExOSAxMTEuNDU3IDExOSAxMDFDMTE5IDkwLjU0MzQgMTEwLjQ1NyA4MiAxMDAgODJDODkuNTQzNCA4MiA4MSA5MC41NDM0IDgxIDEwMUM4MSAxMTEuNDU3IDg5LjU0MzQgMTIwIDEwMCAxMjBaIiBmaWxsPSIjNzA1MDE1Mjg2MDY3Ii8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDExOSAxMzEuNDU3IDExOSAxMjFDMTE5IDExMC41NDMgMTEwLjQ1NyAxMDIgMTAwIDEwMkM4OS41NDM0IDEwMiA4MSAxMTAuNTQzIDgxIDEyMUM4MSAxMzEuNDU3IDg5LjU0MzQgMTQwIDEwMCAxNDBaIiBmaWxsPSIjNzA1MDE1Mjg2MDY3Ii8+Cjwvc3ZnPgo='
                   }}
                 />
                 
@@ -278,7 +279,7 @@ export default function PhotosPage() {
                       size="sm"
                       variant="secondary"
                       onClick={() => handleDownload(photo)}
-                      className="bg-white text-gray-900 hover:bg-gray-100"
+                      className="btn-secondary"
                     >
                       <Download className="h-4 w-4" />
                     </Button>
@@ -286,7 +287,7 @@ export default function PhotosPage() {
                       size="sm"
                       variant="secondary"
                       onClick={() => window.open(photo.file_path, '_blank')}
-                      className="bg-white text-gray-900 hover:bg-gray-100"
+                      className="btn-secondary"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -294,7 +295,7 @@ export default function PhotosPage() {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(photo.id)}
-                      className="bg-red-600 text-white hover:bg-red-700"
+                      className="btn-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -303,12 +304,12 @@ export default function PhotosPage() {
               </div>
               
               <CardContent className="p-4">
-                <div className="space-y-2">
-                  <h3 className="font-medium text-gray-900 truncate">
+                <div className="content-spacing">
+                  <h3 className="font-medium text-foreground truncate">
                     {photo.participant.name}
                   </h3>
                   
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-sm text-muted-foreground content-spacing">
                     <p className="truncate">
                       <span className="font-medium">Evento:</span> {photo.participant.event.name}
                     </p>
@@ -322,7 +323,7 @@ export default function PhotosPage() {
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>
                       {(photo.file_size / 1024 / 1024).toFixed(2)} MB
                     </span>
@@ -338,22 +339,22 @@ export default function PhotosPage() {
 
         {/* Empty State */}
         {filteredPhotos.length === 0 && (
-          <Card className="text-center py-12">
-            <Image className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Card className="empty-state">
+            <Image className="empty-state-icon" />
+            <h3 className="empty-state-title">
               {searchTerm || selectedEvent !== 'all' || selectedSchool !== 'all' 
                 ? 'Nenhuma foto encontrada' 
                 : 'Nenhuma foto ainda'
               }
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="empty-state-description">
               {searchTerm || selectedEvent !== 'all' || selectedSchool !== 'all'
                 ? 'Tente ajustar os filtros de busca'
                 : 'Faça upload da primeira foto para começar'
               }
             </p>
             {!searchTerm && selectedEvent === 'all' && selectedSchool === 'all' && (
-              <Button onClick={triggerFileInput}>
+              <Button onClick={triggerFileInput} className="btn-primary">
                 <Upload className="mr-2 h-4 w-4" />
                 Fazer Upload
               </Button>

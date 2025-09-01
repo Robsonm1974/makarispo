@@ -7,7 +7,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-2xl border border-border/50 py-6 shadow-sm hover:shadow-md transition-all duration-200 backdrop-blur-sm",
         className
       )}
       {...props}
@@ -20,7 +20,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
         className
       )}
       {...props}
@@ -32,7 +32,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn("leading-tight font-semibold text-lg tracking-tight", className)}
       {...props}
     />
   )
@@ -42,7 +42,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-muted-foreground text-sm leading-relaxed", className)}
       {...props}
     />
   )
@@ -65,7 +65,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6", className)}
+      className={cn("px-6 space-y-4", className)}
       {...props}
     />
   )
@@ -75,7 +75,47 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      className={cn("flex items-center justify-between px-6 pt-6 border-t border-border/50", className)}
+      {...props}
+    />
+  )
+}
+
+// Variantes de card para diferentes usos
+function CardInteractive({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-interactive"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-2xl border border-border/50 py-6 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer backdrop-blur-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardElevated({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-elevated"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-2xl border border-border/50 py-6 shadow-lg hover:shadow-xl transition-all duration-200 backdrop-blur-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardMinimal({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-minimal"
+      className={cn(
+        "bg-card/50 text-card-foreground flex flex-col gap-6 rounded-2xl border border-border/30 py-6 backdrop-blur-sm",
+        className
+      )}
       {...props}
     />
   )
@@ -89,4 +129,7 @@ export {
   CardAction,
   CardDescription,
   CardContent,
+  CardInteractive,
+  CardElevated,
+  CardMinimal,
 }

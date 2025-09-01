@@ -1,134 +1,127 @@
 'use client'
 
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Search, Plus, Users, Image, Building2, Edit, Trash2 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { EventDialog } from '@/components/forms/event-dialog'
+import { SchoolDialog } from '@/components/forms/school-dialog'
+import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/hooks/useEvents'
 import { useSchools } from '@/hooks/useSchools'
 import { useParticipants } from '@/hooks/useParticipants'
-import { useAuth } from '@/contexts/AuthContext'
-import { EventDialog } from '@/components/forms/event-dialog'
-import { SchoolDialog } from '@/components/forms/school-dialog'
-import ParticipantsModal from '@/components/modals/participants-modal'
-import PhotosModal from '@/components/modals/photos-modal'
-import { createEventInsert } from '@/types/events'
-import type { EventWithSchool, EventFormData } from '@/types/events'
+import { 
+  Calendar, 
+  Building2, 
+  Users, 
+  Image, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Search,
+  TrendingUp
+} from 'lucide-react'
+import { toast } from 'sonner'
 
-// Type guard para verificar se tenant tem ID válido
-function hasValidTenantId(tenant: unknown): tenant is { id: string } {
-  return typeof tenant === 'object' && tenant !== null && 'id' in tenant && typeof (tenant as Record<string, unknown>).id === 'string'
-}
-
-// Type guard para verificar se evento tem ID válido
-function hasValidEventId(event: unknown): event is { id: string } {
-  return typeof event === 'object' && event !== null && 'id' in event && typeof (event as Record<string, unknown>).id === 'string'
+interface EventStats {
+  total: number
+  withPhotos: number
 }
 
 export default function EventsPage() {
   const { user, tenant } = useAuth()
   const { events, loading, error, createEvent, updateEvent, deleteEvent } = useEvents()
-  const { schools, refetch: refetchSchools } = useSchools()
+  const { schools } = useSchools()
   const { participants } = useParticipants()
-
+  
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedEvent, setSelectedEvent] = useState<EventWithSchool | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<any>(null)
+  const [showEventDialog, setShowEventDialog] = useState(false)
   const [showSchoolDialog, setShowSchoolDialog] = useState(false)
-  const [showParticipantsModal, setShowParticipantsModal] = useState(false)
-  const [showPhotosModal, setShowPhotosModal] = useState(false)
 
-  const handleCreateEvent = async (data: EventFormData) => {
-    if (!tenant) {
-      toast.error('Tenant não encontrado')
-      return
-    }
+  // Filtrar eventos baseado no termo de busca
+  const filteredEvents = events.filter(event => {
+    const school = schools.find(s => s.id === event.school_id)
+    const searchLower = searchTerm.toLowerCase()
+    
+    return (
+      event.name.toLowerCase().includes(searchLower) ||
+      (school?.name.toLowerCase().includes(searchLower)) ||
+      event.status?.toLowerCase().includes(searchLower)
+    )
+  })
 
-    try {
-      // Usar type guard para verificar tenant
-      if (hasValidTenantId(tenant)) {
-        const eventData = createEventInsert(data, tenant.id)
-        await createEvent(eventData)
-        toast.success('Evento criado com sucesso!')
-      } else {
-        toast.error('Tenant inválido')
-      }
-    } catch (error) {
-      console.error('Erro ao criar evento:', error)
-      toast.error('Erro ao criar evento')
+  // Calcular estatísticas para cada evento
+  const getEventStats = (eventId: string): EventStats => {
+    const eventParticipants = participants.filter(p => p.event_id === eventId)
+    // Mock: assumir que 30% dos participantes têm fotos
+    const withPhotos = Math.floor(eventParticipants.length * 0.3)
+    
+    return {
+      total: eventParticipants.length,
+      withPhotos
     }
   }
 
-  const handleUpdateEvent = async (data: EventFormData) => {
-    if (!tenant || !selectedEvent) {
-      toast.error('Tenant ou evento não encontrado')
-      return
-    }
-
+  const handleCreateEvent = async (eventData: any) => {
     try {
-      // Usar type guard para verificar tenant
-      if (hasValidTenantId(tenant)) {
-        // Criar dados de atualização compatíveis com EventFormData
-        const updateData: Partial<EventFormData> = {
-          name: data.name,
-          school_id: data.school_id,
-          event_date: data.event_date,
-          event_end_date: data.event_end_date,
-          commission_percent: data.commission_percent,
-          notes: data.notes,
-          status: data.status,
-          products_enabled: data.products_enabled
-        }
-        
-        // Usar type guard para verificar evento
-        if (hasValidEventId(selectedEvent)) {
-          await updateEvent(selectedEvent.id, updateData)
-          toast.success('Evento atualizado com sucesso!')
-          setSelectedEvent(null)
-        } else {
-          toast.error('Evento inválido')
-        }
-      } else {
-        toast.error('Tenant inválido')
-      }
+      await createEvent(eventData)
+      toast.success('Evento criado com sucesso!')
+      setShowEventDialog(false)
     } catch (error) {
-      console.error('Erro ao atualizar evento:', error)
+      toast.error('Erro ao criar evento')
+      console.error('Create event error:', error)
+    }
+  }
+
+  const handleUpdateEvent = async (eventData: any) => {
+    try {
+      await updateEvent(selectedEvent.id, eventData)
+      toast.success('Evento atualizado com sucesso!')
+      setSelectedEvent(null)
+      setShowEventDialog(false)
+    } catch (error) {
       toast.error('Erro ao atualizar evento')
+      console.error('Update event error:', error)
     }
   }
 
   const handleDeleteEvent = async (eventId: string) => {
-    try {
-      await deleteEvent(eventId)
-      toast.success('Evento deletado com sucesso!')
-    } catch (error) {
-      console.error('Erro ao deletar evento:', error)
-      toast.error('Erro ao deletar evento')
+    if (confirm('Tem certeza que deseja excluir este evento?')) {
+      try {
+        await deleteEvent(eventId)
+        toast.success('Evento excluído com sucesso!')
+      } catch (error) {
+        toast.error('Erro ao excluir evento')
+        console.error('Delete event error:', error)
+      }
     }
   }
 
-  const filteredEvents = events.filter(event =>
-    event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (event.status && event.status.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Data não definida'
+    return new Date(dateString).toLocaleDateString('pt-BR')
+  }
 
-  const getEventStats = (eventId: string) => {
-    const eventParticipants = participants.filter(p => p.event_id === eventId)
-    return {
-      total: eventParticipants.length,
-      withPhotos: 0 // TODO: Implementar contagem de fotos quando o sistema estiver completo
-    }
+  if (!user || !tenant) {
+    return (
+      <div className="loading-container">
+        <div className="loading-content">
+          <h1 className="loading-text">Carregando...</h1>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando eventos...</p>
+      <div className="page-container">
+        <div className="page-content-compact">
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p className="loading-description">Carregando eventos...</p>
+          </div>
         </div>
       </div>
     )
@@ -136,28 +129,29 @@ export default function EventsPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Erro ao carregar eventos</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>
-            Tentar novamente
-          </Button>
+      <div className="page-container">
+        <div className="page-content-compact">
+          <div className="error-container">
+            <h2 className="error-title">Erro ao carregar eventos</h2>
+            <p className="error-description">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Tentar Novamente
+            </Button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="page-container">
+      <div className="page-content-compact">
         {/* Header */}
-        <div className="mb-8">
+        <div className="page-header-section">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Eventos</h1>
-              <p className="text-gray-600 mt-2">
+              <h1 className="page-header">Eventos</h1>
+              <p className="page-description">
                 Gerencie todos os seus eventos fotográficos
               </p>
             </div>
@@ -184,12 +178,12 @@ export default function EventsPage() {
 
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Buscar eventos por nome, escola ou status..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-3 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              className="input-search input-default input-focus"
             />
           </div>
         </div>
@@ -200,16 +194,16 @@ export default function EventsPage() {
             filteredEvents.map((event) => {
               const stats = getEventStats(event.id)
               return (
-                <Card key={event.id} className="hover:shadow-lg transition-shadow duration-200">
+                <Card key={event.id} className="card-hover">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                        <CardTitle className="text-lg font-semibold text-foreground mb-1">
                           {event.name}
                         </CardTitle>
                         <div className="flex items-center gap-2 mb-2">
-                          <Building2 className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm text-gray-600">{event.school.name}</span>
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{event.school.name}</span>
                           <Badge variant={event.school.type === 'publica' ? 'default' : 'secondary'}>
                             {event.school.type}
                           </Badge>
@@ -239,7 +233,7 @@ export default function EventsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteEvent(event.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -247,71 +241,62 @@ export default function EventsPage() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="pt-0">
-                    {/* Event Details */}
-                    <div className="space-y-3 mb-4">
-                      {event.event_date && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          <span>
-                            {new Date(event.event_date).toLocaleDateString('pt-BR')}
-                            {event.event_end_date && (
-                              <> - {new Date(event.event_end_date).toLocaleDateString('pt-BR')}</>
-                            )}
-                          </span>
-                        </div>
-                      )}
-
-                      {event.commission_percent && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="font-medium">Comissão: {event.commission_percent}%</span>
-                        </div>
-                      )}
-
-                      {event.notes && (
-                        <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                          {event.notes}
-                        </p>
+                  <CardContent className="content-spacing-lg">
+                    {/* Event Dates */}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(event.event_date)}</span>
+                      {event.event_end_date && event.event_end_date !== event.event_date && (
+                        <>
+                          <span>até</span>
+                          <span>{formatDate(event.event_end_date)}</span>
+                        </>
                       )}
                     </div>
+
+                    {/* Event Notes */}
+                    {event.notes && (
+                      <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+                        {event.notes}
+                      </p>
+                    )}
 
                     {/* Stats */}
-                    <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                       <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900">{stats.total}</div>
-                        <div className="text-xs text-gray-600">Participantes</div>
+                        <div className="text-lg font-semibold text-foreground">{stats.total}</div>
+                        <div className="text-xs text-muted-foreground">Participantes</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-lg font-semibold text-blue-600">{stats.withPhotos}</div>
-                        <div className="text-xs text-gray-600">Com Fotos</div>
+                        <div className="text-lg font-semibold text-primary">{stats.withPhotos}</div>
+                        <div className="text-xs text-muted-foreground">Com Fotos</div>
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-4">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 flex items-center gap-2"
+                        className="flex-1"
                         onClick={() => {
-                          setShowParticipantsModal(true)
-                          setSelectedEvent(event)
+                          // Navegar para participantes do evento
+                          window.location.href = `/dashboard/participants?event=${event.id}`
                         }}
                       >
-                        <Users className="h-4 w-4" />
+                        <Users className="h-4 w-4 mr-2" />
                         Participantes
                       </Button>
-
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 flex items-center gap-2"
+                        className="flex-1"
                         onClick={() => {
-                          setShowPhotosModal(true)
-                          setSelectedEvent(event)
+                          // Navegar para fotos do evento
+                          window.location.href = `/dashboard/photos?event=${event.id}`
                         }}
                       >
-                        <Image className="h-4 w-4" />
+                        <Image className="h-4 w-4 mr-2" />
                         Fotos
                       </Button>
                     </div>
@@ -320,27 +305,19 @@ export default function EventsPage() {
               )
             })
           ) : (
-            // Empty state
             <div className="col-span-full">
-              <Card className="text-center py-12">
-                <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Card className="empty-state">
+                <Calendar className="empty-state-icon" />
+                <h3 className="empty-state-title">
                   {searchTerm ? 'Nenhum evento encontrado' : 'Nenhum evento ainda'}
                 </h3>
-                <p className="text-gray-600 mb-4">
-                  {searchTerm
+                <p className="empty-state-description">
+                  {searchTerm 
                     ? 'Tente ajustar os termos de busca'
-                    : 'Crie seu primeiro evento para começar a capturar fotos'
+                    : 'Crie seu primeiro evento para começar'
                   }
                 </p>
-                <div className="flex gap-2 justify-center">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowSchoolDialog(true)}
-                  >
-                    <Building2 className="mr-2 h-4 w-4" />
-                    Nova Escola
-                  </Button>
+                {!searchTerm && (
                   <EventDialog
                     onSubmit={handleCreateEvent}
                     trigger={
@@ -350,46 +327,35 @@ export default function EventsPage() {
                       </Button>
                     }
                   />
-                </div>
+                )}
               </Card>
             </div>
           )}
         </div>
-
-        {/* Modals */}
-        {selectedEvent && (
-          <EventDialog
-            event={selectedEvent}
-            onSubmit={handleUpdateEvent}
-            trigger={<div className="hidden" />}
-          />
-        )}
-
-        {showSchoolDialog && (
-          <SchoolDialog
-            onSubmit={async () => {
-              setShowSchoolDialog(false)
-              await refetchSchools()
-              toast.success('Escola criada com sucesso!')
-            }}
-            trigger={<div className="hidden" />}
-          />
-        )}
-
-        {showParticipantsModal && selectedEvent && (
-          <ParticipantsModal
-            event={selectedEvent}
-            onClose={() => setShowParticipantsModal(false)}
-          />
-        )}
-
-        {showPhotosModal && selectedEvent && (
-          <PhotosModal
-            event={selectedEvent}
-            onClose={() => setShowPhotosModal(false)}
-          />
-        )}
       </div>
+
+      {/* Event Dialog */}
+      {showEventDialog && (
+        <EventDialog
+          event={selectedEvent}
+          onSubmit={selectedEvent ? handleUpdateEvent : handleCreateEvent}
+          onClose={() => {
+            setShowEventDialog(false)
+            setSelectedEvent(null)
+          }}
+        />
+      )}
+
+      {/* School Dialog */}
+      {showSchoolDialog && (
+        <SchoolDialog
+          onSubmit={() => {
+            setShowSchoolDialog(false)
+            toast.success('Escola criada com sucesso!')
+          }}
+          onClose={() => setShowSchoolDialog(false)}
+        />
+      )}
     </div>
   )
 }

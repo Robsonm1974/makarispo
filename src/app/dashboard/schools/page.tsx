@@ -95,87 +95,85 @@ export default function SchoolsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="page-container">
       {/* Header */}
-      <div className="border-b bg-white">
+      <div className="border-b border-border bg-card">
         <div className="flex h-16 items-center px-6">
           <div className="flex items-center space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-              <Building2 className="h-5 w-5 text-blue-600" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+              <Building2 className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-semibold">Escolas</h1>
+              <h1 className="text-xl font-semibold text-foreground">Escolas</h1>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-3 mb-8">
-            {stats.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Search and Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Buscar escolas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <SchoolDialog onSubmit={handleCreateSchool} />
-          </div>
-
-          {/* Schools Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Escolas</CardTitle>
-              <CardDescription>
-                Gerencie todas as escolas onde você realiza trabalhos fotográficos.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-red-600">Erro: {error}</p>
-                </div>
-              )}
-              
-              <SchoolsTable
-                schools={filteredSchools}
-                onEdit={handleEditSchool}
-                onDelete={handleDeleteSchool}
-                loading={loading}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Edit Dialog */}
-          {editingSchool && (
-            <SchoolDialog
-              school={editingSchool}
-              onSubmit={handleUpdateSchool}
-              trigger={<div style={{ display: 'none' }} />}
-            />
-          )}
+      <div className="page-content-compact">
+        {/* Stats Cards */}
+        <div className="grid-stats">
+          {stats.map((stat) => (
+            <Card key={stat.title}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-foreground">{stat.title}</CardTitle>
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+
+        {/* Search and Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Buscar escolas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-search input-default"
+            />
+          </div>
+          <SchoolDialog onSubmit={handleCreateSchool} />
+        </div>
+
+        {/* Schools Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-foreground">Lista de Escolas</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Gerencie todas as escolas onde você realiza trabalhos fotográficos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <div className="error-message">
+                <p className="error-text">Erro: {error}</p>
+              </div>
+            )}
+            
+            <SchoolsTable
+              schools={filteredSchools}
+              onEdit={handleEditSchool}
+              onDelete={handleDeleteSchool}
+              loading={loading}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Edit Dialog */}
+        {editingSchool && (
+          <SchoolDialog
+            school={editingSchool}
+            onSubmit={handleUpdateSchool}
+            trigger={<div style={{ display: 'none' }} />}
+          />
+        )}
       </div>
     </div>
   )
