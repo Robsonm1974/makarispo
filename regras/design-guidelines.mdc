@@ -1,0 +1,57 @@
+---
+alwaysApply: true
+---
+# design-guidelines.mdc
+
+## 🎨 Diretrizes de Design para o Projeto
+
+Sempre que criar componentes, telas ou páginas:
+
+- **Bibliotecas obrigatórias**
+  - Utilize **Shadcn/UI** como base de componentes.
+  - Utilize **TailwindCSS** para estilização e layout responsivo.
+  - Utilize **Radix UI** quando precisar de acessibilidade.
+
+- **Referências visuais**
+  - Inspire-se em apps modernos como:
+    - [Linear.app](https://linear.app)
+    - [Notion](https://notion.so)
+    - [Vercel Dashboard](https://vercel.com/dashboard)
+    - [Supabase Dashboard](https://supabase.com/dashboard)
+
+- **Estilo esperado**
+  - Aparência **SaaS moderna**, minimalista e elegante.
+  - Tipografia clean e consistente.
+  - Espaçamento confortável entre elementos.
+  - Cards arredondados (border-radius grande, estilo 2xl).
+  - Soft shadows e animações suaves (ex: framer-motion).
+  - Suporte a **dark mode**.
+
+- **Paleta de cores**
+  - Priorize cores neutras e sofisticadas (cinza, branco, preto).
+  - Toques sutis de cor para botões e destaques (azul, roxo, verde).
+
+- **Layout**
+  - Estrutura em **grid** para evitar poluição visual.
+  - Painel lateral (sidebar) simples e funcional.
+  - Barra superior leve, com ícones minimalistas.
+
+- **Interações**
+  - Use micro animações sutis para hover e clique.
+  - Evite exageros visuais: foco em clareza e usabilidade.
+
+---
+
+## 🔗 Context7
+Sempre **consulte o Context7** antes de gerar código.  
+Use o conteúdo do Context7 como **fonte de verdade** para:
+- Style Guide (cores, fontes, referências visuais).
+- Padrões de design previamente definidos.
+- Regras do projeto e boas práticas.
+
+---
+
+## 🚫 Evite
+- Evite inventar estilos fora do padrão acima.
+- Não usar bibliotecas externas de UI além de Shadcn/Radix.
+- Não usar `any` no TypeScript (substituir por tipos adequados).

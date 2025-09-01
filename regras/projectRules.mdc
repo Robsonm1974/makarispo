@@ -1,0 +1,256 @@
+# .projectrules - PHOTOMANAGER Project Rules
+
+## PROJECT IDENTITY
+- **Name:** PHOTOMANAGER
+- **Version:** 1.0.0
+- **Company:** MAKARISPO TECNOLOGIA
+- **Domain:** School Photography SaaS
+- **Target Market:** Brazilian school photographers
+
+## BUSINESS RULES
+
+### Multi-tenancy
+- Complete data isolation between tenants
+- Each tenant = independent photographer/company
+- Shared global resources (app info, templates, pricing)
+- Tenant-specific configurations (payments, branding, products)
+
+### Subscription Plans
+```
+GRATUITO: 10 participants, 1 school, 10 photos
+INICIANTE: 100 participants, 10 schools, 400 photos, R$99/month
+PRO: 1000 participants, 200 schools, 4000 photos, R$199/month
+```
+
+### QR Code System
+- Unique 7-digit codes per participant
+- Generated automatically on participant creation
+- Used for photo association and public lookup
+- No duplicates across entire system
+
+### Photo Management
+- Format: JPG for photos, JPG/PNG for products
+- Naming: `IMG_[camera_number]_[qrcode].jpg`
+- Batch upload with automatic participant association
+- Watermark: "PHOTO MANAGER" or tenant custom logo
+- Auto-resize for web optimization
+
+### E-commerce Rules
+- Parents buy without registration
+- 10-day delivery deadline (school delivery only)
+- Email confirmation to buyer and tenant
+- WhatsApp notifications for both parties
+- Individual photos as products + customizable products
+
+### Commission System
+- School commission: configurable % per event
+- Calculated on gross sales value
+- Payment due at event completion
+- Detailed reports for school presentation
+
+## TECHNICAL SPECIFICATIONS
+
+### Database Schema Principles
+- All tables include `tenant_id` for isolation
+- Use UUIDs for primary keys
+- Implement soft deletes where appropriate
+- Maintain audit trails (created_at, updated_at)
+- Foreign key constraints for data integrity
+
+### Security Requirements
+- Row Level Security (RLS) on all tenant tables
+- Google OAuth only authentication
+- HTTPS everywhere
+- LGPD compliance for Brazilian users
+- Secure file uploads with validation
+
+### Performance Standards
+- Page load time < 2 seconds
+- Image optimization mandatory
+- Lazy loading for photo galleries
+- Infinite scroll for large lists
+- Responsive design for all devices
+
+## FILE ORGANIZATION
+
+### Component Structure
+```
+components/
+├── ui/                 # Base UI components (buttons, inputs, etc.)
+├── forms/              # Form components
+├── tables/             # Data table components
+├── charts/             # Dashboard charts
+├── ecommerce/          # Shopping cart, checkout
+└── public/             # Public-facing components
+```
+
+### Page Structure
+```
+app/
+├── (auth)/             # Authentication pages
+├── (public)/           # Public tenant/school pages
+├── dashboard/          # Main tenant dashboard
+├── schools/            # School management
+├── events/             # Event management
+├── participants/       # Participant management
+├── photos/             # Photo management
+├── products/           # Product configuration
+├── orders/             # Order management
+├── settings/           # Tenant configuration
+└── reports/            # Analytics and reports
+```
+
+## FEATURE IMPLEMENTATION RULES
+
+### CRUD Operations
+- Always implement: Create, Read, Update, Delete
+- Include search and filtering capabilities
+- Pagination for large datasets
+- Bulk operations where applicable
+- Confirmation dialogs for destructive actions
+
+### Form Validation
+- Client-side validation with real-time feedback
+- Server-side validation for security
+- Clear error messages in Portuguese
+- Auto-save for long forms
+- Progress indicators for multi-step forms
+
+### Photo Upload Rules
+- Drag & drop interface
+- Progress bars for uploads
+- Automatic file validation
+- Batch processing with error reporting
+- Preview before final upload
+
+### Public Pages
+- SEO optimized
+- Fast loading (< 1 second)
+- Mobile-responsive
+- Professional design
+- Clear call-to-action buttons
+
+## USER EXPERIENCE RULES
+
+### Onboarding
+- Welcome wizard for new tenants
+- Step-by-step guidance
+- Sample data for testing
+- Video tutorials embedded
+- Progressive feature disclosure
+
+### Help System
+- Contextual help cards
+- Tooltips for complex features
+- "How to use" sections
+- FAQ integration
+- Contact support easily accessible
+
+### Feedback Systems
+- Loading states for all operations
+- Success/error notifications
+- Progress indicators
+- Confirmation messages
+- Undo functionality where applicable
+
+## INTEGRATION REQUIREMENTS
+
+### Payment Gateways
+- PagSeguro SDK integration
+- Mercado Pago SDK integration
+- Webhook handling for payment confirmation
+- Tenant-specific credentials storage
+- Transaction logging and reconciliation
+
+### Email System
+- Transactional emails via Resend
+- Customizable templates per tenant
+- HTML and plain text versions
+- Delivery tracking
+- Bounce and complaint handling
+
+### WhatsApp Integration
+- Deep link generation for messages
+- Pre-filled contact information
+- Tenant's WhatsApp number routing
+- Message templates for different scenarios
+
+## QUALITY ASSURANCE
+
+### Code Review Checklist
+- [ ] TypeScript types properly defined
+- [ ] Multi-tenant isolation verified
+- [ ] Error handling implemented
+- [ ] Loading states included
+- [ ] Responsive design tested
+- [ ] Performance optimized
+- [ ] Security considerations addressed
+
+### Testing Requirements
+- Unit tests for utility functions
+- Integration tests for API endpoints
+- E2E tests for critical user flows
+- Multi-tenant data isolation tests
+- Performance benchmarking
+
+## DEPLOYMENT RULES
+
+### Environment Configuration
+- Development: Local with Supabase local
+- Staging: Vercel preview with Supabase staging
+- Production: Vercel production with Supabase production
+
+### Release Process
+- Feature branches from main
+- Pull request reviews required
+- Automated testing pipeline
+- Staging deployment for validation
+- Production deployment with monitoring
+
+## MONITORING & ANALYTICS
+
+### Application Monitoring
+- Error tracking with Sentry
+- Performance monitoring
+- User behavior analytics
+- Uptime monitoring
+- Database query optimization
+
+### Business Metrics
+- Tenant sign-ups and conversions
+- Feature usage analytics
+- Revenue tracking per tenant
+- Support ticket analysis
+- User satisfaction surveys
+
+## DOCUMENTATION REQUIREMENTS
+
+### Code Documentation
+- JSDoc comments for functions
+- README files for each major feature
+- API documentation with examples
+- Database schema documentation
+- Deployment guides
+
+### User Documentation
+- Feature tutorials with screenshots
+- Video guides for complex workflows
+- FAQ section maintenance
+- Help center articles
+- Release notes for updates
+
+## COMMUNICATION PROTOCOLS
+
+### Progress Reporting
+- Daily standups via TODO updates
+- Weekly progress summaries
+- Milestone completion reports
+- Blocker identification and resolution
+- Feature completion celebrations
+
+### Client Communication
+- Clear status updates on development
+- Screenshots/videos of new features
+- Explanation of technical decisions
+- Timeline updates for delays
+- User acceptance testing coordination
