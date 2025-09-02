@@ -73,23 +73,29 @@ export function ParticipantsTable({ participants, onEdit, onDelete }: Participan
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium">{participant.event.school.name}</div>
-                  <Badge variant="outline" className="text-xs">
-                    {participant.event.school.type === 'publica' ? 'Pública' : 'Privada'}
-                  </Badge>
+                  <div className="font-medium">
+                    {participant.event?.school?.name || 'Escola não encontrada'}
+                  </div>
+                  {participant.event?.school?.type && (
+                    <Badge variant="outline" className="text-xs">
+                      {participant.event.school.type === 'publica' ? 'Pública' : 'Privada'}
+                    </Badge>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium">{participant.event.name}</div>
+                  <div className="font-medium">
+                    {participant.event?.name || 'Evento não encontrado'}
+                  </div>
                   <div className="text-sm text-gray-500">
-                    {formatDate(participant.event.event_date)}
+                    {participant.event?.event_date ? formatDate(participant.event.event_date) : 'Data não definida'}
                   </div>
                 </div>
               </TableCell>
               <TableCell>
-                {participant.class && (
-                  <Badge variant="secondary">{participant.class}</Badge>
+                {participant.turma && (
+                  <Badge variant="secondary">{participant.turma}</Badge>
                 )}
               </TableCell>
               <TableCell>

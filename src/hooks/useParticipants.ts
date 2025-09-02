@@ -1,6 +1,4 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
 
@@ -9,11 +7,7 @@ export function useParticipants(eventId?: string) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchParticipants()
-  }, [eventId])
-
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -37,7 +31,6 @@ export function useParticipants(eventId?: string) {
         `)
         .order('created_at', { ascending: false })
 
-      // Filtrar por evento se especificado
       if (eventId) {
         query = query.eq('event_id', eventId)
       }
@@ -48,19 +41,27 @@ export function useParticipants(eventId?: string) {
         throw fetchError
       }
 
-      setParticipants((data as ParticipantWithRelations[]) || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar participantes')
+      setParticipants((data as unknown as ParticipantWithRelations[]) || [])
+    } catch (err: unknown) {
+      console.error('Erro ao buscar participantes:', err)
+      const error = err instanceof Error ? err.message : 'Erro ao carregar participantes'
+      setError(error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
-  const createParticipant = async (participantData: ParticipantInsert) => {
+  const createParticipant = async (participantData: ParticipantInsert): Promise<ParticipantWithRelations> => {
     try {
+      console.log('Dados sendo enviados:', participantData)
+      
+      // Remover qr_code dos dados enviados - será gerado pelo trigger
+      const { qr_code, ...dataToInsert } = participantData
+      
       const { data, error: createError } = await supabase
         .from('participants')
-        .insert(participantData)
+        .insert(dataToInsert as unknown as Record<string, unknown>)
+
         .select(`
           *,
           event:events(
@@ -79,21 +80,39 @@ export function useParticipants(eventId?: string) {
         .single()
 
       if (createError) {
-        throw createError
+        console.error('Erro do Supabase:', createError)
+        console.error('Detalhes do erro:', {
+          message: createError.message,
+          details: createError.details,
+          hint: createError.hint,
+          code: createError.code
+        })
+        throw new Error(`Erro ao criar participante: ${createError.message || createError.details || 'Erro desconhecido'}`)
       }
 
-      setParticipants((prev: ParticipantWithRelations[]) => [data as ParticipantWithRelations, ...prev])
-      return data as ParticipantWithRelations
+      if (!data) {
+        throw new Error('Nenhum dado retornado ao criar participante')
+      }
+
+      const newParticipant = data as unknown as ParticipantWithRelations
+      setParticipants(prev => [newParticipant, ...prev])
+      return newParticipant
+
     } catch (err) {
-      throw err
+      console.error('Erro completo:', err)
+      const errorInstance = err instanceof Error ? err : new Error('Erro desconhecido ao criar participante')
+      throw errorInstance
     }
   }
 
-  const updateParticipant = async (id: string, updates: Partial<ParticipantInsert>) => {
+  const updateParticipant = async (
+    id: string, 
+    updates: Partial<ParticipantInsert>
+  ): Promise<ParticipantWithRelations> => {
     try {
       const { data, error: updateError } = await supabase
         .from('participants')
-        .update(updates)
+        .update(updates as unknown as Record<string, unknown>)
         .eq('id', id)
         .select(`
           *,
@@ -113,19 +132,27 @@ export function useParticipants(eventId?: string) {
         .single()
 
       if (updateError) {
-        throw updateError
+        throw new Error(`Erro ao atualizar participante: ${updateError.message}`)
       }
 
-      setParticipants((prev: ParticipantWithRelations[]) => 
-        prev.map((p: ParticipantWithRelations) => p.id === id ? (data as ParticipantWithRelations) : p)
+      if (!data) {
+        throw new Error('Nenhum dado retornado ao atualizar participante')
+      }
+
+      const updatedParticipant = data as unknown as ParticipantWithRelations
+      setParticipants(prev => 
+        prev.map(p => p.id === id ? updatedParticipant : p)
       )
-      return data as ParticipantWithRelations
+      return updatedParticipant
+
     } catch (err) {
-      throw err
+      console.error('Erro ao atualizar participante:', err)
+      const errorInstance = err instanceof Error ? err : new Error('Erro desconhecido ao atualizar participante')
+      throw errorInstance
     }
   }
 
-  const deleteParticipant = async (id: string) => {
+  const deleteParticipant = async (id: string): Promise<void> => {
     try {
       const { error: deleteError } = await supabase
         .from('participants')
@@ -133,14 +160,21 @@ export function useParticipants(eventId?: string) {
         .eq('id', id)
 
       if (deleteError) {
-        throw deleteError
+        throw new Error(`Erro ao excluir participante: ${deleteError.message}`)
       }
 
-      setParticipants((prev: ParticipantWithRelations[]) => prev.filter((p: ParticipantWithRelations) => p.id !== id))
+      setParticipants(prev => prev.filter(p => p.id !== id))
+
     } catch (err) {
-      throw err
+      console.error('Erro ao excluir participante:', err)
+      const errorInstance = err instanceof Error ? err : new Error('Erro desconhecido ao excluir participante')
+      throw errorInstance
     }
   }
+
+  useEffect(() => {
+    fetchParticipants()
+  }, [fetchParticipants])
 
   return {
     participants,

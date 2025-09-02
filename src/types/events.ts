@@ -39,12 +39,11 @@ export type EventWithSchool = {
 export interface EventFormData {
   name: string
   school_id: string
-  event_date?: string | null
-  event_end_date?: string | null
-  commission_percent?: number | null
-  notes?: string | null
-  status?: string
-  products_enabled?: string[] | null
+  event_date: string | null
+  event_end_date: string | null
+  commission_percent: number | null
+  notes: string | null
+  status: string
 }
 
 // Tipo para inserção de eventos
@@ -81,7 +80,7 @@ export interface EventUpdate {
   school_id?: string
   event_date?: string | null
   event_end_date?: string | null
-  commission_percent?: string | null
+  commission_percent?: number | null
   notes?: string | null
   status?: string
   products_enabled?: string[] | null

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
 
 interface ParticipantFormProps {
@@ -17,7 +18,7 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
   const [formData, setFormData] = useState<ParticipantFormData>({
     name: '',
     class: '',
-    qr_code: '',
+    tipo: 'aluno',
     notes: ''
   })
 
@@ -28,7 +29,7 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
       setFormData({
         name: participant.name || '',
         class: participant.class || '',
-        qr_code: participant.qr_code || '',
+        tipo: participant.tipo || 'aluno',
         notes: participant.notes || ''
       })
     }
@@ -80,16 +81,25 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
           />
         </div>
 
-        {/* QR Code */}
+        {/* Tipo */}
         <div>
-          <Label htmlFor="qr_code">QR Code *</Label>
-          <Input
-            id="qr_code"
-            value={formData.qr_code}
-            onChange={(e) => handleChange('qr_code', e.target.value)}
-            placeholder="Código QR único"
-            required
-          />
+          <Label htmlFor="tipo">Tipo *</Label>
+          <Select
+            value={formData.tipo || 'aluno'}
+            onValueChange={(value) => handleChange('tipo', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="aluno">Aluno</SelectItem>
+              <SelectItem value="professor">Professor</SelectItem>
+              <SelectItem value="funcionario">Funcionário</SelectItem>
+              <SelectItem value="diretor">Diretor</SelectItem>
+              <SelectItem value="coordenador">Coordenador</SelectItem>
+              <SelectItem value="outro">Outro</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -103,6 +113,13 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
           placeholder="Informações adicionais sobre o participante"
           rows={3}
         />
+      </div>
+
+      {/* Informação sobre QR Code */}
+      <div className="bg-muted/50 p-3 rounded-md">
+        <p className="text-sm text-muted-foreground">
+          <strong>QR Code:</strong> Será gerado automaticamente quando o participante for criado.
+        </p>
       </div>
 
       {/* Botões */}

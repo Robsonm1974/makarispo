@@ -64,13 +64,17 @@ export interface SchoolUpdate {
 
 export interface SchoolFormData {
   name: string
-  address?: string
-  director_name?: string
-  phone?: string
-  email?: string
-  type?: 'publica' | 'privada'
-  students_count?: number
-  director_message?: string
-  notes?: string
-  slug?: string
+  address?: string | null
+  director_name?: string | null
+  director_photo_file?: File | null
+  phone?: string | null
+  email?: string | null
+  type?: 'publica' | 'privada' | null
+  students_count?: number | null
+  school_photo_file?: File | null
+  director_message?: string | null
+  social_media?: Record<string, unknown> | null
+  notes?: string | null
+  slug?: string | null
+  active?: boolean
 }

@@ -8,11 +8,14 @@ export type ParticipantWithRelations = {
   id: string
   event_id: string
   name: string
-  class: string | null
-  qr_code: string
+  turma: string | null // Apenas turma, sem class
+  tipo: string | null
+  qr_code: string | null
   notes: string | null
+  active: boolean | null
   created_at: string
   updated_at: string
+  deleted_at: string | null
   event: {
     id: string
     name: string
@@ -30,35 +33,18 @@ export type ParticipantWithRelations = {
 // Tipo para formulário de participantes
 export interface ParticipantFormData {
   name: string
-  class?: string | null
-  qr_code: string
+  turma?: string | null
+  tipo?: string | null
   notes?: string | null
 }
 
-// Tipo para inserção de participantes
+// Tipo para inserção no Supabase - CORRIGIDO
 export interface ParticipantInsert {
   event_id: string
   name: string
-  class?: string | null
-  qr_code: string
+  turma?: string | null // Campo real da tabela
+  tipo?: string | null
+  qr_code?: string | null // Opcional - trigger gera automaticamente
   notes?: string | null
-}
-
-// Função helper para criar dados de inserção
-export function createParticipantInsert(data: ParticipantFormData, eventId: string, tenantId: string): ParticipantInsert {
-  return {
-    event_id: eventId,
-    name: data.name,
-    class: data.class,
-    qr_code: data.qr_code,
-    notes: data.notes
-  }
-}
-
-// Tipo para atualização de participantes
-export interface ParticipantUpdate {
-  name?: string
-  class?: string | null
-  qr_code?: string
-  notes?: string | null
+  active?: boolean | null
 }

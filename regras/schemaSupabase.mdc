@@ -1,0 +1,233 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+##-- Estrutura da tabela participants 
+[
+  {
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "column_name": "tenant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "school_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "event_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "column_name": "turma",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "tipo",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "qr_code",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "notes",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "column_name": "active",
+    "data_type": "boolean",
+    "is_nullable": "YES",
+    "column_default": "true"
+  },
+  {
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()"
+  },
+  {
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()"
+  },
+  {
+    "column_name": "deleted_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": null
+  }
+]
+##-- Verificar se o campo tipo existe
+[
+  {
+    "column_name": "tipo"
+  }
+]
+##-- Verifica se a função generate_unique_qr_code existe
+[
+  {
+    "routine_name": "generate_unique_qr_code",
+    "routine_type": "FUNCTION"
+  }
+]
+
+##-- Verifica se o trigger set_qr_code_trigger existe
+[
+  {
+    "trigger_name": "set_qr_code_trigger",
+    "event_manipulation": "INSERT",
+    "action_timing": "BEFORE"
+  }
+]
+
+##-- Lista todas as funções relacionadas a QR code
+[
+  {
+    "routine_name": "dsqrt",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "sqrt",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "sqrt",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "numeric_sqrt",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "generate_unique_qr_code",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "validate_qr_code_uniqueness",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "update_event_participant_count",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "set_qr_code_before_insert",
+    "routine_type": "FUNCTION"
+  },
+  {
+    "routine_name": "auto_generate_qr_code",
+    "routine_type": "FUNCTION"
+  }
+]
+##Listar todos os triggers da tabela participants
+[
+ [
+  {
+    "trigger_name": "auto_generate_qr_code_trigger",
+    "event_manipulation": "INSERT",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "set_qr_code_trigger",
+    "event_manipulation": "INSERT",
+    "action_timing": "BEFORE"
+  }
+]
+]
+
+#Mostra o schema atual no supabase:
+[
+  {
+    "table_name": "products",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "events",
+    "column_name": "school_id",
+    "foreign_table_name": "schools",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "events",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "schools",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "event_id",
+    "foreign_table_name": "events",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "school_id",
+    "foreign_table_name": "schools",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "photo_id",
+    "foreign_table_name": "photos",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "product_id",
+    "foreign_table_name": "products",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "order_id",
+    "foreign_table_name": "orders",
+    "foreign_column_name": "id"
+  },
+  {
+    "table_name": "orders",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id"
+  }
+]

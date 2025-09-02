@@ -1,63 +1,56 @@
 'use client'
 
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useState, useMemo } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Users, Search, Plus, Edit, Trash2, QrCode, Download } from 'lucide-react'
 import { useParticipants } from '@/hooks/useParticipants'
-import { useAuth } from '@/contexts/AuthContext'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
-import { createParticipantInsert } from '@/types/participants'
-import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
+import { ParticipantsTable } from '@/components/tables/participants-table'
+import { Users, Search, Download, Plus } from 'lucide-react'
+import { toast } from 'sonner'
+import type { ParticipantWithRelations, ParticipantFormData, ParticipantInsertForSupabase } from '@/types/participants'
 import type { EventWithSchool } from '@/types/events'
-
-// Type guard para verificar se tenant tem ID válido
-function hasValidTenantId(tenant: unknown): tenant is { id: string } {
-  return typeof tenant === 'object' && tenant !== null && 'id' in tenant && typeof (tenant as Record<string, unknown>).id === 'string'
-}
 
 interface ParticipantsModalProps {
   event: EventWithSchool
   onClose: () => void
 }
 
-export default function ParticipantsModal({ event, onClose }: ParticipantsModalProps) {
-  const { tenant } = useAuth()
-  const { participants, createParticipant, updateParticipant, deleteParticipant } = useParticipants()
-
+export function ParticipantsModal({ event, onClose }: ParticipantsModalProps) {
+  const { participants, createParticipant, updateParticipant, deleteParticipant } = useParticipants(event.id)
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
 
-  // Filtrar participantes do evento atual
-  const eventParticipants = participants.filter(p => p.event_id === event.id)
+  // Filtrar participantes baseado no termo de busca
+  const filteredParticipants = useMemo(() => {
+    if (!searchTerm.trim()) return participants
 
-  const filteredParticipants = eventParticipants.filter(participant =>
-    participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (participant.class && participant.class.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (participant.qr_code && participant.qr_code.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+    const term = searchTerm.toLowerCase()
+    return participants.filter(participant =>
+      participant.name.toLowerCase().includes(term) ||
+      (participant.class && participant.class.toLowerCase().includes(term)) ||
+      (participant.qr_code && participant.qr_code.toLowerCase().includes(term)) ||
+      (participant.notes && participant.notes.toLowerCase().includes(term))
+    )
+  }, [participants, searchTerm])
 
   const handleCreateParticipant = async (data: ParticipantFormData) => {
-    if (!tenant) {
-      toast.error('Tenant não encontrado')
-      return
-    }
-
     try {
-      // Usar type guard para verificar tenant
-      if (hasValidTenantId(tenant)) {
-        const participantData = createParticipantInsert(data, event.id, tenant.id)
-        await createParticipant(participantData)
-        toast.success('Participante criado com sucesso!')
-        setShowAddDialog(false)
-      } else {
-        toast.error('Tenant inválido')
+      const participantData: ParticipantInsertForSupabase = {
+        event_id: event.id,
+        name: data.name,
+        class: data.class || null,
+        tipo: data.tipo || 'aluno',
+        qr_code: '', // Valor temporário - trigger irá substituir
+        notes: data.notes || null
       }
+
+      await createParticipant(participantData)
+      toast.success('Participante criado com sucesso!')
+      setShowAddDialog(false)
     } catch (error) {
       console.error('Erro ao criar participante:', error)
       toast.error('Erro ao criar participante')
@@ -68,7 +61,15 @@ export default function ParticipantsModal({ event, onClose }: ParticipantsModalP
     if (!editingParticipant) return
 
     try {
-      await updateParticipant(editingParticipant.id, data)
+      const updates: Partial<ParticipantInsertForSupabase> = {
+        name: data.name,
+        class: data.class || null,
+        tipo: data.tipo || 'aluno',
+        notes: data.notes || null
+        // qr_code não pode ser atualizado manualmente
+      }
+
+      await updateParticipant(editingParticipant.id, updates)
       toast.success('Participante atualizado com sucesso!')
       setEditingParticipant(null)
     } catch (error) {
@@ -89,10 +90,11 @@ export default function ParticipantsModal({ event, onClose }: ParticipantsModalP
 
   const exportParticipants = () => {
     const csvContent = [
-      ['Nome', 'Turma', 'QR Code', 'Observações'],
+      ['Nome', 'Turma', 'Tipo', 'QR Code', 'Observações'],
       ...filteredParticipants.map(p => [
         p.name,
         p.class || '',
+        p.tipo || '',
         p.qr_code || '',
         p.notes || ''
       ])
@@ -148,90 +150,61 @@ export default function ParticipantsModal({ event, onClose }: ParticipantsModalP
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
-                Novo Participante
+                Adicionar Participante
               </Button>
             </div>
           </div>
 
-          {/* Participants List */}
-          <div className="grid gap-4">
-            {filteredParticipants.length > 0 ? (
-              filteredParticipants.map((participant) => (
-                <Card key={participant.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-lg">{participant.name}</h3>
-                          {participant.class && (
-                            <Badge variant="secondary">{participant.class}</Badge>
-                          )}
-                          {participant.qr_code && (
-                            <Badge variant="outline" className="font-mono">
-                              <QrCode className="h-3 w-3 mr-1" />
-                              {participant.qr_code}
-                            </Badge>
-                          )}
-                        </div>
-                        {participant.notes && (
-                          <p className="text-sm text-gray-600">{participant.notes}</p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingParticipant(participant)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteParticipant(participant.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="text-center py-12">
-                <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {searchTerm ? 'Nenhum participante encontrado' : 'Nenhum participante ainda'}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {searchTerm
-                    ? 'Tente ajustar os termos de busca'
-                    : 'Adicione participantes para começar a capturar fotos'
-                  }
-                </p>
-                <Button onClick={() => setShowAddDialog(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Adicionar Participante
-                </Button>
-              </Card>
-            )}
+          {/* Participants Table */}
+          <div className="border rounded-lg">
+            <ParticipantsTable
+              participants={filteredParticipants}
+              onEdit={(participant) => setEditingParticipant(participant)}
+              onDelete={handleDeleteParticipant}
+            />
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="text-2xl font-bold">{participants.length}</div>
+              <div className="text-sm text-muted-foreground">Total de Participantes</div>
+            </div>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="text-2xl font-bold">
+                {participants.filter(p => p.tipo === 'aluno').length}
+              </div>
+              <div className="text-sm text-muted-foreground">Alunos</div>
+            </div>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="text-2xl font-bold">
+                {participants.filter(p => p.tipo !== 'aluno').length}
+              </div>
+              <div className="text-sm text-muted-foreground">Funcionários</div>
+            </div>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="text-2xl font-bold">
+                {filteredParticipants.length}
+              </div>
+              <div className="text-sm text-muted-foreground">Resultados da Busca</div>
+            </div>
           </div>
         </div>
 
-        {/* Add/Edit Participant Dialog */}
+        {/* Add Participant Dialog */}
         {showAddDialog && (
           <ParticipantDialog
             onSubmit={handleCreateParticipant}
-            trigger={<div className="hidden" />}
+            onClose={() => setShowAddDialog(false)}
           />
         )}
 
+        {/* Edit Participant Dialog */}
         {editingParticipant && (
           <ParticipantDialog
             participant={editingParticipant}
             onSubmit={handleUpdateParticipant}
-            trigger={<div className="hidden" />}
+            onClose={() => setEditingParticipant(null)}
           />
         )}
       </DialogContent>

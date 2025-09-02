@@ -1,180 +1,315 @@
 'use client'
 
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Building2, Search } from 'lucide-react'
-import { useSchools } from '@/hooks/useSchools'
-import { useAuth } from '@/contexts/AuthContext'
-import { SchoolsTable } from '@/components/tables/schools-table'
 import { SchoolDialog } from '@/components/forms/school-dialog'
-import type { School, SchoolFormData, SchoolInsert } from '@/types/schools'
+import { useAuth } from '@/contexts/AuthContext'
+import { useSchools } from '@/hooks/useSchools'
+import { 
+  Building2, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Search,
+  Users,
+  Phone,
+  Mail,
+  MapPin
+} from 'lucide-react'
+import { toast } from 'sonner'
+import type { School, SchoolFormData } from '@/types/schools'
 
 export default function SchoolsPage() {
   const { user } = useAuth()
   const { schools, loading, error, createSchool, updateSchool, deleteSchool } = useSchools()
+  
   const [searchTerm, setSearchTerm] = useState('')
-  const [editingSchool, setEditingSchool] = useState<School | null>(null)
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null)
+  const [showSchoolDialog, setShowSchoolDialog] = useState(false)
 
-  const filteredSchools = schools.filter(school =>
-    school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (school.director_name && school.director_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (school.address && school.address.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  // Filtrar escolas baseado no termo de busca
+  const filteredSchools = schools.filter(school => {
+    const searchLower = searchTerm.toLowerCase()
+    
+    return (
+      school.name.toLowerCase().includes(searchLower) ||
+      (school.director_name?.toLowerCase().includes(searchLower)) ||
+      (school.type?.toLowerCase().includes(searchLower)) ||
+      (school.address?.toLowerCase().includes(searchLower))
+    )
+  })
 
-  // Criar escola
-  const handleCreateSchool = async (data: SchoolFormData) => {
-    if (!user) {
-      toast.error('Usuário não autenticado')
-      return
-    }
-
+  const handleCreateSchool = async (schoolData: SchoolFormData) => {
     try {
-      // Converter SchoolFormData para SchoolInsert adicionando tenant_id
-      const schoolData: SchoolInsert = {
-        ...data,
-        tenant_id: user.id,
-        active: true
+      if (!user) {
+        toast.error('Usuário não autenticado')
+        return
       }
-      
-      await createSchool(schoolData)
+
+      await createSchool(schoolData, user.id)
       toast.success('Escola criada com sucesso!')
+      setShowSchoolDialog(false)
     } catch (error) {
-      toast.error('Erro ao criar escola. Tente novamente.')
-      throw error
+      toast.error('Erro ao criar escola')
+      console.error('Create school error:', error)
     }
   }
 
-  // Atualizar escola
-  const handleUpdateSchool = async (data: SchoolFormData) => {
-    if (!editingSchool) return
-
+  const handleUpdateSchool = async (schoolData: SchoolFormData) => {
     try {
-      await updateSchool(editingSchool.id, data)
-      setEditingSchool(null)
+      if (!selectedSchool) return
+      
+      await updateSchool(selectedSchool.id, schoolData)
       toast.success('Escola atualizada com sucesso!')
+      setSelectedSchool(null)
+      setShowSchoolDialog(false)
     } catch (error) {
-      toast.error('Erro ao atualizar escola. Tente novamente.')
-      throw error
+      toast.error('Erro ao atualizar escola')
+      console.error('Update school error:', error)
     }
   }
 
-  // Deletar escola
-  const handleDeleteSchool = async (id: string) => {
-    try {
-      await deleteSchool(id)
-      toast.success('Escola deletada com sucesso!')
-    } catch (error) {
-      toast.error('Erro ao deletar escola. Tente novamente.')
-      throw error
+  const handleDeleteSchool = async (schoolId: string) => {
+    if (confirm('Tem certeza que deseja excluir esta escola?')) {
+      try {
+        await deleteSchool(schoolId)
+        toast.success('Escola excluída com sucesso!')
+      } catch (error) {
+        toast.error('Erro ao excluir escola')
+        console.error('Delete school error:', error)
+      }
     }
   }
 
-  // Editar escola
-  const handleEditSchool = (school: School) => {
-    setEditingSchool(school)
+  if (!user) {
+    return (
+      <div className="loading-container">
+        <div className="loading-content">
+          <h1 className="loading-text">Carregando...</h1>
+        </div>
+      </div>
+    )
   }
 
-  const stats = [
-    {
-      title: 'Total de Escolas',
-      value: schools.length,
-      description: 'Escolas cadastradas'
-    },
-    {
-      title: 'Escolas Públicas',
-      value: schools.filter(s => s.type === 'publica').length,
-      description: 'Ensino público'
-    },
-    {
-      title: 'Escolas Privadas',
-      value: schools.filter(s => s.type === 'privada').length,
-      description: 'Ensino privado'
-    }
-  ]
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="page-content-compact">
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p className="loading-description">Carregando escolas...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <div className="page-content-compact">
+          <div className="error-container">
+            <h2 className="error-title">Erro ao carregar escolas</h2>
+            <p className="error-description">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Tentar Novamente
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="page-container">
-      {/* Header */}
-      <div className="border-b border-border bg-card">
-        <div className="flex h-16 items-center px-6">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-foreground">Escolas</h1>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
       <div className="page-content-compact">
-        {/* Stats Cards */}
-        <div className="grid-stats">
-          {stats.map((stat) => (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-foreground">{stat.title}</CardTitle>
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* Header */}
+        <div className="page-header-section">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="page-header">Escolas</h1>
+              <p className="page-description">
+                Gerencie todas as escolas parceiras
+              </p>
+            </div>
+            <SchoolDialog
+              open={showSchoolDialog}
+              onOpenChange={setShowSchoolDialog}
+              onSubmit={handleCreateSchool}
+              trigger={
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nova Escola
+                </Button>
+              }
+            />
+          </div>
 
-        {/* Search and Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
+          {/* Search */}
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Buscar escolas..."
+              placeholder="Buscar escolas por nome, diretor ou endereço..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-search input-default"
+              className="input-search input-default input-focus"
             />
           </div>
-          <SchoolDialog onSubmit={handleCreateSchool} />
         </div>
 
-        {/* Schools Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-foreground">Lista de Escolas</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Gerencie todas as escolas onde você realiza trabalhos fotográficos.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <div className="error-message">
-                <p className="error-text">Erro: {error}</p>
-              </div>
-            )}
-            
-            <SchoolsTable
-              schools={filteredSchools}
-              onEdit={handleEditSchool}
-              onDelete={handleDeleteSchool}
-              loading={loading}
-            />
-          </CardContent>
-        </Card>
+        {/* Schools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredSchools.length > 0 ? (
+            filteredSchools.map((school) => (
+              <Card key={school.id} className="card-hover">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg font-semibold text-foreground mb-1">
+                        {school.name}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={school.type === 'publica' ? 'default' : 'secondary'}>
+                          {school.type}
+                        </Badge>
+                        <Badge
+                          variant={school.active ? 'default' : 'outline'}
+                          className="text-xs"
+                        >
+                          {school.active ? 'Ativa' : 'Inativa'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedSchool(school)
+                          setShowSchoolDialog(true)
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteSchool(school.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* School Photo */}
+                  {school.school_photo_url && (
+                    <div className="mb-3">
+                      <img
+                        src={school.school_photo_url}
+                        alt={school.name}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
 
-        {/* Edit Dialog */}
-        {editingSchool && (
-          <SchoolDialog
-            school={editingSchool}
-            onSubmit={handleUpdateSchool}
-            trigger={<div style={{ display: 'none' }} />}
-          />
-        )}
+                  {/* Director Info */}
+                  {school.director_name && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span>{school.director_name}</span>
+                      {school.director_photo_url && (
+                        <img
+                          src={school.director_photo_url}
+                          alt={school.director_name}
+                          className="w-6 h-6 rounded-full object-cover"
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Contact Info */}
+                  <div className="space-y-1">
+                    {school.phone && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Phone className="h-4 w-4" />
+                        <span>{school.phone}</span>
+                      </div>
+                    )}
+                    {school.email && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Mail className="h-4 w-4" />
+                        <span>{school.email}</span>
+                      </div>
+                    )}
+                    {school.address && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span className="truncate">{school.address}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Students Count */}
+                  {school.students_count && (
+                    <div className="pt-2 border-t border-border">
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-foreground">{school.students_count}</div>
+                        <div className="text-xs text-muted-foreground">Estudantes</div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full">
+              <Card className="empty-state">
+                <Building2 className="empty-state-icon" />
+                <h3 className="empty-state-title">
+                  {searchTerm ? 'Nenhuma escola encontrada' : 'Nenhuma escola ainda'}
+                </h3>
+                <p className="empty-state-description">
+                  {searchTerm 
+                    ? 'Tente ajustar os termos de busca'
+                    : 'Cadastre sua primeira escola para começar'
+                  }
+                </p>
+                {!searchTerm && (
+                  <SchoolDialog
+                    onSubmit={handleCreateSchool}
+                    trigger={
+                      <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Cadastrar Escola
+                      </Button>
+                    }
+                  />
+                )}
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* School Dialog */}
+      <SchoolDialog
+        open={showSchoolDialog}
+        onOpenChange={setShowSchoolDialog}
+        school={selectedSchool || undefined}
+        onSubmit={async (data) => {
+          if (selectedSchool) {
+            await handleUpdateSchool(data)
+          } else {
+            await handleCreateSchool(data)
+          }
+          setShowSchoolDialog(false)
+          setSelectedSchool(null)
+        }}
+      />
     </div>
   )
 }

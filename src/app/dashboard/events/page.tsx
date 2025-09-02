@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { EventDialog } from '@/components/forms/event-dialog'
-import { SchoolDialog } from '@/components/forms/school-dialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/hooks/useEvents'
 import { useSchools } from '@/hooks/useSchools'
@@ -39,7 +38,6 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedEvent, setSelectedEvent] = useState<EventWithSchool | null>(null)
   const [showEventDialog, setShowEventDialog] = useState(false)
-  const [showSchoolDialog, setShowSchoolDialog] = useState(false)
 
   // Filtrar eventos baseado no termo de busca
   const filteredEvents = events.filter(event => {
@@ -167,23 +165,13 @@ export default function EventsPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowSchoolDialog(true)}
+              <Button 
                 className="flex items-center gap-2"
+                onClick={() => setShowEventDialog(true)}
               >
-                <Building2 className="h-4 w-4" />
-                Nova Escola
+                <Plus className="h-4 w-4" />
+                Novo Evento
               </Button>
-              <EventDialog
-                onSubmit={handleCreateEvent}
-                trigger={
-                  <Button className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Novo Evento
-                  </Button>
-                }
-              />
             </div>
           </div>
 
@@ -236,7 +224,10 @@ export default function EventsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setSelectedEvent(event)}
+                          onClick={() => {
+                            setSelectedEvent(event)
+                            setShowEventDialog(true)
+                          }}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -328,17 +319,6 @@ export default function EventsPage() {
                     : 'Crie seu primeiro evento para começar'
                   }
                 </p>
-                {!searchTerm && (
-                  <EventDialog
-                    onSubmit={handleCreateEvent}
-                    trigger={
-                      <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Criar Evento
-                      </Button>
-                    }
-                  />
-                )}
               </Card>
             </div>
           )}
@@ -346,22 +326,20 @@ export default function EventsPage() {
       </div>
 
       {/* Event Dialog */}
-      {showEventDialog && (
-        <EventDialog
-          event={selectedEvent || undefined}
-          onSubmit={selectedEvent ? handleUpdateEvent : handleCreateEvent}
-        />
-      )}
-
-            {/* School Dialog */}
-            {showSchoolDialog && (
-        <SchoolDialog
-          onSubmit={async () => {
-            setShowSchoolDialog(false)
-            toast.success('Escola criada com sucesso!')
-          }}
-        />
-      )}
+      <EventDialog
+        open={showEventDialog}
+        onOpenChange={setShowEventDialog}
+        event={selectedEvent || undefined}
+        onSubmit={async (data) => {
+          if (selectedEvent) {
+            await handleUpdateEvent(data)
+          } else {
+            await handleCreateEvent(data)
+          }
+          setShowEventDialog(false)
+          setSelectedEvent(null)
+        }}
+      />
     </div>
   )
 }

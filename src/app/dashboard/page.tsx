@@ -117,7 +117,7 @@ export default function DashboardPage() {
         return {
           id: participant.id,
           name: participant.name,
-          class: participant.class,
+          turma: participant.turma,
           event: {
             name: event?.name || 'Evento não encontrado',
             school: {

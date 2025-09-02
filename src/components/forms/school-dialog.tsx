@@ -52,7 +52,7 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {school ? 'Editar Escola' : 'Nova Escola'}

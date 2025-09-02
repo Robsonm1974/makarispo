@@ -70,9 +70,22 @@ export function useEvents() {
     try {
       setError(null)
 
+      // Limpar e converter os dados para o formato esperado pelo Supabase
+      const insertData: any = {
+        tenant_id: eventData.tenant_id === '' ? null : eventData.tenant_id,
+        school_id: eventData.school_id === '' ? null : eventData.school_id,
+        name: eventData.name === '' ? null : eventData.name
+      }
+      
+      // Adicionar campos opcionais apenas se não forem undefined
+      if (eventData.event_date !== undefined) insertData.event_date = eventData.event_date === '' ? null : eventData.event_date
+      if (eventData.event_end_date !== undefined) insertData.event_end_date = eventData.event_end_date === '' ? null : eventData.event_end_date
+      if (eventData.commission_percent !== undefined) insertData.commission_percent = eventData.commission_percent === null ? null : eventData.commission_percent
+      if (eventData.notes !== undefined) insertData.notes = eventData.notes === '' ? null : eventData.notes
+      if (eventData.status !== undefined) insertData.status = eventData.status
       const { data, error } = await supabase
         .from('events')
-        .insert([eventData])
+        .insert([insertData])
         .select(`
           *,
           school:schools(*)
@@ -130,13 +143,15 @@ export function useEvents() {
     try {
       setError(null)
 
-      // Converter os dados para o formato esperado pelo Supabase
-      const updateData = {
-        ...eventData,
-        // Converter commission_percent para string se necessário
-        commission_percent: eventData.commission_percent?.toString() || null
-      }
-
+      // Limpar e converter os dados para o formato esperado pelo Supabase
+      const updateData: any = {}
+      
+      // Adicionar apenas campos que não são undefined
+      if (eventData.event_date !== undefined) updateData.event_date = eventData.event_date === '' ? null : eventData.event_date
+      if (eventData.event_end_date !== undefined) updateData.event_end_date = eventData.event_end_date === '' ? null : eventData.event_end_date
+      if (eventData.commission_percent !== undefined) updateData.commission_percent = eventData.commission_percent === null ? null : eventData.commission_percent
+      if (eventData.notes !== undefined) updateData.notes = eventData.notes === '' ? null : eventData.notes
+      if (eventData.status !== undefined) updateData.status = eventData.status
       const { data, error } = await supabase
         .from('events')
         .update(updateData)

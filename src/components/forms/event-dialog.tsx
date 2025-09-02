@@ -11,26 +11,32 @@ interface EventDialogProps {
   event?: EventWithSchool
   onSubmit: (data: EventFormData) => Promise<void>
   trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function EventDialog({ event, onSubmit, trigger }: EventDialogProps) {
-  const [open, setOpen] = useState(false)
+export function EventDialog({ event, onSubmit, trigger, open, onOpenChange }: EventDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  
+  // Usar estado controlado se fornecido, senão usar interno
+  const isOpen = open !== undefined ? open : internalOpen
+  const setIsOpen = onOpenChange || setInternalOpen
 
   const handleSubmit = async (data: EventFormData) => {
     try {
       await onSubmit(data)
-      setOpen(false)
+      setIsOpen(false)
     } catch (error) {
       console.error('Erro ao salvar evento:', error)
     }
   }
 
   const handleCancel = () => {
-    setOpen(false)
+    setIsOpen(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm">

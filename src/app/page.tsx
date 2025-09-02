@@ -36,11 +36,13 @@ import {
   X
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 // Componente de navegação
 function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,6 +58,14 @@ function Navigation() {
       element.scrollIntoView({ behavior: 'smooth' })
     }
     setIsMobileMenuOpen(false)
+  }
+
+  const handleLoginClick = () => {
+    router.push('/auth/login')
+  }
+
+  const handleStartFreeClick = () => {
+    router.push('/auth/login')
   }
 
   return (
@@ -90,8 +100,17 @@ function Navigation() {
             >
               Contato
             </button>
-            <LoginModal />
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button 
+              variant="ghost" 
+              className="text-foreground hover:text-primary"
+              onClick={handleLoginClick}
+            >
+              Entrar
+            </Button>
+            <Button 
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleStartFreeClick}
+            >
               Começar Grátis
             </Button>
           </div>
@@ -131,8 +150,17 @@ function Navigation() {
                 Contato
               </button>
               <div className="pt-4 pb-3 border-t border-border">
-                <LoginModal />
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mt-2">
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-foreground hover:text-primary"
+                  onClick={handleLoginClick}
+                >
+                  Entrar
+                </Button>
+                <Button 
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mt-2"
+                  onClick={handleStartFreeClick}
+                >
                   Começar Grátis
                 </Button>
               </div>
@@ -144,61 +172,18 @@ function Navigation() {
   )
 }
 
-// Componente de Login Modal
-function LoginModal() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+export default function LandingPage() {
+  const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // Implementar lógica de login
-    toast.success('Login realizado com sucesso!')
-    setIsOpen(false)
+  const handleStartFreeClick = () => {
+    router.push('/auth/login')
   }
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="text-foreground hover:text-primary">
-          Entrar
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center">Entrar no Photo Manager</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-foreground">Email</label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground">Senha</label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-          <Button type="submit" className="w-full">
-            Entrar
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+  const handleDemoClick = () => {
+    // Redirecionar para uma página de demonstração ou abrir modal
+    toast.info('Demonstração em breve!')
+  }
 
-export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -220,10 +205,18 @@ export default function LandingPage() {
               Economize tempo, aumente as vendas e ofereça experiências excepcionais.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button 
+                size="lg" 
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={handleStartFreeClick}
+              >
                 Iniciar Teste Grátis <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={handleDemoClick}
+              >
                 <Play className="mr-2 h-4 w-4" />
                 Ver Demonstração
               </Button>
@@ -447,24 +440,28 @@ export default function LandingPage() {
                 <p className="text-muted-foreground">Perfeito para fotógrafos iniciantes</p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleStartFreeClick}
+                >
                   Começar Grátis
                 </Button>
                 
                 <div>
-                  <h4 className="font-semibold mb-3">O que está incluído:</h4>
+                  <h4 className="font-semibold mb-3">O que está incluso:</h4>
                   <ul className="space-y-2">
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Até 500 fotos por mês
+                      Até 100 fotos para testar
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      2 eventos escolares
+                      1 evento escolar
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Galerias básicas de fotos
+                      Localização por QR code
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
@@ -472,7 +469,7 @@ export default function LandingPage() {
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Acesso ao app móvel
+                      Acesso ao web app
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
@@ -482,15 +479,21 @@ export default function LandingPage() {
                       <Check className="h-4 w-4 text-green-500 mr-2" />
                       Downloads com marca d&apos;água
                     </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 text-green-500 mr-2" />
+                      Impressão lista de QR codes
+                    </li>
                   </ul>
                 </div>
 
                 <div>
                   <h4 className="font-semibold mb-3 text-muted-foreground">Limitações:</h4>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Marca do Photo Manager</li>
-                    <li>• Apenas templates padrão</li>
-                    <li>• Armazenamento limitado (5GB)</li>
+                   <li>• Marca do Photo Manager</li> 
+                    <li>• Sem acesso ao PHOTOLAB</li>
+                    <li>• Armazenamento limitado (500MB)</li>
+                    <li>• Não cria Home Page fotógrafo</li> 
+                    <li>• Não cria Home Page da escola</li> 
                   </ul>
                 </div>
               </CardContent>
@@ -503,13 +506,16 @@ export default function LandingPage() {
               </div>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">☆ Profissional</CardTitle>
-                <div className="text-4xl font-bold text-foreground">R$ 249</div>
+                <div className="text-4xl font-bold text-foreground">R$ 99</div>
                 <p className="text-muted-foreground">por mês</p>
                 <p className="text-sm text-muted-foreground">Para negócios de fotografia em crescimento</p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Iniciar Teste Grátis
+                <Button 
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleStartFreeClick}
+                >
+                  Assinar Pro
                 </Button>
                 
                 <div>
@@ -517,11 +523,11 @@ export default function LandingPage() {
                   <ul className="space-y-2">
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Fotos ilimitadas
+                      10.000 fotos em núvem
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Eventos escolares ilimitados
+                      50 Eventos escolares
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
@@ -533,11 +539,11 @@ export default function LandingPage() {
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      App móvel + plataforma web
+                      Localização por QR code
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Analytics e relatórios avançados
+                      PHOTOLAB - Organizador local de fotos
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
@@ -545,15 +551,15 @@ export default function LandingPage() {
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Processamento de pagamentos integrado
+                      Sistema de vendas de fotos
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Campanhas de email marketing
+                      Home Page Grátis para escola
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
-                      Suporte a domínio personalizado
+                      Home Page Grátispara fotógrafo
                     </li>
                     <li className="flex items-center">
                       <Check className="h-4 w-4 text-green-500 mr-2" />
@@ -564,17 +570,21 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            {/* Plano Enterprise */}
+            {/* Plano Premium*/}
             <Card className="relative">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl">⚡ Enterprise</CardTitle>
-                <div className="text-4xl font-bold text-foreground">R$ 749</div>
+                <CardTitle className="text-2xl">⚡ Premium</CardTitle>
+                <div className="text-4xl font-bold text-foreground">R$ 199</div>
                 <p className="text-muted-foreground">por mês</p>
-                <p className="text-sm text-muted-foreground">Para grandes estúdios e agências de fotografia</p>
+                <p className="text-sm text-muted-foreground">Para agências de fotografia consolidadas</p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full">
-                  Falar com Vendas
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleStartFreeClick}
+                >
+                  Assinar Premium
                 </Button>
                 
                 <div>
@@ -637,7 +647,7 @@ export default function LandingPage() {
           {/* Footer dos preços */}
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-4">
-              Todos os planos incluem 14 dias de teste grátis. Não é necessário cartão de crédito.
+              Inicie agora mesmo GRATUITAMENTE. Não é necessário cartão de crédito.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center">
@@ -762,7 +772,7 @@ export default function LandingPage() {
                   <div className="flex items-start space-x-4">
                     <Phone className="h-6 w-6 text-primary mt-1" />
                     <div>
-                      <h4 className="font-semibold text-foreground">Suporte por Telefone</h4>
+                      <h4 className="font-semibold text-foreground">Suporte por WhatsApp</h4>
                       <p className="text-muted-foreground mb-2">Fale diretamente com nossos especialistas</p>
                       <a href="tel:+5511999999999" className="text-primary hover:underline">
                         +55 (11) 99999-9999
@@ -776,23 +786,7 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
 
-              {/* Chat ao Vivo */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start space-x-4">
-                    <MessageCircle className="h-6 w-6 text-primary mt-1" />
-                    <div>
-                      <h4 className="font-semibold text-foreground">Chat ao Vivo</h4>
-                      <p className="text-muted-foreground mb-2">Converse conosco em tempo real</p>
-                      <span className="text-primary">Disponível no site</span>
-                      <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                        <span className="mr-2">🕐</span>
-                        Seg-Sex, 9h às 21h BRT
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              
 
               {/* Localização */}
               <Card>

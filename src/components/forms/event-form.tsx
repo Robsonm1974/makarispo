@@ -20,12 +20,11 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
   const [formData, setFormData] = useState<EventFormData>({
     name: '',
     school_id: '',
-    event_date: undefined,
-    event_end_date: undefined,
-    commission_percent: undefined,
-    notes: undefined,
-    status: 'active',
-    products_enabled: undefined
+    event_date: null,
+    event_end_date: null,
+    commission_percent: null,
+    notes: null,
+    status: 'active'
   })
 
   const [loading, setLoading] = useState(false)
@@ -35,12 +34,11 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
       setFormData({
         name: event.name || '',
         school_id: event.school_id || '',
-        event_date: event.event_date || undefined,
-        event_end_date: event.event_end_date || undefined,
-        commission_percent: event.commission_percent || undefined,
-        notes: event.notes || undefined,
-        status: event.status || 'active',
-        products_enabled: event.products_enabled || undefined
+        event_date: event.event_date || null,
+        event_end_date: event.event_end_date || null,
+        commission_percent: event.commission_percent || null,
+        notes: event.notes || null,
+        status: event.status || 'active'
       })
     }
   }, [event])
@@ -58,7 +56,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
     }
   }
 
-  const handleChange = (field: keyof EventFormData, value: string | number | undefined) => {
+  const handleChange = (field: keyof EventFormData, value: string | number | null) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -73,7 +71,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
           <Label htmlFor="name">Nome do Evento *</Label>
           <Input
             id="name"
-            value={formData.name}
+            value={formData.name || ''}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="Digite o nome do evento"
             required
@@ -84,7 +82,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
         <div className="md:col-span-2">
           <Label htmlFor="school_id">Escola *</Label>
           <Select
-            value={formData.school_id}
+            value={formData.school_id || ''}
             onValueChange={(value) => handleChange('school_id', value)}
             required
           >
@@ -108,7 +106,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
             id="event_date"
             type="date"
             value={formData.event_date || ''}
-            onChange={(e) => handleChange('event_date', e.target.value || undefined)}
+            onChange={(e) => handleChange('event_date', e.target.value || null)}
           />
         </div>
 
@@ -119,7 +117,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
             id="event_end_date"
             type="date"
             value={formData.event_end_date || ''}
-            onChange={(e) => handleChange('event_end_date', e.target.value || undefined)}
+            onChange={(e) => handleChange('event_end_date', e.target.value || null)}
           />
         </div>
 
@@ -131,8 +129,8 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
             type="number"
             min="0"
             max="100"
-            value={formData.commission_percent || ''}
-            onChange={(e) => handleChange('commission_percent', e.target.value ? parseInt(e.target.value) : undefined)}
+            value={formData.commission_percent?.toString() || ''}
+            onChange={(e) => handleChange('commission_percent', e.target.value ? parseInt(e.target.value) : null)}
             placeholder="Ex: 15"
           />
         </div>
@@ -141,7 +139,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
         <div>
           <Label htmlFor="status">Status</Label>
           <Select
-            value={formData.status}
+            value={formData.status || ''}
             onValueChange={(value) => handleChange('status', value)}
           >
             <SelectTrigger>
@@ -162,7 +160,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
         <Textarea
           id="notes"
           value={formData.notes || ''}
-          onChange={(e) => handleChange('notes', e.target.value || undefined)}
+          onChange={(e) => handleChange('notes', e.target.value || null)}
           placeholder="Informações adicionais sobre o evento"
           rows={3}
         />
