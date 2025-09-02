@@ -321,101 +321,213 @@
   }
 }
 
-/* Estilos para formulário de escolas */
+/* ===== FORMULÁRIO DE ESCOLAS - ESTILOS MODERNOS ===== */
+
+/* Melhorias para o diálogo */
+.school-dialog-content {
+  @apply max-w-[95vw] xl:max-w-7xl max-h-[95vh] overflow-hidden;
+}
+
+.school-dialog-header {
+  @apply px-6 py-4 border-b border-border bg-card/50;
+}
+
+.school-dialog-body {
+  @apply flex-1 overflow-y-auto p-6;
+}
+
+/* Melhorias para o formulário */
+.school-form-container {
+  @apply space-y-8;
+}
+
 .school-form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  @apply grid grid-cols-1 xl:grid-cols-3 gap-8;
 }
 
-@media (min-width: 1280px) {
-  .school-form-grid {
-    grid-template-columns: 2fr 1fr;
-  }
+.school-form-main {
+  @apply xl:col-span-2 space-y-6;
 }
 
+.school-form-sidebar {
+  @apply space-y-6;
+}
+
+/* Cards do formulário */
 .school-form-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-}
-
-.school-form-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.school-form-card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.school-image-upload {
-  border: 2px dashed var(--border);
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.school-image-upload:hover {
-  border-color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
-}
-
-.school-image-preview {
-  position: relative;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.school-image-remove {
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  z-index: 10;
-}
-
-/* Melhorias para mobile */
-@media (max-width: 768px) {
-  .school-form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .school-form-card {
-    padding: 1rem;
-  }
-  
-  .school-form-card-header {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-  }
-  
-  .school-form-card-title {
-    font-size: 1rem;
-  }
-}
-
-/* Animações suaves */
-.school-form-transition {
+  @apply border-0 shadow-sm bg-card/50 backdrop-blur-sm;
   transition: all 0.2s ease-in-out;
 }
 
-.school-form-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+.school-form-card:hover {
+  @apply shadow-md bg-card/60;
 }
 
-@keyframes fadeIn {
+.school-form-card-header {
+  @apply pb-4;
+}
+
+.school-form-card-title {
+  @apply flex items-center gap-3 text-xl font-semibold;
+}
+
+.school-form-card-title svg {
+  @apply text-primary;
+}
+
+.school-form-card-content {
+  @apply space-y-6;
+}
+
+/* Campos do formulário */
+.school-form-field {
+  @apply space-y-2;
+}
+
+.school-form-label {
+  @apply text-sm font-medium text-foreground;
+}
+
+.school-form-input {
+  @apply h-12 text-base transition-all duration-200;
+}
+
+.school-form-input:focus {
+  @apply ring-2 ring-primary/20 border-primary;
+}
+
+.school-form-textarea {
+  @apply resize-none transition-all duration-200;
+}
+
+.school-form-textarea:focus {
+  @apply ring-2 ring-primary/20 border-primary;
+}
+
+/* Upload de imagens */
+.school-image-upload-area {
+  @apply w-full flex flex-col items-center justify-center border-2 border-dashed border-border hover:border-primary/50 transition-all duration-200 bg-muted/20 hover:bg-muted/40;
+}
+
+.school-image-preview-container {
+  @apply relative group;
+}
+
+.school-image-preview {
+  @apply w-full object-cover rounded-lg border-2 border-border transition-all duration-200 group-hover:border-primary/50;
+}
+
+.school-image-remove-btn {
+  @apply absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200;
+}
+
+/* Botões do formulário */
+.school-form-actions {
+  @apply flex flex-col sm:flex-row gap-3 justify-end pt-6 border-t border-border;
+}
+
+.school-form-btn {
+  @apply w-full sm:w-auto transition-all duration-200;
+}
+
+/* Responsividade aprimorada */
+@media (max-width: 1280px) {
+  .school-form-grid {
+    @apply grid-cols-1;
+  }
+  
+  .school-form-main {
+    @apply col-span-1;
+  }
+  
+  .school-form-sidebar {
+    @apply col-span-1;
+  }
+}
+
+@media (max-width: 768px) {
+  .school-form-container {
+    @apply space-y-6;
+  }
+  
+  .school-form-grid {
+    @apply gap-6;
+  }
+  
+  .school-form-card {
+    @apply p-4;
+  }
+  
+  .school-form-card-title {
+    @apply text-lg;
+  }
+  
+  .school-form-card-content {
+    @apply space-y-4;
+  }
+  
+  .school-form-input {
+    @apply h-11 text-sm;
+  }
+  
+  .school-form-actions {
+    @apply pt-4;
+  }
+}
+
+@media (max-width: 480px) {
+  .school-form-card {
+    @apply p-3;
+  }
+  
+  .school-form-card-title {
+    @apply text-base;
+  }
+  
+  .school-form-input {
+    @apply h-10 text-sm;
+  }
+  
+  .school-form-textarea {
+    @apply text-sm;
+  }
+}
+
+/* Animações suaves para o formulário */
+.school-form-fade-in {
+  animation: schoolFormFadeIn 0.3s ease-in-out;
+}
+
+@keyframes schoolFormFadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Melhorias para scroll suave */
+.school-dialog-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.school-dialog-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.school-dialog-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.school-dialog-body::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 3px;
+}
+
+.school-dialog-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
 }

@@ -52,17 +52,21 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {school ? 'Editar Escola' : 'Nova Escola'}
-          </DialogTitle>
-        </DialogHeader>
-        <SchoolForm
-          school={school}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-        />
+      <DialogContent className="school-dialog-content">
+        <div className="flex flex-col h-full">
+          <DialogHeader className="school-dialog-header">
+            <DialogTitle className="text-xl font-semibold">
+              {school ? 'Editar Escola' : 'Nova Escola'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="school-dialog-body">
+            <SchoolForm
+              school={school}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+            />
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )
