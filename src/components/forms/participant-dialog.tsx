@@ -1,22 +1,27 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Plus, Edit } from 'lucide-react'
 import { ParticipantForm } from './participant-form'
 import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
+//import type { Event } from '@/types/events'
+import type { EventWithSchool } from '@/types/events'
 
 interface ParticipantDialogProps {
   participant?: ParticipantWithRelations
   onSubmit: (data: ParticipantFormData) => Promise<void>
   trigger?: React.ReactNode
+  onClose?: () => void
 }
 
-export function ParticipantDialog({ participant, onSubmit, trigger }: ParticipantDialogProps) {
+export function ParticipantDialog({ 
+  participant, 
+  onSubmit, 
+  trigger,
+  onClose 
+}: ParticipantDialogProps) {
   const [open, setOpen] = useState(false)
 
   const handleSubmit = async (data: ParticipantFormData) => {
@@ -30,6 +35,7 @@ export function ParticipantDialog({ participant, onSubmit, trigger }: Participan
 
   const handleCancel = () => {
     setOpen(false)
+    onClose?.()
   }
 
   return (
@@ -59,6 +65,8 @@ export function ParticipantDialog({ participant, onSubmit, trigger }: Participan
         </DialogHeader>
         <ParticipantForm
           participant={participant}
+          //events={events}
+          //selectedEventId={selectedEventId}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
         />

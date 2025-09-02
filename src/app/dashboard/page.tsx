@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -49,91 +49,115 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-  const { user, tenant } = useAuth()
+  const { user, tenant, loading: authLoading } = useAuth()
   const { events, loading: eventsLoading } = useEvents()
   const { participants, loading: participantsLoading } = useParticipants()
   const { schools, loading: schoolsLoading } = useSchools()
-  const [stats, setStats] = useState<DashboardStats>({
-    totalEvents: 0,
-    totalParticipants: 0,
-    totalSchools: 0,
-    totalPhotos: 0,
-    recentEvents: [],
-    recentParticipants: []
-  })
 
-  useEffect(() => {
-    if (events && participants && schools) {
-      // Calcular estatísticas
-      const totalEvents = events.length
-      const totalParticipants = participants.length
-      const totalSchools = schools.length
-      
-      // Fotos mockadas por enquanto (será implementado depois)
-      const totalPhotos = participants.length * 3 // Estimativa
+  // Memoizar estatísticas para evitar recálculos desnecessários
+  const stats = useMemo((): DashboardStats => {
+    if (!events || !participants || !schools) {
+      return {
+        totalEvents: 0,
+        totalParticipants: 0,
+        totalSchools: 0,
+        totalPhotos: 0,
+        recentEvents: [],
+        recentParticipants: []
+      }
+    }
 
-      // Eventos recentes com contagem de participantes
-      const recentEvents = events
-        .slice(0, 5)
-        .map(event => {
-          const participantCount = participants.filter(p => p.event_id === event.id).length
-          const school = schools.find(s => s.id === event.school_id)
-          return {
-            id: event.id,
-            name: event.name,
-            event_date: event.event_date,
-            participant_count: participantCount,
+    // Calcular estatísticas
+    const totalEvents = events.length
+    const totalParticipants = participants.length
+    const totalSchools = schools.length
+    
+    // Fotos mockadas por enquanto (será implementado depois)
+    const totalPhotos = participants.length * 3 // Estimativa
+
+    // Criar mapas para lookup O(1) em vez de O(n)
+    const schoolMap = new Map(schools.map(school => [school.id, school]))
+    const eventMap = new Map(events.map(event => [event.id, event]))
+    
+    // Contar participantes por evento de forma eficiente
+    const participantCountMap = new Map<string, number>()
+    participants.forEach(participant => {
+      const count = participantCountMap.get(participant.event_id) || 0
+      participantCountMap.set(participant.event_id, count + 1)
+    })
+
+    // Eventos recentes com contagem de participantes
+    const recentEvents = events
+      .slice(0, 5)
+      .map(event => {
+        const participantCount = participantCountMap.get(event.id) || 0
+        const school = schoolMap.get(event.school_id)
+        return {
+          id: event.id,
+          name: event.name,
+          event_date: event.event_date,
+          participant_count: participantCount,
+          school: {
+            name: school?.name || 'Escola não encontrada',
+            type: school?.type || 'tipo_desconhecido'
+          }
+        }
+      })
+      .sort((a, b) => {
+        if (!a.event_date || !b.event_date) return 0
+        return new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+      })
+
+    // Participantes recentes com informações do evento e escola
+    const recentParticipants = participants
+      .slice(0, 5)
+      .map(participant => {
+        const event = eventMap.get(participant.event_id)
+        const school = event ? schoolMap.get(event.school_id) : null
+        return {
+          id: participant.id,
+          name: participant.name,
+          class: participant.class,
+          event: {
+            name: event?.name || 'Evento não encontrado',
             school: {
               name: school?.name || 'Escola não encontrada',
               type: school?.type || 'tipo_desconhecido'
             }
           }
-        })
-        .sort((a, b) => {
-          if (!a.event_date || !b.event_date) return 0
-          return new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
-        })
-
-      // Participantes recentes com informações do evento e escola
-      const recentParticipants = participants
-        .slice(0, 5)
-        .map(participant => {
-          const event = events.find(e => e.id === participant.event_id)
-          const school = event ? schools.find(s => s.id === event.school_id) : null
-          return {
-            id: participant.id,
-            name: participant.name,
-            class: participant.class,
-            event: {
-              name: event?.name || 'Evento não encontrado',
-              school: {
-                name: school?.name || 'Escola não encontrada',
-                type: school?.type || 'tipo_desconhecido'
-              }
-            }
-          }
-        })
-        .sort((a, b) => {
-          // Ordenar por data de criação (mais recentes primeiro)
-          return 0 // Por enquanto, manter ordem original
-        })
-
-      setStats({
-        totalEvents,
-        totalParticipants,
-        totalSchools,
-        totalPhotos,
-        recentEvents,
-        recentParticipants
+        }
       })
+
+    return {
+      totalEvents,
+      totalParticipants,
+      totalSchools,
+      totalPhotos,
+      recentEvents,
+      recentParticipants
     }
   }, [events, participants, schools])
 
-  if (!user || !tenant) {
+  // Mostrar loading apenas se auth ainda está carregando
+  if (authLoading) {
     return (
       <div className="loading-container">
         <div className="loading-content">
           <h1 className="loading-text">Carregando...</h1>
+        </div>
+      </div>
+    )
+  }
+
+  // Se não tem user ou tenant, mostrar erro
+  if (!user || !tenant) {
+    return (
+      <div className="loading-container">
+        <div className="loading-content">
+          <h1 className="loading-text">Erro de autenticação</h1>
+          <p className="loading-description">
+            {!user ? 'Usuário não encontrado' : 'Tenant não encontrado'}
+          </p>
         </div>
       </div>
     )

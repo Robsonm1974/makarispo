@@ -1,209 +1,146 @@
-import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
-import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
+'use client'
 
-export function useParticipants() {
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import type { ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
+
+export function useParticipants(eventId?: string) {
   const [participants, setParticipants] = useState<ParticipantWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchParticipants = useCallback(async () => {
+  useEffect(() => {
+    fetchParticipants()
+  }, [eventId])
+
+  const fetchParticipants = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('participants')
         .select(`
           *,
           event:events(
-            *,
-            school:schools(*)
+            id,
+            name,
+            event_date,
+            event_end_date,
+            status,
+            school:schools(
+              id,
+              name,
+              type
+            )
           )
         `)
         .order('created_at', { ascending: false })
 
-      if (error) {
-        throw error
+      // Filtrar por evento se especificado
+      if (eventId) {
+        query = query.eq('event_id', eventId)
       }
 
-      if (data) {
-        // Mapear os dados para o tipo correto
-        const mappedParticipants: ParticipantWithRelations[] = data.map(participant => ({
-          id: participant.id,
-          event_id: participant.event_id,
-          name: participant.name,
-          class: participant.class,
-          qr_code: participant.qr_code,
-          notes: participant.notes,
-          created_at: participant.created_at,
-          updated_at: participant.updated_at,
-          event: {
-            id: participant.event.id,
-            name: participant.event.name,
-            event_date: participant.event.event_date,
-            event_end_date: participant.event.event_end_date,
-            status: participant.event.status,
-            school: {
-              id: participant.event.school.id,
-              name: participant.event.school.name,
-              type: participant.event.school.type as 'publica' | 'privada'
-            }
-          }
-        }))
-        setParticipants(mappedParticipants)
+      const { data, error: fetchError } = await query
+
+      if (fetchError) {
+        throw fetchError
       }
+
+      setParticipants((data as ParticipantWithRelations[]) || [])
     } catch (err) {
-      console.error('Erro ao buscar participantes:', err)
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      setError(err instanceof Error ? err.message : 'Erro ao carregar participantes')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }
 
-  const createParticipant = useCallback(async (participantData: {
-    event_id: string
-    name: string
-    class?: string | null
-    qr_code: string
-    notes?: string | null
-  }) => {
+  const createParticipant = async (participantData: ParticipantInsert) => {
     try {
-      setError(null)
-
-      const { data, error } = await supabase
+      const { data, error: createError } = await supabase
         .from('participants')
-        .insert([participantData])
+        .insert(participantData)
         .select(`
           *,
           event:events(
-            *,
-            school:schools(*)
+            id,
+            name,
+            event_date,
+            event_end_date,
+            status,
+            school:schools(
+              id,
+              name,
+              type
+            )
           )
         `)
         .single()
 
-      if (error) {
-        throw error
+      if (createError) {
+        throw createError
       }
 
-      if (data) {
-        // Mapear o novo participante para o tipo correto
-        const newParticipant: ParticipantWithRelations = {
-          id: data.id,
-          event_id: data.event_id,
-          name: data.name,
-          class: data.class,
-          qr_code: data.qr_code,
-          notes: data.notes,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-          event: {
-            id: data.event.id,
-            name: data.event.name,
-            event_date: data.event.event_date,
-            event_end_date: data.event.event_end_date,
-            status: data.event.status,
-            school: {
-              id: data.event.school.id,
-              name: data.event.school.name,
-              type: data.event.school.type as 'publica' | 'privada'
-            }
-          }
-        }
-        
-        setParticipants(prev => [newParticipant, ...prev])
-        return newParticipant
-      }
+      setParticipants((prev: ParticipantWithRelations[]) => [data as ParticipantWithRelations, ...prev])
+      return data as ParticipantWithRelations
     } catch (err) {
-      console.error('Erro ao criar participante:', err)
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
       throw err
     }
-  }, [])
+  }
 
-  const updateParticipant = useCallback(async (participantId: string, participantData: Partial<ParticipantFormData>) => {
+  const updateParticipant = async (id: string, updates: Partial<ParticipantInsert>) => {
     try {
-      setError(null)
-
-      const { data, error } = await supabase
+      const { data, error: updateError } = await supabase
         .from('participants')
-        .update(participantData)
-        .eq('id', participantId)
+        .update(updates)
+        .eq('id', id)
         .select(`
           *,
           event:events(
-            *,
-            school:schools(*)
+            id,
+            name,
+            event_date,
+            event_end_date,
+            status,
+            school:schools(
+              id,
+              name,
+              type
+            )
           )
         `)
         .single()
 
-      if (error) {
-        throw error
+      if (updateError) {
+        throw updateError
       }
 
-      if (data) {
-        // Mapear o participante atualizado para o tipo correto
-        const updatedParticipant: ParticipantWithRelations = {
-          id: data.id,
-          event_id: data.event_id,
-          name: data.name,
-          class: data.class,
-          qr_code: data.qr_code,
-          notes: data.notes,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-          event: {
-            id: data.event.id,
-            name: data.event.name,
-            event_date: data.event.event_date,
-            event_end_date: data.event.event_end_date,
-            status: data.event.status,
-            school: {
-              id: data.event.school.id,
-              name: data.event.school.name,
-              type: data.event.school.type as 'publica' | 'privada'
-            }
-          }
-        }
-        
-        setParticipants(prev => prev.map(participant => 
-          participant.id === participantId ? updatedParticipant : participant
-        ))
-        return updatedParticipant
-      }
+      setParticipants((prev: ParticipantWithRelations[]) => 
+        prev.map((p: ParticipantWithRelations) => p.id === id ? (data as ParticipantWithRelations) : p)
+      )
+      return data as ParticipantWithRelations
     } catch (err) {
-      console.error('Erro ao atualizar participante:', err)
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
       throw err
     }
-  }, [])
+  }
 
-  const deleteParticipant = useCallback(async (participantId: string) => {
+  const deleteParticipant = async (id: string) => {
     try {
-      setError(null)
-
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from('participants')
         .delete()
-        .eq('id', participantId)
+        .eq('id', id)
 
-      if (error) {
-        throw error
+      if (deleteError) {
+        throw deleteError
       }
 
-      setParticipants(prev => prev.filter(participant => participant.id !== participantId))
+      setParticipants((prev: ParticipantWithRelations[]) => prev.filter((p: ParticipantWithRelations) => p.id !== id))
     } catch (err) {
-      console.error('Erro ao deletar participante:', err)
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
       throw err
     }
-  }, [])
-
-  useEffect(() => {
-    fetchParticipants()
-  }, [fetchParticipants])
+  }
 
   return {
     participants,

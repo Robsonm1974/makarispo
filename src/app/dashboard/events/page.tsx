@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -19,10 +19,11 @@ import {
   Plus, 
   Edit, 
   Trash2, 
-  Search,
-  TrendingUp
+  Search
 } from 'lucide-react'
 import { toast } from 'sonner'
+import type { EventWithSchool, EventFormData, EventInsert } from '@/types/events'
+import { createEventInsert } from '@/types/events'
 
 interface EventStats {
   total: number
@@ -36,7 +37,7 @@ export default function EventsPage() {
   const { participants } = useParticipants()
   
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedEvent, setSelectedEvent] = useState<any>(null)
+  const [selectedEvent, setSelectedEvent] = useState<EventWithSchool | null>(null)
   const [showEventDialog, setShowEventDialog] = useState(false)
   const [showSchoolDialog, setShowSchoolDialog] = useState(false)
 
@@ -64,9 +65,17 @@ export default function EventsPage() {
     }
   }
 
-  const handleCreateEvent = async (eventData: any) => {
+  const handleCreateEvent = async (eventData: EventFormData) => {
     try {
-      await createEvent(eventData)
+      if (!user) {
+        toast.error('Usuário não autenticado')
+        return
+      }
+
+      // Converter EventFormData para EventInsert
+      const eventInsert: EventInsert = createEventInsert(eventData, user.id)
+      
+      await createEvent(eventInsert)
       toast.success('Evento criado com sucesso!')
       setShowEventDialog(false)
     } catch (error) {
@@ -75,8 +84,10 @@ export default function EventsPage() {
     }
   }
 
-  const handleUpdateEvent = async (eventData: any) => {
+  const handleUpdateEvent = async (eventData: EventFormData) => {
     try {
+      if (!selectedEvent) return
+      
       await updateEvent(selectedEvent.id, eventData)
       toast.success('Evento atualizado com sucesso!')
       setSelectedEvent(null)
@@ -337,23 +348,18 @@ export default function EventsPage() {
       {/* Event Dialog */}
       {showEventDialog && (
         <EventDialog
-          event={selectedEvent}
+          event={selectedEvent || undefined}
           onSubmit={selectedEvent ? handleUpdateEvent : handleCreateEvent}
-          onClose={() => {
-            setShowEventDialog(false)
-            setSelectedEvent(null)
-          }}
         />
       )}
 
-      {/* School Dialog */}
-      {showSchoolDialog && (
+            {/* School Dialog */}
+            {showSchoolDialog && (
         <SchoolDialog
-          onSubmit={() => {
+          onSubmit={async () => {
             setShowSchoolDialog(false)
             toast.success('Escola criada com sucesso!')
           }}
-          onClose={() => setShowSchoolDialog(false)}
         />
       )}
     </div>
