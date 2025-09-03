@@ -181,12 +181,12 @@ export default function SchoolsPage() {
                       </div>
                     </div>
                     <div className="flex gap-1">
+                      {/* Abrir diálogo de edição diretamente sem botão extra no canto */}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          setSelectedSchool(school)
-                        }}
+                        onClick={() => setSelectedSchool(school)}
+                        aria-label="Editar escola"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -262,6 +262,17 @@ export default function SchoolsPage() {
                         <div className="text-lg font-semibold text-foreground">{school.students_count}</div>
                         <div className="text-xs text-muted-foreground">Estudantes</div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Public Profile Link */}
+                  {school.slug && (
+                    <div className="pt-2">
+                      <Button asChild variant="outline" className="w-full">
+                        <a href={`/escolas/${school.slug}`} target="_blank" rel="noopener noreferrer" aria-label={`Ver perfil público de ${school.name}`}>
+                          Ver perfil público
+                        </a>
+                      </Button>
                     </div>
                   )}
                 </CardContent>

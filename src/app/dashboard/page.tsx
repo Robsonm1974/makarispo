@@ -15,7 +15,8 @@ import {
   Image, 
   TrendingUp,
   ArrowRight,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -178,12 +179,22 @@ export default function DashboardPage() {
       <div className="page-content">
         {/* Header */}
         <div className="page-header-section">
-          <h1 className="page-header">
-            Bem-vindo, {getTenantName()}!
-          </h1>
-          <p className="page-description">
-            Gerencie seus eventos, participantes e fotos em um só lugar.
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-header">
+                Bem-vindo, {getTenantName()}!
+              </h1>
+              <p className="page-description">
+                Gerencie seus eventos, participantes e fotos em um só lugar.
+              </p>
+            </div>
+            <Link href="/dashboard/settings">
+              <Button variant="outline">
+                <Settings className="h-4 w-4 mr-2" />
+                Configurações
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats Cards */}
