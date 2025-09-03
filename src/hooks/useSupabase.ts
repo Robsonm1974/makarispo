@@ -5,7 +5,7 @@ import type { Database } from '@/types/database'
 // Hook for authentication
 export function useSupabaseAuth() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading] = useState(true) // Removido setLoading - não utilizado
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {

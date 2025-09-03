@@ -15,6 +15,7 @@ You are a Senior Full-Stack Developer specialized in modern web applications, wo
 - Ask clarifying questions when requirements are unclear
 - Show progress updates during long operations
 - Always consult **Context7** documents (`projectrules.mdc`, `design-guidelines.mdc`, PRDs) before generating code or designs
+- **CRITICAL: Always verify @supabase.mdc documentation before making any database-related changes or type definitions**
 
 ## PROJECT OVERVIEW
 PHOTOMANAGER is a multi-tenant SaaS for school photographers to manage photo sessions and sell photos to parents through an integrated e-commerce system.
@@ -51,10 +52,6 @@ PHOTOMANAGER is a multi-tenant SaaS for school photographers to manage photo ses
 - Protect uploads: limit size, validate MIME, strip EXIF, resize images, scan when possible
 - Apply rate limiting to auth and public APIs
 - LGPD compliance: consent tracking, data export & deletion, retention policy
-
-## CODING STANDARDS
-
-### File Structure
 
 
 ### File Structure
@@ -156,6 +153,7 @@ When working on features:
 3. Plan the implementation approach
 4. Identify potential edge cases
 5. Consider multi-tenant implications
+6. **CRITICAL: Always verify @supabase.mdc for correct database schema and column names**
 
 ### While Coding
 1. Write TypeScript interfaces first

@@ -1,0 +1,1880 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# SUPABASE - DOCUMENTAÇÃO COMPLETA DO BANCO
+
+## 📊 RESUMO ESTATÍSTICO
+- **Tabelas:** [quantidade]
+- **Funções:** [quantidade] 
+- **Triggers:** [quantidade]
+- **Views:** [quantidade]
+- **Políticas RLS:** [quantidade]
+
+## 🗂️ TABELAS
+[
+  {
+    "table_name": "events",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "tenant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "school_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "event_date",
+    "data_type": "date",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "event_end_date",
+    "data_type": "date",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "commission_percent",
+    "data_type": "numeric",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 5,
+    "numeric_scale": 2
+  },
+  {
+    "table_name": "events",
+    "column_name": "notes",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "status",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": "'planned'::text",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "products_enabled",
+    "data_type": "ARRAY",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "events",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "order_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "product_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "photo_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "quantity",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "1",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "unit_price",
+    "data_type": "numeric",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 10,
+    "numeric_scale": 2
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "customization",
+    "data_type": "jsonb",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "tenant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "participant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "buyer_name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "buyer_email",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "buyer_phone",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "total_amount",
+    "data_type": "numeric",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 10,
+    "numeric_scale": 2
+  },
+  {
+    "table_name": "orders",
+    "column_name": "status",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": "'pending'::text",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "payment_id",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "payment_method",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "delivery_date",
+    "data_type": "date",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "notes",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "orders",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "tenant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "school_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "event_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "turma",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "tipo",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "qr_code",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "notes",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "active",
+    "data_type": "boolean",
+    "is_nullable": "YES",
+    "column_default": "true",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "participants",
+    "column_name": "deleted_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "photos",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "photos",
+    "column_name": "participant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "photos",
+    "column_name": "filename",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "photos",
+    "column_name": "original_filename",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "photos",
+    "column_name": "photo_url",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "photos",
+    "column_name": "file_size",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "photos",
+    "column_name": "uploaded_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "tenant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "description",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "price",
+    "data_type": "numeric",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 10,
+    "numeric_scale": 2
+  },
+  {
+    "table_name": "products",
+    "column_name": "mockup_url",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "category",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": "'photo'::text",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "active",
+    "data_type": "boolean",
+    "is_nullable": "YES",
+    "column_default": "true",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "products",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "tenant_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "address",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "director_name",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "director_photo_url",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "phone",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "email",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "type",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "students_count",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "schools",
+    "column_name": "school_photo_url",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "director_message",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "social_media",
+    "data_type": "jsonb",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "notes",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "slug",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "active",
+    "data_type": "boolean",
+    "is_nullable": "YES",
+    "column_default": "true",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "schools",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "email",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "whatsapp",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "city",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "state",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "bio",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "plan",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": "'gratuito'::text",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "logo_url",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "slug",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "active",
+    "data_type": "boolean",
+    "is_nullable": "YES",
+    "column_default": "true",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  }
+]
+## CHAVES PRIMÁRIAS
+[
+  {
+    "table_name": "events",
+    "column_name": "id",
+    "constraint_name": "events_pkey"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "id",
+    "constraint_name": "order_items_pkey"
+  },
+  {
+    "table_name": "orders",
+    "column_name": "id",
+    "constraint_name": "orders_pkey"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "id",
+    "constraint_name": "participants_pkey"
+  },
+  {
+    "table_name": "photos",
+    "column_name": "id",
+    "constraint_name": "photos_pkey"
+  },
+  {
+    "table_name": "products",
+    "column_name": "id",
+    "constraint_name": "products_pkey"
+  },
+  {
+    "table_name": "schools",
+    "column_name": "id",
+    "constraint_name": "schools_pkey"
+  },
+  {
+    "table_name": "tenants",
+    "column_name": "id",
+    "constraint_name": "tenants_pkey"
+  }
+]
+## CHAVES ESTRANGEIRAS E RELACIONAMENTOS
+[
+  {
+    "table_name": "events",
+    "column_name": "school_id",
+    "foreign_table_name": "schools",
+    "foreign_column_name": "id",
+    "constraint_name": "events_school_id_fkey"
+  },
+  {
+    "table_name": "events",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id",
+    "constraint_name": "events_tenant_id_fkey"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "product_id",
+    "foreign_table_name": "products",
+    "foreign_column_name": "id",
+    "constraint_name": "order_items_product_id_fkey"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "photo_id",
+    "foreign_table_name": "photos",
+    "foreign_column_name": "id",
+    "constraint_name": "order_items_photo_id_fkey"
+  },
+  {
+    "table_name": "order_items",
+    "column_name": "order_id",
+    "foreign_table_name": "orders",
+    "foreign_column_name": "id",
+    "constraint_name": "order_items_order_id_fkey"
+  },
+  {
+    "table_name": "orders",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id",
+    "constraint_name": "orders_tenant_id_fkey"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "school_id",
+    "foreign_table_name": "schools",
+    "foreign_column_name": "id",
+    "constraint_name": "participants_school_id_fkey"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id",
+    "constraint_name": "participants_tenant_id_fkey"
+  },
+  {
+    "table_name": "participants",
+    "column_name": "event_id",
+    "foreign_table_name": "events",
+    "foreign_column_name": "id",
+    "constraint_name": "participants_event_id_fkey"
+  },
+  {
+    "table_name": "products",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id",
+    "constraint_name": "products_tenant_id_fkey"
+  },
+  {
+    "table_name": "schools",
+    "column_name": "tenant_id",
+    "foreign_table_name": "tenants",
+    "foreign_column_name": "id",
+    "constraint_name": "schools_tenant_id_fkey"
+  }
+]
+
+## ÍNDICES
+| schemaname | tablename    | indexname                  | indexdef                                                                                               |
+| ---------- | ------------ | -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| public     | events       | events_pkey                | CREATE UNIQUE INDEX events_pkey ON public.events USING btree (id)                                      |
+| public     | events       | idx_events_tenant_school   | CREATE INDEX idx_events_tenant_school ON public.events USING btree (tenant_id, school_id)              |
+| public     | order_items  | order_items_pkey           | CREATE UNIQUE INDEX order_items_pkey ON public.order_items USING btree (id)                            |
+| public     | orders       | idx_orders_tenant          | CREATE INDEX idx_orders_tenant ON public.orders USING btree (tenant_id)                                |
+| public     | orders       | orders_pkey                | CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)                                      |
+| public     | participants | idx_participants_active    | CREATE INDEX idx_participants_active ON public.participants USING btree (active) WHERE (active = true) |
+| public     | participants | idx_participants_event     | CREATE INDEX idx_participants_event ON public.participants USING btree (event_id)                      |
+| public     | participants | idx_participants_qr        | CREATE INDEX idx_participants_qr ON public.participants USING btree (qr_code)                          |
+| public     | participants | idx_participants_school    | CREATE INDEX idx_participants_school ON public.participants USING btree (school_id)                    |
+| public     | participants | idx_participants_tenant    | CREATE INDEX idx_participants_tenant ON public.participants USING btree (tenant_id)                    |
+| public     | participants | idx_participants_tipo      | CREATE INDEX idx_participants_tipo ON public.participants USING btree (tipo)                           |
+| public     | participants | participants_pkey          | CREATE UNIQUE INDEX participants_pkey ON public.participants USING btree (id)                          |
+| public     | participants | participants_qr_code_key   | CREATE UNIQUE INDEX participants_qr_code_key ON public.participants USING btree (qr_code)              |
+| public     | photos       | idx_photos_participant     | CREATE INDEX idx_photos_participant ON public.photos USING btree (participant_id)                      |
+| public     | photos       | photos_pkey                | CREATE UNIQUE INDEX photos_pkey ON public.photos USING btree (id)                                      |
+| public     | products     | idx_products_tenant        | CREATE INDEX idx_products_tenant ON public.products USING btree (tenant_id)                            |
+| public     | products     | products_pkey              | CREATE UNIQUE INDEX products_pkey ON public.products USING btree (id)                                  |
+| public     | schools      | idx_schools_tenant_slug    | CREATE INDEX idx_schools_tenant_slug ON public.schools USING btree (tenant_id, slug)                   |
+| public     | schools      | schools_pkey               | CREATE UNIQUE INDEX schools_pkey ON public.schools USING btree (id)                                    |
+| public     | schools      | schools_tenant_id_slug_key | CREATE UNIQUE INDEX schools_tenant_id_slug_key ON public.schools USING btree (tenant_id, slug)         |
+| public     | tenants      | idx_tenants_slug           | CREATE INDEX idx_tenants_slug ON public.tenants USING btree (slug)                                     |
+| public     | tenants      | tenants_email_key          | CREATE UNIQUE INDEX tenants_email_key ON public.tenants USING btree (email)                            |
+| public     | tenants      | tenants_pkey               | CREATE UNIQUE INDEX tenants_pkey ON public.tenants USING btree (id)                                    |
+| public     | tenants      | tenants_slug_key           | CREATE UNIQUE INDEX tenants_slug_key ON public.tenants USING btree (slug)                              |
+
+
+## fUNÇÕES
+[
+  {
+    "routine_name": "audit_trigger_function",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nDECLARE\r\n    audit_row audit_logs;\r\n    user_id UUID;\r\n    tenant_id UUID;\r\nBEGIN\r\n    -- Get current user ID\r\n    user_id := auth.uid();\r\n    \r\n    -- Get tenant ID from context or record\r\n    IF TG_TABLE_NAME = 'tenants' THEN\r\n        tenant_id := COALESCE(NEW.id, OLD.id);\r\n    ELSIF TG_TABLE_NAME IN ('schools', 'events', 'products', 'orders') THEN\r\n        tenant_id := COALESCE(NEW.tenant_id, OLD.tenant_id);\r\n    ELSIF TG_TABLE_NAME = 'participants' THEN\r\n        SELECT e.tenant_id INTO tenant_id \r\n        FROM events e \r\n        WHERE e.id = COALESCE(NEW.event_id, OLD.event_id);\r\n    ELSIF TG_TABLE_NAME = 'photos' THEN\r\n        SELECT e.tenant_id INTO tenant_id \r\n        FROM participants p \r\n        JOIN events e ON p.event_id = e.id \r\n        WHERE p.id = COALESCE(NEW.participant_id, OLD.participant_id);\r\n    ELSIF TG_TABLE_NAME = 'order_items' THEN\r\n        SELECT o.tenant_id INTO tenant_id \r\n        FROM orders o \r\n        WHERE o.id = COALESCE(NEW.order_id, OLD.order_id);\r\n    END IF;\r\n    \r\n    -- Create audit row\r\n    audit_row := ROW(\r\n        gen_random_uuid(),\r\n        TG_TABLE_NAME,\r\n        COALESCE(NEW.id, OLD.id),\r\n        TG_OP,\r\n        CASE WHEN TG_OP = 'DELETE' THEN to_jsonb(OLD) ELSE NULL END,\r\n        CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN to_jsonb(NEW) ELSE NULL END,\r\n        user_id,\r\n        tenant_id,\r\n        NOW(),\r\n        inet_client_addr(),\r\n        current_setting('request.headers')::jsonb->>'user-agent'\r\n    );\r\n    \r\n    INSERT INTO audit_logs VALUES (audit_row.*);\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "auto_generate_qr_code",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Só gera QR code se não foi fornecido\r\n    IF NEW.qr_code IS NULL OR NEW.qr_code = '' THEN\r\n        NEW.qr_code := generate_unique_qr_code();\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "check_tenant_access",
+    "routine_type": "FUNCTION",
+    "data_type": "boolean",
+    "routine_definition": "\r\nDECLARE\r\n    tenant_id UUID;\r\nBEGIN\r\n    -- Get tenant ID from the record\r\n    EXECUTE format('SELECT tenant_id FROM %I WHERE id = $1', table_name)\r\n    INTO tenant_id\r\n    USING record_id;\r\n    \r\n    -- Check if current user has access to this tenant\r\n    RETURN tenant_id = get_current_tenant_id();\r\nEXCEPTION\r\n    WHEN OTHERS THEN\r\n        RETURN FALSE;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "cleanup_soft_deleted_records",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- This is a placeholder for soft delete cleanup\r\n    -- Could archive or permanently delete old records\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "generate_unique_qr_code",
+    "routine_type": "FUNCTION",
+    "data_type": "text",
+    "routine_definition": "\r\nDECLARE\r\n    new_qr_code TEXT;\r\n    counter INTEGER := 0;\r\n    max_attempts INTEGER := 1000;\r\nBEGIN\r\n    LOOP\r\n        -- Formato: QR + 7 dígitos decimais\r\n        new_qr_code := 'QR' || LPAD(FLOOR(RANDOM() * 10000000)::TEXT, 7, '0');\r\n\r\n        -- Verificar se já existe\r\n        IF NOT EXISTS (SELECT 1 FROM participants WHERE qr_code = new_qr_code) THEN\r\n            RETURN new_qr_code;\r\n        END IF;\r\n\r\n        counter := counter + 1;\r\n\r\n        -- Evitar loop infinito\r\n        IF counter > max_attempts THEN\r\n            RAISE EXCEPTION 'Não foi possível gerar QR code único após % tentativas', max_attempts;\r\n        END IF;\r\n    END LOOP;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_current_tenant_id",
+    "routine_type": "FUNCTION",
+    "data_type": "uuid",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN auth.uid()::UUID;\r\nEXCEPTION\r\n    WHEN OTHERS THEN\r\n        RETURN NULL;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_storage_usage",
+    "routine_type": "FUNCTION",
+    "data_type": "record",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT\r\n        b.name::TEXT as bucket_name,\r\n        COUNT(o.id)::BIGINT as file_count,\r\n        COALESCE(SUM((o.metadata->>'size')::BIGINT), 0)::BIGINT as total_size -- Cast final para BIGINT\r\n    FROM storage.buckets b\r\n    LEFT JOIN storage.objects o ON b.id = o.bucket_id\r\n        AND o.name LIKE auth.uid()::TEXT || '/%'\r\n    WHERE b.id IN ('photos', 'thumbnails', 'logos', 'mockups')\r\n    GROUP BY b.id, b.name\r\n    ORDER BY b.name;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_tenant_hierarchy",
+    "routine_type": "FUNCTION",
+    "data_type": "record",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT \r\n        s.name::TEXT as school_name,\r\n        e.name::TEXT as event_name,\r\n        COUNT(DISTINCT p.id)::BIGINT as participant_count,\r\n        COUNT(ph.id)::BIGINT as photo_count\r\n    FROM schools s\r\n    LEFT JOIN events e ON s.id = e.school_id\r\n    LEFT JOIN participants p ON e.id = p.event_id\r\n    LEFT JOIN photos ph ON p.id = ph.participant_id\r\n    WHERE s.tenant_id = auth.uid()\r\n    GROUP BY s.name, e.name\r\n    ORDER BY s.name, e.name;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_tenant_stats",
+    "routine_type": "FUNCTION",
+    "data_type": "record",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT \r\n        (SELECT COUNT(*) FROM schools WHERE tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM events WHERE tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM participants p \r\n         JOIN events e ON p.event_id = e.id \r\n         WHERE e.tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM photos ph \r\n         JOIN participants p ON ph.participant_id = p.id \r\n         JOIN events e ON p.event_id = e.id \r\n         WHERE e.tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM products WHERE tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM orders WHERE tenant_id = auth.uid())::BIGINT;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "send_notification",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- This is a placeholder for future notification system\r\n    -- Could integrate with email, SMS, or push notifications\r\n    \r\n    -- Example: Log notification event\r\n    INSERT INTO audit_logs (\r\n        table_name, \r\n        record_id, \r\n        operation, \r\n        new_data, \r\n        user_id, \r\n        tenant_id\r\n    ) VALUES (\r\n        TG_TABLE_NAME,\r\n        COALESCE(NEW.id, OLD.id),\r\n        'NOTIFICATION',\r\n        jsonb_build_object(\r\n            'message', 'Notification sent for ' || TG_TABLE_NAME,\r\n            'operation', TG_OP\r\n        ),\r\n        auth.uid(),\r\n        CASE \r\n            WHEN TG_TABLE_NAME = 'tenants' THEN COALESCE(NEW.id, OLD.id)\r\n            WHEN TG_TABLE_NAME IN ('schools', 'events', 'products', 'orders') THEN COALESCE(NEW.tenant_id, OLD.tenant_id)\r\n            ELSE NULL\r\n        END\r\n    );\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "set_qr_code_before_insert",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Se qr_code não foi fornecido ou está vazio, gerar automaticamente\r\n    IF NEW.qr_code IS NULL OR NEW.qr_code = '' THEN\r\n        NEW.qr_code := generate_unique_qr_code();\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "update_event_participant_count",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    IF TG_OP = 'INSERT' THEN\r\n        -- Increment participant count\r\n        UPDATE events \r\n        SET participant_count = COALESCE(participant_count, 0) + 1\r\n        WHERE id = NEW.event_id;\r\n    ELSIF TG_OP = 'DELETE' THEN\r\n        -- Decrement participant count\r\n        UPDATE events \r\n        SET participant_count = GREATEST(COALESCE(participant_count, 0) - 1, 0)\r\n        WHERE id = OLD.event_id;\r\n    ELSIF TG_OP = 'UPDATE' AND OLD.event_id != NEW.event_id THEN\r\n        -- Decrement old event count\r\n        UPDATE events \r\n        SET participant_count = GREATEST(COALESCE(participant_count, 0) - 1, 0)\r\n        WHERE id = OLD.event_id;\r\n        -- Increment new event count\r\n        UPDATE events \r\n        SET participant_count = COALESCE(participant_count, 0) + 1\r\n        WHERE id = NEW.event_id;\r\n    END IF;\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "update_school_event_count",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    IF TG_OP = 'INSERT' THEN\r\n        -- Increment event count\r\n        UPDATE schools \r\n        SET event_count = COALESCE(event_count, 0) + 1\r\n        WHERE id = NEW.school_id;\r\n    ELSIF TG_OP = 'DELETE' THEN\r\n        -- Decrement event count\r\n        UPDATE schools \r\n        SET event_count = GREATEST(COALESCE(event_count, 0) - 1, 0)\r\n        WHERE id = OLD.school_id;\r\n    ELSIF TG_OP = 'UPDATE' AND OLD.school_id != NEW.school_id THEN\r\n        -- Decrement old school count\r\n        UPDATE schools \r\n        SET event_count = GREATEST(COALESCE(event_count, 0) - 1, 0)\r\n        WHERE id = OLD.school_id;\r\n        -- Increment new school count\r\n        UPDATE schools \r\n        SET event_count = COALESCE(event_count, 0) + 1\r\n        WHERE id = NEW.school_id;\r\n    END IF;\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "update_updated_at_column",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    NEW.updated_at = NOW();\r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "validate_event_dates",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Check if event_end_date is after event_date\r\n    IF NEW.event_end_date IS NOT NULL AND NEW.event_date IS NOT NULL THEN\r\n        IF NEW.event_end_date <= NEW.event_date THEN\r\n            RAISE EXCEPTION 'Data de fim do evento deve ser posterior à data de início';\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- Check if event date is not in the past (allow past dates for historical data)\r\n    -- IF NEW.event_date < CURRENT_DATE THEN\r\n    --     RAISE EXCEPTION 'Data do evento não pode ser no passado';\r\n    -- END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "validate_order_amounts",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nDECLARE\r\n    calculated_total DECIMAL(10,2);\r\nBEGIN\r\n    -- Calculate total from order items\r\n    SELECT COALESCE(SUM(unit_price * quantity), 0)\r\n    INTO calculated_total\r\n    FROM order_items\r\n    WHERE order_id = NEW.id;\r\n    \r\n    -- Validate total amount\r\n    IF ABS(NEW.total_amount - calculated_total) > 0.01 THEN\r\n        RAISE EXCEPTION 'Valor total do pedido não corresponde aos itens (esperado: %, atual: %)', \r\n            calculated_total, NEW.total_amount;\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "validate_qr_code_uniqueness",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Check if QR code already exists\r\n    IF EXISTS (\r\n        SELECT 1 FROM participants \r\n        WHERE qr_code = NEW.qr_code \r\n        AND id != NEW.id\r\n    ) THEN\r\n        RAISE EXCEPTION 'Código QR já existe';\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  }
+]
+
+## FUNÇÕES
+
+[
+  {
+    "routine_name": "audit_trigger_function",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nDECLARE\r\n    audit_row audit_logs;\r\n    user_id UUID;\r\n    tenant_id UUID;\r\nBEGIN\r\n    -- Get current user ID\r\n    user_id := auth.uid();\r\n    \r\n    -- Get tenant ID from context or record\r\n    IF TG_TABLE_NAME = 'tenants' THEN\r\n        tenant_id := COALESCE(NEW.id, OLD.id);\r\n    ELSIF TG_TABLE_NAME IN ('schools', 'events', 'products', 'orders') THEN\r\n        tenant_id := COALESCE(NEW.tenant_id, OLD.tenant_id);\r\n    ELSIF TG_TABLE_NAME = 'participants' THEN\r\n        SELECT e.tenant_id INTO tenant_id \r\n        FROM events e \r\n        WHERE e.id = COALESCE(NEW.event_id, OLD.event_id);\r\n    ELSIF TG_TABLE_NAME = 'photos' THEN\r\n        SELECT e.tenant_id INTO tenant_id \r\n        FROM participants p \r\n        JOIN events e ON p.event_id = e.id \r\n        WHERE p.id = COALESCE(NEW.participant_id, OLD.participant_id);\r\n    ELSIF TG_TABLE_NAME = 'order_items' THEN\r\n        SELECT o.tenant_id INTO tenant_id \r\n        FROM orders o \r\n        WHERE o.id = COALESCE(NEW.order_id, OLD.order_id);\r\n    END IF;\r\n    \r\n    -- Create audit row\r\n    audit_row := ROW(\r\n        gen_random_uuid(),\r\n        TG_TABLE_NAME,\r\n        COALESCE(NEW.id, OLD.id),\r\n        TG_OP,\r\n        CASE WHEN TG_OP = 'DELETE' THEN to_jsonb(OLD) ELSE NULL END,\r\n        CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN to_jsonb(NEW) ELSE NULL END,\r\n        user_id,\r\n        tenant_id,\r\n        NOW(),\r\n        inet_client_addr(),\r\n        current_setting('request.headers')::jsonb->>'user-agent'\r\n    );\r\n    \r\n    INSERT INTO audit_logs VALUES (audit_row.*);\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "auto_generate_qr_code",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Só gera QR code se não foi fornecido\r\n    IF NEW.qr_code IS NULL OR NEW.qr_code = '' THEN\r\n        NEW.qr_code := generate_unique_qr_code();\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "check_tenant_access",
+    "routine_type": "FUNCTION",
+    "data_type": "boolean",
+    "routine_definition": "\r\nDECLARE\r\n    tenant_id UUID;\r\nBEGIN\r\n    -- Get tenant ID from the record\r\n    EXECUTE format('SELECT tenant_id FROM %I WHERE id = $1', table_name)\r\n    INTO tenant_id\r\n    USING record_id;\r\n    \r\n    -- Check if current user has access to this tenant\r\n    RETURN tenant_id = get_current_tenant_id();\r\nEXCEPTION\r\n    WHEN OTHERS THEN\r\n        RETURN FALSE;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "cleanup_soft_deleted_records",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- This is a placeholder for soft delete cleanup\r\n    -- Could archive or permanently delete old records\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "generate_unique_qr_code",
+    "routine_type": "FUNCTION",
+    "data_type": "text",
+    "routine_definition": "\r\nDECLARE\r\n    new_qr_code TEXT;\r\n    counter INTEGER := 0;\r\n    max_attempts INTEGER := 1000;\r\nBEGIN\r\n    LOOP\r\n        -- Formato: QR + 7 dígitos decimais\r\n        new_qr_code := 'QR' || LPAD(FLOOR(RANDOM() * 10000000)::TEXT, 7, '0');\r\n\r\n        -- Verificar se já existe\r\n        IF NOT EXISTS (SELECT 1 FROM participants WHERE qr_code = new_qr_code) THEN\r\n            RETURN new_qr_code;\r\n        END IF;\r\n\r\n        counter := counter + 1;\r\n\r\n        -- Evitar loop infinito\r\n        IF counter > max_attempts THEN\r\n            RAISE EXCEPTION 'Não foi possível gerar QR code único após % tentativas', max_attempts;\r\n        END IF;\r\n    END LOOP;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_current_tenant_id",
+    "routine_type": "FUNCTION",
+    "data_type": "uuid",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN auth.uid()::UUID;\r\nEXCEPTION\r\n    WHEN OTHERS THEN\r\n        RETURN NULL;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_storage_usage",
+    "routine_type": "FUNCTION",
+    "data_type": "record",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT\r\n        b.name::TEXT as bucket_name,\r\n        COUNT(o.id)::BIGINT as file_count,\r\n        COALESCE(SUM((o.metadata->>'size')::BIGINT), 0)::BIGINT as total_size -- Cast final para BIGINT\r\n    FROM storage.buckets b\r\n    LEFT JOIN storage.objects o ON b.id = o.bucket_id\r\n        AND o.name LIKE auth.uid()::TEXT || '/%'\r\n    WHERE b.id IN ('photos', 'thumbnails', 'logos', 'mockups')\r\n    GROUP BY b.id, b.name\r\n    ORDER BY b.name;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_tenant_hierarchy",
+    "routine_type": "FUNCTION",
+    "data_type": "record",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT \r\n        s.name::TEXT as school_name,\r\n        e.name::TEXT as event_name,\r\n        COUNT(DISTINCT p.id)::BIGINT as participant_count,\r\n        COUNT(ph.id)::BIGINT as photo_count\r\n    FROM schools s\r\n    LEFT JOIN events e ON s.id = e.school_id\r\n    LEFT JOIN participants p ON e.id = p.event_id\r\n    LEFT JOIN photos ph ON p.id = ph.participant_id\r\n    WHERE s.tenant_id = auth.uid()\r\n    GROUP BY s.name, e.name\r\n    ORDER BY s.name, e.name;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "get_tenant_stats",
+    "routine_type": "FUNCTION",
+    "data_type": "record",
+    "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT \r\n        (SELECT COUNT(*) FROM schools WHERE tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM events WHERE tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM participants p \r\n         JOIN events e ON p.event_id = e.id \r\n         WHERE e.tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM photos ph \r\n         JOIN participants p ON ph.participant_id = p.id \r\n         JOIN events e ON p.event_id = e.id \r\n         WHERE e.tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM products WHERE tenant_id = auth.uid())::BIGINT,\r\n        (SELECT COUNT(*) FROM orders WHERE tenant_id = auth.uid())::BIGINT;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "send_notification",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- This is a placeholder for future notification system\r\n    -- Could integrate with email, SMS, or push notifications\r\n    \r\n    -- Example: Log notification event\r\n    INSERT INTO audit_logs (\r\n        table_name, \r\n        record_id, \r\n        operation, \r\n        new_data, \r\n        user_id, \r\n        tenant_id\r\n    ) VALUES (\r\n        TG_TABLE_NAME,\r\n        COALESCE(NEW.id, OLD.id),\r\n        'NOTIFICATION',\r\n        jsonb_build_object(\r\n            'message', 'Notification sent for ' || TG_TABLE_NAME,\r\n            'operation', TG_OP\r\n        ),\r\n        auth.uid(),\r\n        CASE \r\n            WHEN TG_TABLE_NAME = 'tenants' THEN COALESCE(NEW.id, OLD.id)\r\n            WHEN TG_TABLE_NAME IN ('schools', 'events', 'products', 'orders') THEN COALESCE(NEW.tenant_id, OLD.tenant_id)\r\n            ELSE NULL\r\n        END\r\n    );\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "set_qr_code_before_insert",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Se qr_code não foi fornecido ou está vazio, gerar automaticamente\r\n    IF NEW.qr_code IS NULL OR NEW.qr_code = '' THEN\r\n        NEW.qr_code := generate_unique_qr_code();\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "update_event_participant_count",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    IF TG_OP = 'INSERT' THEN\r\n        -- Increment participant count\r\n        UPDATE events \r\n        SET participant_count = COALESCE(participant_count, 0) + 1\r\n        WHERE id = NEW.event_id;\r\n    ELSIF TG_OP = 'DELETE' THEN\r\n        -- Decrement participant count\r\n        UPDATE events \r\n        SET participant_count = GREATEST(COALESCE(participant_count, 0) - 1, 0)\r\n        WHERE id = OLD.event_id;\r\n    ELSIF TG_OP = 'UPDATE' AND OLD.event_id != NEW.event_id THEN\r\n        -- Decrement old event count\r\n        UPDATE events \r\n        SET participant_count = GREATEST(COALESCE(participant_count, 0) - 1, 0)\r\n        WHERE id = OLD.event_id;\r\n        -- Increment new event count\r\n        UPDATE events \r\n        SET participant_count = COALESCE(participant_count, 0) + 1\r\n        WHERE id = NEW.event_id;\r\n    END IF;\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "update_school_event_count",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    IF TG_OP = 'INSERT' THEN\r\n        -- Increment event count\r\n        UPDATE schools \r\n        SET event_count = COALESCE(event_count, 0) + 1\r\n        WHERE id = NEW.school_id;\r\n    ELSIF TG_OP = 'DELETE' THEN\r\n        -- Decrement event count\r\n        UPDATE schools \r\n        SET event_count = GREATEST(COALESCE(event_count, 0) - 1, 0)\r\n        WHERE id = OLD.school_id;\r\n    ELSIF TG_OP = 'UPDATE' AND OLD.school_id != NEW.school_id THEN\r\n        -- Decrement old school count\r\n        UPDATE schools \r\n        SET event_count = GREATEST(COALESCE(event_count, 0) - 1, 0)\r\n        WHERE id = OLD.school_id;\r\n        -- Increment new school count\r\n        UPDATE schools \r\n        SET event_count = COALESCE(event_count, 0) + 1\r\n        WHERE id = NEW.school_id;\r\n    END IF;\r\n    \r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "update_updated_at_column",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    NEW.updated_at = NOW();\r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "validate_event_dates",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Check if event_end_date is after event_date\r\n    IF NEW.event_end_date IS NOT NULL AND NEW.event_date IS NOT NULL THEN\r\n        IF NEW.event_end_date <= NEW.event_date THEN\r\n            RAISE EXCEPTION 'Data de fim do evento deve ser posterior à data de início';\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- Check if event date is not in the past (allow past dates for historical data)\r\n    -- IF NEW.event_date < CURRENT_DATE THEN\r\n    --     RAISE EXCEPTION 'Data do evento não pode ser no passado';\r\n    -- END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "validate_order_amounts",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nDECLARE\r\n    calculated_total DECIMAL(10,2);\r\nBEGIN\r\n    -- Calculate total from order items\r\n    SELECT COALESCE(SUM(unit_price * quantity), 0)\r\n    INTO calculated_total\r\n    FROM order_items\r\n    WHERE order_id = NEW.id;\r\n    \r\n    -- Validate total amount\r\n    IF ABS(NEW.total_amount - calculated_total) > 0.01 THEN\r\n        RAISE EXCEPTION 'Valor total do pedido não corresponde aos itens (esperado: %, atual: %)', \r\n            calculated_total, NEW.total_amount;\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  },
+  {
+    "routine_name": "validate_qr_code_uniqueness",
+    "routine_type": "FUNCTION",
+    "data_type": "trigger",
+    "routine_definition": "\r\nBEGIN\r\n    -- Check if QR code already exists\r\n    IF EXISTS (\r\n        SELECT 1 FROM participants \r\n        WHERE qr_code = NEW.qr_code \r\n        AND id != NEW.id\r\n    ) THEN\r\n        RAISE EXCEPTION 'Código QR já existe';\r\n    END IF;\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+  }
+]
+
+## TRIGGERS
+[
+  {
+    "trigger_name": "auto_generate_qr_code_trigger",
+    "event_manipulation": "INSERT",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION auto_generate_qr_code()"
+  },
+  {
+    "trigger_name": "set_qr_code_trigger",
+    "event_manipulation": "INSERT",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION set_qr_code_before_insert()"
+  }
+]
+
+## POLÍTICAS RLS (ROW LEVEL SECURITY)
+[
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "Users can manage events from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = events.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "Users can view events from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = events.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_items",
+    "policyname": "Users can manage order items from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (orders o\n     JOIN tenants t ON ((o.tenant_id = t.id)))\n  WHERE ((o.id = order_items.order_id) AND ((t.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_items",
+    "policyname": "Users can view order items from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (orders o\n     JOIN tenants t ON ((o.tenant_id = t.id)))\n  WHERE ((o.id = order_items.order_id) AND ((t.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "policyname": "Users can manage orders from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = orders.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "policyname": "Users can view orders from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = orders.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Tenants can delete their own participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(tenant_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Tenants can insert their own participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(tenant_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Tenants can update their own participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(tenant_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Tenants can view their own participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(tenant_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Users can delete participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Users can insert participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Users can update participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "participants",
+    "policyname": "Users can view participants",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "products",
+    "policyname": "Users can manage products from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = products.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "products",
+    "policyname": "Users can view products from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = products.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "schools",
+    "policyname": "Users can manage schools from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = schools.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "schools",
+    "policyname": "Users can view schools from own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM tenants\n  WHERE ((tenants.id = schools.tenant_id) AND ((tenants.id)::text = (auth.uid())::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenants",
+    "policyname": "Users can insert own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((auth.uid())::text = (id)::text)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenants",
+    "policyname": "Users can update own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "((auth.uid())::text = (id)::text)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "tenants",
+    "policyname": "Users can view own tenant",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((auth.uid())::text = (id)::text)",
+    "with_check": null
+  }
+]
+
+## VIEWS
+
+## SEQUENCES
+
+## TYPES (TIPOS PERSONALIZADOS)
+[
+  {
+    "typname": "_events",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_order_items",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_orders",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_participants",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_photos",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_products",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_schools",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "_tenants",
+    "typtype": "b",
+    "typdefault": null
+  },
+  {
+    "typname": "events",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "order_items",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "orders",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "participants",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "photos",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "products",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "schools",
+    "typtype": "c",
+    "typdefault": null
+  },
+  {
+    "typname": "tenants",
+    "typtype": "c",
+    "typdefault": null
+  }
+]
+
+## EXTENSIONS 
+
+## STORAGE BUCKETS
+
+[
+  {
+    "name": "logos",
+    "public": true,
+    "file_size_limit": 2097152,
+    "allowed_mime_types": [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/svg+xml"
+    ]
+  },
+  {
+    "name": "mockups",
+    "public": true,
+    "file_size_limit": 2097152,
+    "allowed_mime_types": [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp"
+    ]
+  },
+  {
+    "name": "photos",
+    "public": true,
+    "file_size_limit": 5242880,
+    "allowed_mime_types": [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp"
+    ]
+  },
+  {
+    "name": "school-images",
+    "public": true,
+    "file_size_limit": 5242880,
+    "allowed_mime_types": [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/jpg"
+    ]
+  },
+  {
+    "name": "thumbnails",
+    "public": true,
+    "file_size_limit": 2097152,
+    "allowed_mime_types": [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp"
+    ]
+  }
+]
+
+##  RESUMO ESTATÍSTICO
+
+[
+  {
+    "tipo": "TABELAS",
+    "quantidade": 8
+  },
+  {
+    "tipo": "FUNÇÕES",
+    "quantidade": 17
+  },
+  {
+    "tipo": "TRIGGERS",
+    "quantidade": 2
+  },
+  {
+    "tipo": "VIEWS",
+    "quantidade": 0
+  },
+  {
+    "tipo": "POLÍTICAS RLS",
+    "quantidade": 21
+  }
+]
+
+## 🔗 RELACIONAMENTOS
+
+### SCHEMA VISUALIZER
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.events (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tenant_id uuid,
+  school_id uuid,
+  name text NOT NULL,
+  event_date date,
+  event_end_date date,
+  commission_percent numeric DEFAULT 0,
+  notes text,
+  status text DEFAULT 'planned'::text CHECK (status = ANY (ARRAY['planned'::text, 'active'::text, 'completed'::text])),
+  products_enabled ARRAY,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT events_pkey PRIMARY KEY (id),
+  CONSTRAINT events_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id),
+  CONSTRAINT events_school_id_fkey FOREIGN KEY (school_id) REFERENCES public.schools(id)
+);
+CREATE TABLE public.order_items (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  order_id uuid,
+  product_id uuid,
+  photo_id uuid,
+  quantity integer DEFAULT 1,
+  unit_price numeric NOT NULL,
+  customization jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT order_items_pkey PRIMARY KEY (id),
+  CONSTRAINT order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id),
+  CONSTRAINT order_items_photo_id_fkey FOREIGN KEY (photo_id) REFERENCES public.photos(id)
+);
+CREATE TABLE public.orders (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tenant_id uuid,
+  participant_id uuid,
+  buyer_name text NOT NULL,
+  buyer_email text NOT NULL,
+  buyer_phone text,
+  total_amount numeric NOT NULL,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'paid'::text, 'producing'::text, 'delivered'::text])),
+  payment_id text,
+  payment_method text,
+  delivery_date date,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id)
+);
+CREATE TABLE public.participants (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tenant_id uuid,
+  school_id uuid,
+  event_id uuid,
+  name text NOT NULL,
+  turma text,
+  tipo text,
+  qr_code text UNIQUE,
+  notes text,
+  active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  deleted_at timestamp with time zone,
+  CONSTRAINT participants_pkey PRIMARY KEY (id),
+  CONSTRAINT participants_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id),
+  CONSTRAINT participants_school_id_fkey FOREIGN KEY (school_id) REFERENCES public.schools(id),
+  CONSTRAINT participants_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id)
+);
+CREATE TABLE public.photos (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  participant_id uuid,
+  filename text NOT NULL,
+  original_filename text,
+  photo_url text NOT NULL,
+  file_size integer,
+  uploaded_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT photos_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.products (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tenant_id uuid,
+  name text NOT NULL,
+  description text,
+  price numeric NOT NULL,
+  mockup_url text,
+  category text DEFAULT 'photo'::text,
+  active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT products_pkey PRIMARY KEY (id),
+  CONSTRAINT products_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id)
+);
+CREATE TABLE public.schools (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tenant_id uuid,
+  name text NOT NULL,
+  address text,
+  director_name text,
+  director_photo_url text,
+  phone text,
+  email text,
+  type text CHECK (type = ANY (ARRAY['publica'::text, 'privada'::text])),
+  students_count integer,
+  school_photo_url text,
+  director_message text,
+  social_media jsonb,
+  notes text,
+  slug text,
+  active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT schools_pkey PRIMARY KEY (id),
+  CONSTRAINT schools_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id)
+);
+CREATE TABLE public.tenants (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  email text NOT NULL UNIQUE,
+  name text NOT NULL,
+  whatsapp text,
+  city text,
+  state text,
+  bio text,
+  plan text DEFAULT 'gratuito'::text CHECK (plan = ANY (ARRAY['gratuito'::text, 'iniciante'::text, 'pro'::text])),
+  logo_url text,
+  slug text UNIQUE,
+  active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT tenants_pkey PRIMARY KEY (id)
+);

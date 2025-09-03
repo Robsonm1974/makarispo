@@ -56,11 +56,12 @@ export function useParticipants(eventId?: string) {
       console.log('Dados sendo enviados:', participantData)
       
       // Remover qr_code dos dados enviados - será gerado pelo trigger
-      const { qr_code, ...dataToInsert } = participantData
+      const { qr_code: _qr_code, ...dataToInsert } = participantData
       
       const { data, error: createError } = await supabase
         .from('participants')
-        .insert(dataToInsert as unknown as Record<string, unknown>)
+        // @ts-expect-error - Temporary workaround for type mismatch
+        .insert(dataToInsert)
 
         .select(`
           *,

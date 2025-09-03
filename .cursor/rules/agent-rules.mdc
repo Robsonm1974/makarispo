@@ -1,0 +1,41 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+Utilize components ## Edit Whitelist
+Pode editar: app/**, components/**, lib/**, styles/**, hooks/**, types/**, utils/**, public/**.
+Não pode (salvo pedido explícito): supabase/migrations/**, supabase/seed/**, scripts/**, .github/**, vercel.json, Dockerfile, CI.
+
+## Qualidade Técnica
+- TypeScript estrito, proibido `any`.
+- Seguir ESLint + Prettier.
+- Acessibilidade mínima (roles, labels, contraste).
+- Strings centralizadas em pt‑BR.
+- Usar ShadCN para UI.
+- Não sobrescrever classes globais existentes.
+- Usar context7 como referência.
+- Segurança: nunca expor tokens; sanitize entradas.
+
+
+## Definition of Done (DoD)
+- Build local sem erros (`pnpm dev`).
+- Sem erros TS/ESLint.
+- Critérios de aceite cumpridos.
+- README ou notas de implementação incluídas.
+- Commit message sugerida (texto).
+
+## Política de Banco
+- Alterações em tabelas/policies só com aprovação.
+- Sempre apresentar script SQL completo e rollback.
+
+## Hard‑Guardrails
+- NUNCA executar git commit/push.
+- NUNCA altere .env.*  sem confirmar antes
+- NUNCA alterar deploy ou auth sem aprovação.
+-  NUNCA ALTERAR Variáveis de Ambiente
+- SEMPRE: Plano → Aprovação → Dry‑Run → Execução em lotes → Validação.
+- SEMPRE: gerar commit msg apenas como texto
+- Sempre fique dentro do escopo da solicitação
+-

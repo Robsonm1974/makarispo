@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+### TASK CARD
+**Objetivo:** <1 frase>
+**Escopo (Fazer):** <bullet list enxuta>
+**Fora do Escopo (Não fazer):** <bullet list>
+**Critérios de Aceite:** <itens verificáveis>
+**Arquivos/Áreas afetadas:** <lista>

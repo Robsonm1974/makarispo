@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -37,7 +37,7 @@ interface DashboardStats {
   recentParticipants: Array<{
     id: string
     name: string
-    class: string | null
+    turma: string | null
     event: {
       name: string
       school: {
@@ -406,9 +406,9 @@ export default function DashboardPage() {
                           <span>{participant.event.name}</span>
                           <Badge variant="secondary">{participant.event.school.type}</Badge>
                         </div>
-                        {participant.class && (
+                        {participant.turma && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Turma: {participant.class}
+                            Turma: {participant.turma}
                           </p>
                         )}
                       </div>

@@ -18,7 +18,7 @@ export const schoolStorageUtils = {
       const fileName = `${schoolId}/school-${Date.now()}-${file.name}`
       const path = `schools/${fileName}`
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from(schoolStorageConfig.bucket)
         .upload(path, file, {
           cacheControl: '3600',
@@ -51,7 +51,7 @@ export const schoolStorageUtils = {
       const fileName = `${schoolId}/director-${Date.now()}-${file.name}`
       const path = `directors/${fileName}`
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from(schoolStorageConfig.bucket)
         .upload(path, file, {
           cacheControl: '3600',

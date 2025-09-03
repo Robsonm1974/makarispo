@@ -69,8 +69,7 @@ export function createEventInsert(data: EventFormData, tenantId: string): EventI
     event_end_date: data.event_end_date,
     commission_percent: data.commission_percent,
     notes: data.notes,
-    status: data.status || 'active',
-    products_enabled: data.products_enabled
+    status: data.status || 'active'
   }
 }
 

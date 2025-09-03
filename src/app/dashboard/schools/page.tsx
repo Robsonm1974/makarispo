@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import NextImage from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +29,7 @@ export default function SchoolsPage() {
   
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null)
-  const [showSchoolDialog, setShowSchoolDialog] = useState(false)
+
 
   // Filtrar escolas baseado no termo de busca
   const filteredSchools = schools.filter(school => {
@@ -51,7 +52,6 @@ export default function SchoolsPage() {
 
       await createSchool(schoolData, user.id)
       toast.success('Escola criada com sucesso!')
-      setShowSchoolDialog(false)
     } catch (error) {
       toast.error('Erro ao criar escola')
       console.error('Create school error:', error)
@@ -65,7 +65,6 @@ export default function SchoolsPage() {
       await updateSchool(selectedSchool.id, schoolData)
       toast.success('Escola atualizada com sucesso!')
       setSelectedSchool(null)
-      setShowSchoolDialog(false)
     } catch (error) {
       toast.error('Erro ao atualizar escola')
       console.error('Update school error:', error)
@@ -136,8 +135,6 @@ export default function SchoolsPage() {
               </p>
             </div>
             <SchoolDialog
-              open={showSchoolDialog}
-              onOpenChange={setShowSchoolDialog}
               onSubmit={handleCreateSchool}
               trigger={
                 <Button className="flex items-center gap-2">
@@ -189,7 +186,6 @@ export default function SchoolsPage() {
                         size="sm"
                         onClick={() => {
                           setSelectedSchool(school)
-                          setShowSchoolDialog(true)
                         }}
                       >
                         <Edit className="h-4 w-4" />
@@ -207,11 +203,13 @@ export default function SchoolsPage() {
                 <CardContent className="space-y-3">
                   {/* School Photo */}
                   {school.school_photo_url && (
-                    <div className="mb-3">
-                      <img
+                    <div className="mb-3 relative h-32 w-full">
+                      <NextImage
                         src={school.school_photo_url}
                         alt={school.name}
-                        className="w-full h-32 object-cover rounded-lg"
+                        fill
+                        className="object-cover rounded-lg"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                   )}
@@ -222,11 +220,15 @@ export default function SchoolsPage() {
                       <Users className="h-4 w-4" />
                       <span>{school.director_name}</span>
                       {school.director_photo_url && (
-                        <img
-                          src={school.director_photo_url}
-                          alt={school.director_name}
-                          className="w-6 h-6 rounded-full object-cover"
-                        />
+                        <div className="relative w-6 h-6">
+                          <NextImage
+                            src={school.director_photo_url}
+                            alt={school.director_name}
+                            fill
+                            className="rounded-full object-cover"
+                            sizes="24px"
+                          />
+                        </div>
                       )}
                     </div>
                   )}
@@ -297,8 +299,6 @@ export default function SchoolsPage() {
 
       {/* School Dialog */}
       <SchoolDialog
-        open={showSchoolDialog}
-        onOpenChange={setShowSchoolDialog}
         school={selectedSchool || undefined}
         onSubmit={async (data) => {
           if (selectedSchool) {
@@ -306,7 +306,6 @@ export default function SchoolsPage() {
           } else {
             await handleCreateSchool(data)
           }
-          setShowSchoolDialog(false)
           setSelectedSchool(null)
         }}
       />

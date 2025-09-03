@@ -10,7 +10,7 @@ import { ParticipantDialog } from '@/components/forms/participant-dialog'
 import { ParticipantsTable } from '@/components/tables/participants-table'
 import { Users, Search, Download, Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import type { ParticipantWithRelations, ParticipantFormData, ParticipantInsertForSupabase } from '@/types/participants'
+import type { ParticipantWithRelations, ParticipantFormData, ParticipantInsert } from '@/types/participants'
 import type { EventWithSchool } from '@/types/events'
 
 interface ParticipantsModalProps {
@@ -31,7 +31,7 @@ export function ParticipantsModal({ event, onClose }: ParticipantsModalProps) {
     const term = searchTerm.toLowerCase()
     return participants.filter(participant =>
       participant.name.toLowerCase().includes(term) ||
-      (participant.class && participant.class.toLowerCase().includes(term)) ||
+      (participant.turma && participant.turma.toLowerCase().includes(term)) ||
       (participant.qr_code && participant.qr_code.toLowerCase().includes(term)) ||
       (participant.notes && participant.notes.toLowerCase().includes(term))
     )
@@ -39,10 +39,10 @@ export function ParticipantsModal({ event, onClose }: ParticipantsModalProps) {
 
   const handleCreateParticipant = async (data: ParticipantFormData) => {
     try {
-      const participantData: ParticipantInsertForSupabase = {
+      const participantData: ParticipantInsert = {
         event_id: event.id,
         name: data.name,
-        class: data.class || null,
+        turma: data.turma || null,
         tipo: data.tipo || 'aluno',
         qr_code: '', // Valor temporário - trigger irá substituir
         notes: data.notes || null
@@ -61,9 +61,9 @@ export function ParticipantsModal({ event, onClose }: ParticipantsModalProps) {
     if (!editingParticipant) return
 
     try {
-      const updates: Partial<ParticipantInsertForSupabase> = {
+      const updates: Partial<ParticipantInsert> = {
         name: data.name,
-        class: data.class || null,
+        turma: data.turma || null,
         tipo: data.tipo || 'aluno',
         notes: data.notes || null
         // qr_code não pode ser atualizado manualmente
@@ -93,7 +93,7 @@ export function ParticipantsModal({ event, onClose }: ParticipantsModalProps) {
       ['Nome', 'Turma', 'Tipo', 'QR Code', 'Observações'],
       ...filteredParticipants.map(p => [
         p.name,
-        p.class || '',
+        p.turma || '',
         p.tipo || '',
         p.qr_code || '',
         p.notes || ''

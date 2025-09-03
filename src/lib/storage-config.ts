@@ -329,7 +329,7 @@ const storageConfiguration = {
   utils: storageUtils,
   photo: photoUtils,
   avatar: avatarUtils,
-  schoolImage: schoolImageUtils,
+  // schoolImage: schoolImageUtils, // TODO: Implement schoolImageUtils
   validation: validationUtils
 }
 

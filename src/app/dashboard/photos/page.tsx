@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import NextImage from 'next/image'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,7 @@ interface Photo {
   uploaded_at: string
   participant: {
     name: string
-    class: string | null
+    turma: string | null
     event: {
       name: string
       school: {
@@ -58,7 +59,7 @@ export default function PhotosPage() {
       uploaded_at: new Date().toISOString(),
       participant: {
         name: participant.name,
-        class: participant.class,
+        turma: participant.turma,
         event: {
           name: event?.name || 'Evento não encontrado',
           school: {
@@ -75,7 +76,7 @@ export default function PhotosPage() {
       photo.participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       photo.participant.event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       photo.participant.event.school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (photo.participant.class && photo.participant.class.toLowerCase().includes(searchTerm.toLowerCase()))
+      (photo.participant.turma && photo.participant.turma.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesEvent = selectedEvent === 'all' || photo.participant.event.name === selectedEvent
     const matchesSchool = selectedSchool === 'all' || photo.participant.event.school.name === selectedSchool
@@ -110,7 +111,7 @@ export default function PhotosPage() {
     }
   }, [])
 
-  const handleDelete = useCallback(async (photoId: string) => {
+  const handleDelete = useCallback(async (_photoId: string) => {
     try {
       // Mock delete - será implementado com Supabase
       toast.success('Foto excluída com sucesso!')
@@ -262,14 +263,12 @@ export default function PhotosPage() {
           {filteredPhotos.map((photo) => (
             <Card key={photo.id} className="overflow-hidden card-hover">
               <div className="aspect-square bg-muted relative group">
-                <img
+                <NextImage
                   src={photo.file_path}
                   alt={`Foto de ${photo.participant.name}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback para imagem não encontrada
-                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMkEyMDI4Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDExOSAxMTEuNDU3IDExOSAxMDFDMTE5IDkwLjU0MzQgMTEwLjQ1NyA4MiAxMDAgODJDODkuNTQzNCA4MiA4MSA5MC41NDM0IDgxIDEwMUM4MSAxMTEuNDU3IDg5LjU0MzQgMTIwIDEwMCAxMjBaIiBmaWxsPSIjNzA1MDE1Mjg2MDY3Ii8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDExOSAxMzEuNDU3IDExOSAxMjFDMTE5IDExMC41NDMgMTEwLjQ1NyAxMDIgMTAwIDEwMkM4OS41NDM0IDEwMiA4MSAxMTAuNTQzIDgxIDEyMUM4MSAxMzEuNDU3IDg5LjU0MzQgMTQwIDEwMCAxNDBaIiBmaWxsPSIjNzA1MDE1Mjg2MDY3Ii8+Cjwvc3ZnPgo='
-                  }}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 
                 {/* Overlay com ações */}
@@ -316,9 +315,9 @@ export default function PhotosPage() {
                     <p className="truncate">
                       <span className="font-medium">Escola:</span> {photo.participant.event.school.name}
                     </p>
-                    {photo.participant.class && (
+                    {photo.participant.turma && (
                       <p className="truncate">
-                        <span className="font-medium">Turma:</span> {photo.participant.class}
+                        <span className="font-medium">Turma:</span> {photo.participant.turma}
                       </p>
                     )}
                   </div>

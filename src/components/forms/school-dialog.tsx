@@ -15,17 +15,14 @@ interface SchoolDialogProps {
 
 export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false) // Removido - não utilizado
 
   const handleSubmit = async (data: SchoolFormData) => {
-    setLoading(true)
     try {
       await onSubmit(data)
       setOpen(false)
     } catch (error) {
       console.error('Erro ao salvar escola:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -52,21 +49,17 @@ export function SchoolDialog({ school, onSubmit, trigger }: SchoolDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="school-dialog-content">
-        <div className="flex flex-col h-full">
-          <DialogHeader className="school-dialog-header">
-            <DialogTitle className="text-xl font-semibold">
-              {school ? 'Editar Escola' : 'Nova Escola'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="school-dialog-body">
-            <SchoolForm
-              school={school}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-            />
-          </div>
-        </div>
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {school ? 'Editar Escola' : 'Nova Escola'}
+          </DialogTitle>
+        </DialogHeader>
+        <SchoolForm
+          school={school}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       </DialogContent>
     </Dialog>
   )

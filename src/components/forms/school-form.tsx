@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import NextImage from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -98,7 +99,7 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
     }
   }
 
-  const handleChange = (field: keyof SchoolFormData, value: string | number | boolean | null) => {
+  const handleChange = (field: keyof SchoolFormData, value: string | number | boolean | File | null) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -172,45 +173,43 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="school-form-container school-form-fade-in">
-      {/* Layout principal otimizado para desktop */}
+    <form onSubmit={handleSubmit} className="space-y-6 school-form-fade-in">
+      {/* Layout principal em duas colunas para desktop */}
       <div className="school-form-grid">
-        
-        {/* Coluna principal - Informações básicas e contato */}
-        <div className="school-form-main">
-          
+        {/* Coluna principal - Informações básicas */}
+        <div className="space-y-6">
           {/* Informações Básicas */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <Building2 className="h-6 w-6 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <Building2 className="h-5 w-5" />
                 Informações Básicas
               </CardTitle>
             </CardHeader>
-            <CardContent className="school-form-card-content">
-              {/* Nome da Escola - Ocupa toda a largura */}
-              <div className="school-form-field">
-                <Label htmlFor="name" className="school-form-label">Nome da Escola *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="Digite o nome da escola"
-                  required
-                  className={`school-form-input ${errors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
-                />
-                {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-              </div>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Nome da Escola */}
+                <div className="md:col-span-2">
+                  <Label htmlFor="name">Nome da Escola *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                    placeholder="Digite o nome da escola"
+                    required
+                    className={errors.name ? 'border-red-500' : ''}
+                  />
+                  {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+                </div>
 
-              {/* Tipo, Estudantes e Status em linha */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="school-form-field">
-                  <Label htmlFor="type" className="school-form-label">Tipo de Escola</Label>
+                {/* Tipo de Escola */}
+                <div>
+                  <Label htmlFor="type">Tipo de Escola</Label>
                   <Select
                     value={formData.type || 'publica'}
                     onValueChange={(value) => handleChange('type', value as 'publica' | 'privada')}
                   >
-                    <SelectTrigger className="school-form-input">
+                    <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -220,8 +219,9 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                   </Select>
                 </div>
 
-                <div className="school-form-field">
-                  <Label htmlFor="students_count" className="school-form-label">Número de Estudantes</Label>
+                {/* Número de Estudantes */}
+                <div>
+                  <Label htmlFor="students_count">Número de Estudantes</Label>
                   <Input
                     id="students_count"
                     type="number"
@@ -229,17 +229,28 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                     value={formData.students_count || ''}
                     onChange={(e) => handleChange('students_count', e.target.value ? parseInt(e.target.value) : null)}
                     placeholder="Ex: 500"
-                    className="school-form-input"
                   />
                 </div>
 
-                <div className="school-form-field">
-                  <Label htmlFor="active" className="school-form-label">Status</Label>
+                {/* Slug */}
+                <div>
+                  <Label htmlFor="slug">Slug (URL amigável)</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug || ''}
+                    onChange={(e) => handleChange('slug', e.target.value)}
+                    placeholder="nome-da-escola"
+                  />
+                </div>
+
+                {/* Status */}
+                <div>
+                  <Label htmlFor="active">Status</Label>
                   <Select
                     value={formData.active ? 'active' : 'inactive'}
                     onValueChange={(value) => handleChange('active', value === 'active')}
                   >
-                    <SelectTrigger className="school-form-input">
+                    <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -249,74 +260,59 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                   </Select>
                 </div>
               </div>
-
-              {/* Slug */}
-              <div className="school-form-field">
-                <Label htmlFor="slug" className="school-form-label">Slug (URL amigável)</Label>
-                <Input
-                  id="slug"
-                  value={formData.slug || ''}
-                  onChange={(e) => handleChange('slug', e.target.value)}
-                  placeholder="nome-da-escola"
-                  className="school-form-input"
-                />
-              </div>
             </CardContent>
           </Card>
 
           {/* Endereço */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <MapPin className="h-6 w-6 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <MapPin className="h-5 w-5" />
                 Endereço
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="school-form-field">
-                <Label htmlFor="address" className="school-form-label">Endereço Completo</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address || ''}
-                  onChange={(e) => handleChange('address', e.target.value)}
-                  placeholder="Digite o endereço completo da escola"
-                  rows={3}
-                  className="school-form-textarea"
-                />
-              </div>
+              <Label htmlFor="address">Endereço Completo</Label>
+              <Textarea
+                id="address"
+                value={formData.address || ''}
+                onChange={(e) => handleChange('address', e.target.value)}
+                placeholder="Digite o endereço completo da escola"
+                rows={3}
+              />
             </CardContent>
           </Card>
 
           {/* Contato */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <Phone className="h-6 w-6 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <Phone className="h-5 w-5" />
                 Informações de Contato
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="school-form-field">
-                  <Label htmlFor="phone" className="school-form-label">Telefone</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Telefone */}
+                <div>
+                  <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
                     value={formData.phone || ''}
                     onChange={(e) => handleChange('phone', e.target.value)}
                     placeholder="(11) 99999-9999"
-                    className="school-form-input"
                   />
                 </div>
 
-                <div className="school-form-field">
-                  <Label htmlFor="email" className="school-form-label">Email</Label>
+                {/* Email */}
+                <div>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email || ''}
                     onChange={(e) => handleChange('email', e.target.value)}
                     placeholder="escola@exemplo.com"
-                    className="school-form-input"
                   />
                 </div>
               </div>
@@ -325,33 +321,35 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
 
           {/* Diretor */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <Users className="h-6 w-6 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <Users className="h-5 w-5" />
                 Diretor
               </CardTitle>
             </CardHeader>
-            <CardContent className="school-form-card-content">
-              <div className="school-form-field">
-                <Label htmlFor="director_name" className="school-form-label">Nome do Diretor</Label>
-                <Input
-                  id="director_name"
-                  value={formData.director_name || ''}
-                  onChange={(e) => handleChange('director_name', e.target.value)}
-                  placeholder="Nome do diretor"
-                  className="school-form-input"
-                />
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Nome do Diretor */}
+                <div>
+                  <Label htmlFor="director_name">Nome do Diretor</Label>
+                  <Input
+                    id="director_name"
+                    value={formData.director_name || ''}
+                    onChange={(e) => handleChange('director_name', e.target.value)}
+                    placeholder="Nome do diretor"
+                  />
+                </div>
               </div>
 
-              <div className="school-form-field">
-                <Label htmlFor="director_message" className="school-form-label">Mensagem do Diretor</Label>
+              {/* Mensagem do Diretor */}
+              <div>
+                <Label htmlFor="director_message">Mensagem do Diretor</Label>
                 <Textarea
                   id="director_message"
                   value={formData.director_message || ''}
                   onChange={(e) => handleChange('director_message', e.target.value)}
                   placeholder="Uma mensagem especial do diretor para os pais e alunos"
-                  rows={4}
-                  className="school-form-textarea"
+                  rows={3}
                 />
               </div>
             </CardContent>
@@ -359,52 +357,51 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
 
           {/* Observações */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <FileText className="h-6 w-6 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <FileText className="h-5 w-5" />
                 Observações
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="school-form-field">
-                <Label htmlFor="notes" className="school-form-label">Observações Adicionais</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes || ''}
-                  onChange={(e) => handleChange('notes', e.target.value)}
-                  placeholder="Informações adicionais sobre a escola"
-                  rows={3}
-                  className="school-form-textarea"
-                />
-              </div>
+              <Label htmlFor="notes">Observações Adicionais</Label>
+              <Textarea
+                id="notes"
+                value={formData.notes || ''}
+                onChange={(e) => handleChange('notes', e.target.value)}
+                placeholder="Informações adicionais sobre a escola"
+                rows={3}
+              />
             </CardContent>
           </Card>
         </div>
 
         {/* Coluna lateral - Imagens */}
-        <div className="school-form-sidebar">
+        <div className="space-y-6">
           {/* Foto da Escola */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <ImageIcon className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <ImageIcon className="h-5 w-5" />
                 Foto da Escola
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {previewSchoolImage ? (
-                  <div className="school-image-preview-container">
-                    <img
+                  <div className="relative school-image-preview h-48 w-full">
+                    <NextImage
                       src={previewSchoolImage}
                       alt="Foto da escola"
-                      className="school-image-preview h-48"
+                      fill
+                      className="object-cover rounded-lg border"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <Button
                       type="button"
                       variant="destructive"
                       size="sm"
-                      className="school-image-remove-btn"
+                      className="absolute -top-2 -right-2 school-image-remove"
                       onClick={() => removeImage('school_photo_file')}
                     >
                       <X className="h-4 w-4" />
@@ -415,10 +412,10 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                     type="button"
                     variant="outline"
                     onClick={() => schoolImageRef.current?.click()}
-                    className="school-image-upload-area h-48"
+                    className="w-full h-48 flex flex-col items-center justify-center border-dashed school-image-upload"
                   >
-                    <ImageIcon className="h-12 w-12 mb-3 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground text-center">Adicionar Foto da Escola</span>
+                    <ImageIcon className="h-12 w-12 mb-2 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Adicionar Foto da Escola</span>
                   </Button>
                 )}
                 <input
@@ -436,9 +433,8 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                 {errors.school_photo_file && (
                   <p className="text-sm text-red-500">{errors.school_photo_file}</p>
                 )}
-                <p className="text-xs text-muted-foreground text-center">
-                  Formatos: JPEG, PNG, WebP<br />
-                  Máximo: 5MB
+                <p className="text-xs text-muted-foreground">
+                  Formatos: JPEG, PNG, WebP. Máximo: 5MB
                 </p>
               </div>
             </CardContent>
@@ -446,26 +442,28 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
 
           {/* Foto do Diretor */}
           <Card className="school-form-card">
-            <CardHeader className="school-form-card-header">
-              <CardTitle className="school-form-card-title">
-                <User className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg school-form-card-title">
+                <User className="h-5 w-5" />
                 Foto do Diretor
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {previewDirectorImage ? (
-                  <div className="school-image-preview-container">
-                    <img
+                  <div className="relative school-image-preview h-32 w-full">
+                    <NextImage
                       src={previewDirectorImage}
                       alt="Foto do diretor"
-                      className="school-image-preview h-32"
+                      fill
+                      className="object-cover rounded-lg border"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <Button
                       type="button"
                       variant="destructive"
                       size="sm"
-                      className="school-image-remove-btn"
+                      className="absolute -top-2 -right-2 school-image-remove"
                       onClick={() => removeImage('director_photo_file')}
                     >
                       <X className="h-4 w-4" />
@@ -476,10 +474,10 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                     type="button"
                     variant="outline"
                     onClick={() => directorImageRef.current?.click()}
-                    className="school-image-upload-area h-32"
+                    className="w-full h-32 flex flex-col items-center justify-center border-dashed school-image-upload"
                   >
                     <User className="h-8 w-8 mb-2 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground text-center">Adicionar Foto</span>
+                    <span className="text-xs text-muted-foreground">Adicionar Foto</span>
                   </Button>
                 )}
                 <input
@@ -497,9 +495,8 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
                 {errors.director_photo_file && (
                   <p className="text-sm text-red-500">{errors.director_photo_file}</p>
                 )}
-                <p className="text-xs text-muted-foreground text-center">
-                  Formatos: JPEG, PNG, WebP<br />
-                  Máximo: 3MB
+                <p className="text-xs text-muted-foreground">
+                  Formatos: JPEG, PNG, WebP. Máximo: 3MB
                 </p>
               </div>
             </CardContent>
@@ -508,13 +505,13 @@ export function SchoolForm({ school, onSubmit, onCancel }: SchoolFormProps) {
       </div>
 
       {/* Botões */}
-      <div className="school-form-actions">
+      <div className="flex gap-3 justify-end pt-6 border-t school-form-transition">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel} className="school-form-btn">
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
         )}
-        <Button type="submit" disabled={loading} className="school-form-btn">
+        <Button type="submit" disabled={loading}>
           {loading ? 'Salvando...' : school ? 'Atualizar Escola' : 'Criar Escola'}
         </Button>
       </div>

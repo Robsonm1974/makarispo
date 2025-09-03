@@ -17,7 +17,7 @@ interface ParticipantFormProps {
 export function ParticipantForm({ participant, onSubmit, onCancel }: ParticipantFormProps) {
   const [formData, setFormData] = useState<ParticipantFormData>({
     name: '',
-    class: '',
+    turma: '',
     tipo: 'aluno',
     notes: ''
   })
@@ -28,7 +28,7 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
     if (participant) {
       setFormData({
         name: participant.name || '',
-        class: participant.class || '',
+        turma: participant.turma || '',
         tipo: participant.tipo || 'aluno',
         notes: participant.notes || ''
       })
@@ -72,11 +72,11 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
 
         {/* Turma */}
         <div>
-          <Label htmlFor="class">Turma</Label>
+          <Label htmlFor="turma">Turma</Label>
           <Input
-            id="class"
-            value={formData.class || ''}
-            onChange={(e) => handleChange('class', e.target.value)}
+            id="turma"
+            value={formData.turma || ''}
+            onChange={(e) => handleChange('turma', e.target.value)}
             placeholder="Ex: 3º A, 2º B"
           />
         </div>

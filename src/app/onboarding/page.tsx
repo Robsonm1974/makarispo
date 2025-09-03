@@ -34,13 +34,12 @@ export default function OnboardingPage() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue
   } = useForm<OnboardingForm>({
     resolver: zodResolver(onboardingSchema)
   })
 
-  const watchedName = watch('name')
+  // const watchedName = watch('name') // Removido - não utilizado
 
   // Gerar slug automaticamente baseado no nome
   const generateSlug = (name: string) => {

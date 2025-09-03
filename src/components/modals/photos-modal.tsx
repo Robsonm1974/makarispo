@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import NextImage from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+// import { Badge } from '@/components/ui/badge' // Removido - não utilizado
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Image, Search, Upload, Download, Eye, Trash2, Filter, Grid3X3, List } from 'lucide-react'
+import { Image, Search, Upload, Download, Eye, Trash2, Grid3X3, List } from 'lucide-react'
 import { useParticipants } from '@/hooks/useParticipants'
 import type { EventWithSchool } from '@/types/events'
 
@@ -21,8 +22,8 @@ interface Photo {
   uploaded_at: string
   participant: {
     name: string
-    class: string | null
-    qr_code: string
+    turma: string | null
+    qr_code: string | null
   }
 }
 
@@ -52,7 +53,7 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
     uploaded_at: new Date().toISOString(),
     participant: {
       name: participant.name,
-      class: participant.class,
+              turma: participant.turma,
       qr_code: participant.qr_code
     }
   }))
@@ -60,8 +61,8 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
   const filteredPhotos = mockPhotos.filter(photo => {
     const matchesSearch = 
       photo.participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (photo.participant.class && photo.participant.class.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      photo.participant.qr_code.toLowerCase().includes(searchTerm.toLowerCase())
+      (photo.participant.turma && photo.participant.turma.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (photo.participant.qr_code && photo.participant.qr_code.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesParticipant = selectedParticipant === 'all' || photo.participant_id === selectedParticipant
 
@@ -95,7 +96,7 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
     }
   }, [])
 
-  const handleDelete = useCallback(async (photoId: string) => {
+  const handleDelete = useCallback(async (_photoId: string) => {
     try {
       // Mock delete - será implementado com Supabase
       toast.success('Foto excluída com sucesso!')
@@ -189,7 +190,7 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
                 <option value="all">Todos os Participantes</option>
                 {eventParticipants.map(participant => (
                   <option key={participant.id} value={participant.id}>
-                    {participant.name} {participant.class ? `(${participant.class})` : ''}
+                    {participant.name} {participant.turma ? `(${participant.turma})` : ''}
                   </option>
                 ))}
               </select>
@@ -213,13 +214,12 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
                   {filteredPhotos.map((photo) => (
                     <Card key={photo.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="aspect-square bg-gray-100 relative group">
-                        <img
+                        <NextImage
                           src={photo.file_path}
                           alt={`Foto de ${photo.participant.name}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDExOSAxMTEuNDU3IDExOSAxMDFDMTE5IDkwLjU0MzQgMTEwLjQ1NyA4MiAxMDAgODJDODkuNTQzNCA4MiA4MSA5MC41NDM0IDgxIDEwMUM4MSAxMTEuNDU3IDg5LjU0MzQgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDExOSAxMzEuNDU3IDExOSAxMjFDMTE5IDExMC41NDMgMTEwLjQ1NyAxMDIgMTAwIDEwMkM4OS41NDM0IDEwMiA4MSAxMTAuNTQzIDgxIDEyMUM4MSAxMzEuNDU3IDg5LjU0MzQgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo='
-                          }}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         />
                         
                         {/* Overlay com ações */}
@@ -260,9 +260,9 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
                           </h4>
                           
                           <div className="text-sm text-gray-600 space-y-1">
-                            {photo.participant.class && (
+                            {photo.participant.turma && (
                               <p className="truncate">
-                                <span className="font-medium">Turma:</span> {photo.participant.class}
+                                <span className="font-medium">Turma:</span> {photo.participant.turma}
                               </p>
                             )}
                             <p className="truncate text-xs">
@@ -289,14 +289,13 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
                     <Card key={photo.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                            <img
+                          <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                            <NextImage
                               src={photo.file_path}
                               alt={`Foto de ${photo.participant.name}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDExOSAxMTEuNDU3IDExOSAxMDFDMTE5IDkwLjU0MzQgMTEwLjQ1NyA4MiAxMDAgODJDODkuNTQzNCA4MiA4MSA5MC41NDM0IDgxIDEwMUM4MSAxMTEuNDU3IDg5LjU0MzQgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDExOSAxMzEuNDU3IDExOSAxMjFDMTE5IDExMC41NDMgMTEwLjQ1NyAxMDIgMTAwIDEwMkM4OS41NDM0IDEwMiA4MSAxMTAuNTQzIDgxIDEyMUM4MSAxMzEuNDU3IDg5LjU0MzQgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo='
-                              }}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
                             />
                           </div>
                           
@@ -306,9 +305,9 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
                             </h4>
                             
                             <div className="text-sm text-gray-600 space-y-1 mt-1">
-                              {photo.participant.class && (
+                              {photo.participant.turma && (
                                 <p className="truncate">
-                                  <span className="font-medium">Turma:</span> {photo.participant.class}
+                                  <span className="font-medium">Turma:</span> {photo.participant.turma}
                                 </p>
                               )}
                               <p className="truncate">

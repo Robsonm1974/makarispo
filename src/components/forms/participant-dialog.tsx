@@ -6,8 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Edit } from 'lucide-react'
 import { ParticipantForm } from './participant-form'
 import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
-//import type { Event } from '@/types/events'
-import type { EventWithSchool } from '@/types/events'
+// import type { EventWithSchool } from '@/types/events' // Removido - não utilizado
 
 interface ParticipantDialogProps {
   participant?: ParticipantWithRelations

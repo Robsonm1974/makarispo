@@ -90,11 +90,7 @@ function SeparatorGradient({
 
 // Variante para separador com texto
 function SeparatorWithText({
-  children,
-  className,
-  orientation = "horizontal",
-  decorative = true,
-  ...props
+  children
 }: React.ComponentProps<typeof SeparatorPrimitive.Root> & {
   children: React.ReactNode
 }) {
@@ -111,11 +107,7 @@ function SeparatorWithText({
 
 // Variante para separador com ícone
 function SeparatorWithIcon({
-  icon,
-  className,
-  orientation = "horizontal",
-  decorative = true,
-  ...props
+  icon
 }: React.ComponentProps<typeof SeparatorPrimitive.Root> & {
   icon: React.ReactNode
 }) {

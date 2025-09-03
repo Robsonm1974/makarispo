@@ -32,7 +32,7 @@ export default function SupabaseTest() {
       }
 
       // Teste do storage
-      const { data: buckets, error: storageError } = await supabase
+      const { error: storageError } = await supabase
         .storage
         .listBuckets()
 
