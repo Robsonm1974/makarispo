@@ -264,6 +264,26 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="card-hover card-interactive">
+            <Link href="/dashboard/schools">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Gerenciar Escolas
+                </CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Cadastre e gerencie escolas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full" variant="outline">
+                  Ver Escolas
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="card-hover card-interactive">
             <Link href="/dashboard/participants">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
