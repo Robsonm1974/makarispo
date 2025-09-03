@@ -4,12 +4,19 @@ import { createContext, useContext, useEffect, useState, useCallback, useMemo } 
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
-// Interface simplificada para tenant
+// Interface completa para tenant (baseada na estrutura real do supabase.mdc)
 interface Tenant {
   id: string
+  email: string
   name: string
-  domain: string | null
-  settings: Record<string, unknown> | null
+  whatsapp: string | null
+  city: string | null
+  state: string | null
+  bio: string | null
+  plan: string
+  logo_url: string | null
+  slug: string | null
+  active: boolean
   created_at: string
   updated_at: string
 }
@@ -58,9 +65,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data) {
         const tenantData: Tenant = {
           id: data.id,
+          email: data.email,
           name: data.name,
-          domain: data.domain,
-          settings: data.settings as Record<string, unknown> | null,
+          whatsapp: data.whatsapp,
+          city: data.city,
+          state: data.state,
+          bio: data.bio,
+          plan: data.plan,
+          logo_url: data.logo_url,
+          slug: data.slug,
+          active: data.active,
           created_at: data.created_at,
           updated_at: data.updated_at
         }

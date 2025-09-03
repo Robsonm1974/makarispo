@@ -96,9 +96,10 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
     }
   }, [])
 
-  const handleDelete = useCallback(async (_photoId: string) => {
+  const handleDelete = useCallback(async (photoId: string) => {
     try {
       // Mock delete - será implementado com Supabase
+      console.log('Deleting photo:', photoId)
       toast.success('Foto excluída com sucesso!')
     } catch (error) {
       toast.error('Erro ao excluir foto')
@@ -118,7 +119,7 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Image className="h-5 w-5" />
+            <Image className="h-5 w-5" role="img" aria-label="Ícone fotos" />
             Fotos - {event.name}
           </DialogTitle>
           <CardDescription>
@@ -351,7 +352,7 @@ export default function PhotosModal({ event, onClose }: PhotosModalProps) {
               )
             ) : (
               <Card className="text-center py-12">
-                <Image className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <Image className="h-16 w-16 text-gray-400 mx-auto mb-4" role="img" aria-label="Ícone fotos" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   {searchTerm || selectedParticipant !== 'all' 
                     ? 'Nenhuma foto encontrada' 

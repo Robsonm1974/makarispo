@@ -56,7 +56,8 @@ export function useParticipants(eventId?: string) {
       console.log('Dados sendo enviados:', participantData)
       
       // Remover qr_code dos dados enviados - será gerado pelo trigger
-      const { qr_code: _qr_code, ...dataToInsert } = participantData
+      const { qr_code, ...dataToInsert } = participantData
+      console.log('QR code será gerado automaticamente, removendo:', qr_code)
       
       const { data, error: createError } = await supabase
         .from('participants')

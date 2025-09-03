@@ -298,7 +298,7 @@ export default function EventsPage() {
                           window.location.href = `/dashboard/photos?event=${event.id}`
                         }}
                       >
-                        <Image className="h-4 w-4 mr-2" />
+                        <Image className="h-4 w-4 mr-2" role="img" aria-label="Ícone fotos" />
                         Fotos
                       </Button>
                     </div>

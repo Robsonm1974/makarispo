@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
 import { Building2, Globe, Settings, ShoppingCart } from 'lucide-react'
+import { Json } from '@/types/database'
 
 interface TenantSettingsForm {
   slug: string | null
@@ -16,17 +17,29 @@ interface TenantSettingsForm {
   logo_url: string | null
 }
 
+interface TenantSettings {
+  slug?: string | null
+  whatsapp?: string | null
+  logo_url?: string | null
+  plan?: string
+}
+
+interface TenantWithSettings {
+  settings?: TenantSettings | null
+  [key: string]: unknown
+}
+
 export default function SettingsPage() {
-  const { user, tenant } = useAuth()
+  const { user, tenant, refreshTenant } = useAuth()
   const [form, setForm] = useState<TenantSettingsForm>({ slug: null, whatsapp: null, logo_url: null })
   const [saving, setSaving] = useState(false)
-
+  
   useEffect(() => {
     if (tenant) {
       setForm({
-        slug: (tenant as any).slug ?? null,
-        whatsapp: (tenant as any).whatsapp ?? null,
-        logo_url: (tenant as any).logo_url ?? null,
+        slug: tenant.slug ?? null,
+        whatsapp: tenant.whatsapp ?? null,
+        logo_url: tenant.logo_url ?? null,
       })
     }
   }, [tenant])
@@ -41,10 +54,22 @@ export default function SettingsPage() {
     try {
       const { error } = await supabase
         .from('tenants')
-        .update({ slug: form.slug, whatsapp: form.whatsapp, logo_url: form.logo_url })
+        .update({ 
+          slug: form.slug, 
+          whatsapp: form.whatsapp, 
+          logo_url: form.logo_url 
+        })
         .eq('id', user.id)
 
       if (error) throw error
+      
+      // Atualizar cache do tenant
+      await refreshTenant()
+      
+      alert('Configurações salvas com sucesso!')
+    } catch (error) {
+      console.error('Erro ao salvar:', error)
+      alert('Erro ao salvar configurações')
     } finally {
       setSaving(false)
     }
@@ -97,7 +122,7 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                Plano atual: <Badge variant="secondary">{(tenant as any)?.plan || 'gratuito'}</Badge>
+                Plano atual: <Badge variant="secondary">{tenant?.plan || 'gratuito'}</Badge>
               </div>
               <div className="text-sm text-muted-foreground">Versão do app: 0.1.0</div>
             </CardContent>

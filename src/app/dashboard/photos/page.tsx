@@ -111,9 +111,10 @@ export default function PhotosPage() {
     }
   }, [])
 
-  const handleDelete = useCallback(async (_photoId: string) => {
+  const handleDelete = useCallback(async (photoId: string) => {
     try {
       // Mock delete - será implementado com Supabase
+      console.log('Deleting photo:', photoId)
       toast.success('Foto excluída com sucesso!')
     } catch (error) {
       toast.error('Erro ao excluir foto')
@@ -339,7 +340,7 @@ export default function PhotosPage() {
         {/* Empty State */}
         {filteredPhotos.length === 0 && (
           <Card className="empty-state">
-            <Image className="empty-state-icon" />
+            <Image className="empty-state-icon" role="img" aria-label="Ícone fotos" />
             <h3 className="empty-state-title">
               {searchTerm || selectedEvent !== 'all' || selectedSchool !== 'all' 
                 ? 'Nenhuma foto encontrada' 

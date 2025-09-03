@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +10,7 @@ import { ParticipantDialog } from '@/components/forms/participant-dialog'
 import { ParticipantsTable } from '@/components/tables/participants-table'
 import { Plus, Users } from 'lucide-react'
 import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
 import type { ParticipantFormData, ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
 
 interface ParticipantsPageProps {
@@ -19,12 +21,33 @@ interface ParticipantsPageProps {
 
 export default function ParticipantsPage({ params }: ParticipantsPageProps) {
   const { eventId } = params
+  const { user } = useAuth()
   const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant } = useParticipants(eventId)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
 
   const handleCreateParticipant = async (formData: ParticipantFormData) => {
     try {
+      if (!user) {
+        toast.error('Usuário não autenticado')
+        return
+      }
+
+      // Buscar dados do evento para obter tenant_id e school_id
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .select('tenant_id, school_id')
+        .eq('id', eventId)
+        .single()
+
+      if (eventError || !eventData) {
+        console.error('Erro ao buscar evento:', eventError)
+        toast.error('Erro ao buscar dados do evento')
+        return
+      }
+
       const participantData: ParticipantInsert = {
+        tenant_id: eventData.tenant_id || user.id, // Usar user.id como fallback
+        school_id: eventData.school_id,
         event_id: eventId,
         name: formData.name,
         turma: formData.turma || null,
@@ -33,7 +56,7 @@ export default function ParticipantsPage({ params }: ParticipantsPageProps) {
         // qr_code será gerado automaticamente pelo trigger
       }
 
-      console.log('Criando participante com dados:', participantData)
+      console.log('Criando participante com dados completos:', participantData)
       await createParticipant(participantData)
       toast.success('Participante criado com sucesso!')
     } catch (error) {
