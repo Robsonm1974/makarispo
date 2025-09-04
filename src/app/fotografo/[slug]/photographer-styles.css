@@ -1,0 +1,207 @@
+/* ===== ESTILOS ESPECÍFICOS DA PÁGINA DO FOTÓGRAFO ===== */
+/* Este arquivo só afeta esta página, não interfere no CSS global */
+
+.photographer-page {
+    min-height: 100vh;
+    background: linear-gradient(181deg, #ffffff 0%, #0e4edd 100%);
+  }
+  
+  .photographer-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .photographer-logo {
+    position: relative;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .photographer-name {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+  }
+  
+  .photographer-bio {
+    color: #4b5563;
+    margin-top: 0.25rem;
+    line-height: 1.5;
+  }
+  
+  .photographer-contact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .photographer-card {
+    background: rgb(18 58 120 / 95%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  
+  .photographer-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .photographer-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .photographer-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.425rem;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .photographer-card-content {
+    padding: 1.5rem;
+  }
+  
+  .photographer-description {
+    font-size: 0.875rem;
+    color: #d1d5db;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .photographer-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    transition: all 0.2s ease;
+  }
+  
+  .photographer-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  }
+  
+  .photographer-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .photographer-button {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+  }
+  
+  .photographer-button:hover {
+    background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+  }
+  
+  .photographer-button-outline {
+    background: green;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .photographer-button-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+  }
+  
+  .photographer-footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .photographer-footer-brand {
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  /* Barra de rodapé com a mesma cor do card localizar */
+  .photographer-footer-bar {
+    background: rgb(18 58 120 / 95%);
+    color: #ffffff;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .photographer-page {
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .photographer-header {
+      padding: 1rem;
+    }
+    
+    .photographer-name {
+      font-size: 1.5rem;
+    }
+    
+    .photographer-contact {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .photographer-card {
+      margin-bottom: 1rem;
+    }
+  }
+  
+  /* Animações */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .photographer-card {
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  .photographer-card:nth-child(2) {
+    animation-delay: 0.1s;
+  }

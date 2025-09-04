@@ -9,24 +9,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
 import { Building2, Globe, Settings, ShoppingCart } from 'lucide-react'
-import { Json } from '@/types/database'
-
 interface TenantSettingsForm {
   slug: string | null
   whatsapp: string | null
   logo_url: string | null
-}
-
-interface TenantSettings {
-  slug?: string | null
-  whatsapp?: string | null
-  logo_url?: string | null
-  plan?: string
-}
-
-interface TenantWithSettings {
-  settings?: TenantSettings | null
-  [key: string]: unknown
 }
 
 export default function SettingsPage() {
