@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
 
-export function useParticipants(eventId?: string) {
+export function useParticipants(eventId?: string | null) {
   const [participants, setParticipants] = useState<ParticipantWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,7 @@ export function useParticipants(eventId?: string) {
         `)
         .order('created_at', { ascending: false })
 
-      if (eventId) {
+      if (eventId && eventId !== null) {
         query = query.eq('event_id', eventId)
       }
 

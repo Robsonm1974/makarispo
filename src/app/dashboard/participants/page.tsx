@@ -1,29 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useParticipants } from '@/hooks/useParticipants'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
+import { ParticipantImportDialog } from '@/components/forms/participant-import-dialog'
+import { ParticipantExportButton } from '@/components/forms/participant-export-button'
 import { ParticipantsTable } from '@/components/tables/participants-table'
-import { Plus, Users } from 'lucide-react'
+import { Plus, Users, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import type { ParticipantFormData, ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
 
-interface ParticipantsPageProps {
-  params: {
-    eventId: string
-  }
-}
-
-export default function ParticipantsPage({ params }: ParticipantsPageProps) {
-  const { eventId } = params
+export default function ParticipantsPage() {
+  const searchParams = useSearchParams()
+  const eventId = searchParams.get('event')
+  const [eventData, setEventData] = useState<{ tenant_id: string; school_id: string } | null>(null)
   const { user } = useAuth()
-  const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant } = useParticipants(eventId)
+  const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant, refetch } = useParticipants(eventId)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
+
+  // Buscar dados do evento quando eventId mudar
+  useEffect(() => {
+    if (!eventId) return
+
+    const fetchEventData = async () => {
+      try {
+        const { data, error: eventError } = await supabase
+          .from('events')
+          .select('tenant_id, school_id')
+          .eq('id', eventId)
+          .single()
+
+        if (eventError) {
+          console.error('Erro ao buscar evento:', eventError)
+          toast.error('Erro ao buscar dados do evento')
+          return
+        }
+
+        setEventData(data)
+      } catch (error) {
+        console.error('Erro ao buscar evento:', error)
+        toast.error('Erro ao buscar dados do evento')
+      }
+    }
+
+    fetchEventData()
+  }, [eventId])
 
   const handleCreateParticipant = async (formData: ParticipantFormData) => {
     try {
@@ -42,6 +69,11 @@ export default function ParticipantsPage({ params }: ParticipantsPageProps) {
       if (eventError || !eventData) {
         console.error('Erro ao buscar evento:', eventError)
         toast.error('Erro ao buscar dados do evento')
+        return
+      }
+
+      if (!eventId) {
+        toast.error('ID do evento não encontrado')
         return
       }
 
@@ -148,18 +180,41 @@ export default function ParticipantsPage({ params }: ParticipantsPageProps) {
           <h1 className="text-3xl font-bold text-foreground">Participantes</h1>
           <p className="text-muted-foreground">
             Gerencie os participantes do evento
+            {!eventId && ' (selecione um evento)'}
           </p>
         </div>
-        <ParticipantDialog
-          onSubmit={handleSubmit}
-          onClose={closeDialog}
-          trigger={
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Participante
-            </Button>
-          }
-        />
+        <div className="flex gap-2">
+          {eventId && eventData && user && (
+            <>
+              <ParticipantExportButton
+                participants={participants}
+                disabled={loading || participants.length === 0}
+              />
+              <ParticipantImportDialog
+                eventId={eventId}
+                tenantId={eventData.tenant_id || user.id}
+                schoolId={eventData.school_id}
+                onImportComplete={refetch}
+                trigger={
+                  <Button variant="outline">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Adicionar Lista
+                  </Button>
+                }
+              />
+            </>
+          )}
+          <ParticipantDialog
+            onSubmit={handleSubmit}
+            onClose={closeDialog}
+            trigger={
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Participante
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Stats Cards */}

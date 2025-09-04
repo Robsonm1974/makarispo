@@ -40,6 +40,8 @@ export interface ParticipantFormData {
 
 // Tipo para inserção no Supabase - CORRIGIDO
 export interface ParticipantInsert {
+  tenant_id?: string
+  school_id?: string
   event_id: string
   name: string
   turma?: string | null // Campo real da tabela
