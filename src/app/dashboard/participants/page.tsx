@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useParticipants } from '@/hooks/useParticipants'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
@@ -12,7 +13,7 @@ import { ParticipantImportDialog } from '@/components/forms/participant-import-d
 import { ParticipantExportButton } from '@/components/forms/participant-export-button'
 import { ParticipantsTable } from '@/components/tables/participants-table'
 import { ParticipantPhotosModal } from '@/components/modals/participant-photos-modal'
-import { Plus, Users, Upload, Printer } from 'lucide-react'
+import { Plus, Users, Upload, Printer, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useParticipantBatchPrint } from '@/hooks/useParticipantBatchPrint'
@@ -26,6 +27,7 @@ export default function ParticipantsPage() {
   const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant, refetch } = useParticipants(eventId)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
   const [photosParticipant, setPhotosParticipant] = useState<ParticipantWithRelations | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const { isPrinting, printAllQRCodes } = useParticipantBatchPrint()
 
   // Buscar dados do evento quando eventId mudar
@@ -37,7 +39,7 @@ export default function ParticipantsPage() {
         const { data, error: eventError } = await supabase
           .from('events')
           .select('tenant_id, school_id')
-          .eq('id', eventId)
+          .eq('id', eventId as string)
           .single()
 
         if (eventError) {
@@ -187,7 +189,9 @@ export default function ParticipantsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-container">
+      <div className="page-content">
+        <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -297,23 +301,40 @@ export default function ParticipantsPage() {
       {/* Participants Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Participantes</CardTitle>
-          <CardDescription>
-            Visualize e gerencie todos os participantes do evento
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Lista de Participantes</CardTitle>
+              <CardDescription>
+                Visualize e gerencie todos os participantes do evento
+              </CardDescription>
+            </div>
+            {/* Campo de Pesquisa */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Pesquisar participantes por nome..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-80 bg-white text-black placeholder:text-gray-500"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <ParticipantsTable
             participants={participants}
             onEdit={openEditDialog}
             onPhotos={openPhotosModal}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
           />
         </CardContent>
       </Card>
 
       {/* Edit Dialog */}
       <ParticipantDialog
-        participant={editingParticipant}
+        participant={editingParticipant || undefined}
         open={!!editingParticipant}
         onSubmit={handleSubmit}
         onClose={closeDialog}
@@ -326,6 +347,8 @@ export default function ParticipantsPage() {
         open={!!photosParticipant}
         onClose={closePhotosModal}
       />
+        </div>
+      </div>
     </div>
   )
 }
