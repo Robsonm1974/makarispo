@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Header } from '@/components/ui/header'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/hooks/useEvents'
 import { useParticipants } from '@/hooks/useParticipants'
@@ -143,7 +144,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="page-container">
+    <>
+      <Header />
+      <div className="page-container">
       <div className="page-content">
         {/* Header */}
         <div className="page-header-section">
@@ -410,5 +413,6 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
+    </>
   )
 }

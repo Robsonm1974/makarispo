@@ -5,6 +5,7 @@ import NextImage from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Header } from '@/components/ui/header'
 import { Input } from '@/components/ui/input'
 import { SchoolDialog } from '@/components/forms/school-dialog'
 import { useAuth } from '@/contexts/AuthContext'
@@ -123,7 +124,9 @@ export default function SchoolsPage() {
   }
 
   return (
-    <div className="page-container">
+    <>
+      <Header />
+      <div className="page-container">
       <div className="page-content-compact">
         {/* Header */}
         <div className="page-header-section">
@@ -321,5 +324,6 @@ export default function SchoolsPage() {
         }}
       />
     </div>
+    </>
   )
 }

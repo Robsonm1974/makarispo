@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Header } from '@/components/ui/header'
 import { Image, Upload, Download, Eye, Trash2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/hooks/useEvents'
@@ -143,7 +144,9 @@ export default function PhotosPage() {
   const uniqueSchools = Array.from(new Set(schools.map(s => s.name)))
 
   return (
-    <div className="page-container">
+    <>
+      <Header />
+      <div className="page-container">
       <div className="page-content">
         {/* Header */}
         <div className="page-header-section">
@@ -363,5 +366,6 @@ export default function PhotosPage() {
         )}
       </div>
     </div>
+    </>
   )
 }

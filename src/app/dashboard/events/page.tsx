@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Header } from '@/components/ui/header'
 import { Input } from '@/components/ui/input'
 import { EventDialog } from '@/components/forms/event-dialog'
 import { useAuth } from '@/contexts/AuthContext'
@@ -153,7 +154,9 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="page-container">
+    <>
+      <Header />
+      <div className="page-container">
       <div className="page-content-compact">
         {/* Header */}
         <div className="page-header-section">
@@ -341,5 +344,6 @@ export default function EventsPage() {
         }}
       />
     </div>
+    </>
   )
 }

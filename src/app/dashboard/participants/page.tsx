@@ -6,17 +6,21 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Header } from '@/components/ui/header'
 import { useParticipants } from '@/hooks/useParticipants'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
 import { ParticipantImportDialog } from '@/components/forms/participant-import-dialog'
 import { ParticipantExportButton } from '@/components/forms/participant-export-button'
 import { ParticipantsTable } from '@/components/tables/participants-table'
 import { ParticipantPhotosModal } from '@/components/modals/participant-photos-modal'
-import { Plus, Users, Upload, Printer } from 'lucide-react'
+import { BatchPhotoUploadModal } from '@/components/modals/batch-photo-upload-modal'
+import { BatchUploadReportModal } from '@/components/modals/batch-upload-report-modal'
+import { Plus, Users, Upload, Printer, Camera } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useParticipantBatchPrint } from '@/hooks/useParticipantBatchPrint'
 import type { ParticipantFormData, ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
+import type { BatchUploadResult } from '@/hooks/useBatchPhotoUpload'
 
 export default function ParticipantsPage() {
   const searchParams = useSearchParams()
@@ -27,6 +31,11 @@ export default function ParticipantsPage() {
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
   const [photosParticipant, setPhotosParticipant] = useState<ParticipantWithRelations | null>(null)
   const { isPrinting, printAllQRCodes } = useParticipantBatchPrint()
+  
+  // Estados para upload em lote
+  const [showBatchUpload, setShowBatchUpload] = useState(false)
+  const [showUploadReport, setShowUploadReport] = useState(false)
+  const [uploadResult, setUploadResult] = useState<BatchUploadResult | null>(null)
 
   // Buscar dados do evento quando eventId mudar
   useEffect(() => {
@@ -156,6 +165,19 @@ export default function ParticipantsPage() {
     setPhotosParticipant(null)
   }
 
+  // Funções para upload em lote
+  const handleBatchUploadComplete = (result: BatchUploadResult) => {
+    setUploadResult(result)
+    setShowUploadReport(true)
+    // Atualizar lista de participantes para mostrar contagem atualizada
+    refetch()
+  }
+
+  const closeUploadReport = () => {
+    setShowUploadReport(false)
+    setUploadResult(null)
+  }
+
   const handleSubmit = async (formData: ParticipantFormData) => {
     if (editingParticipant) {
       await handleUpdateParticipant(formData)
@@ -187,7 +209,9 @@ export default function ParticipantsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <Header />
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -233,6 +257,15 @@ export default function ParticipantsPage() {
                   </Button>
                 }
               />
+              <Button
+                variant="outline"
+                onClick={() => setShowBatchUpload(true)}
+                disabled={loading || participants.length === 0}
+                title="Upload de fotos em lote para participantes"
+              >
+                <Camera className="h-4 w-4 mr-2" />
+                Add Photos Lote
+              </Button>
             </>
           )}
           <ParticipantDialog
@@ -326,6 +359,22 @@ export default function ParticipantsPage() {
         open={!!photosParticipant}
         onClose={closePhotosModal}
       />
+
+      {/* Batch Upload Modal */}
+      <BatchPhotoUploadModal
+        open={showBatchUpload}
+        onClose={() => setShowBatchUpload(false)}
+        participants={participants}
+        onUploadComplete={handleBatchUploadComplete}
+      />
+
+      {/* Upload Report Modal */}
+      <BatchUploadReportModal
+        open={showUploadReport}
+        onClose={closeUploadReport}
+        result={uploadResult}
+      />
     </div>
+    </>
   )
 }
