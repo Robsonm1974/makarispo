@@ -1,12 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Edit, User, QrCode, Eye, Camera } from 'lucide-react'
+import { Edit, User, QrCode, Camera, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { QRCodeModal } from '@/components/modals/qr-code-modal'
 import type { ParticipantWithRelations } from '@/types/participants'
+
+type SortField = 'name' | 'school' | 'event' | 'turma' | 'qr_code'
+type SortDirection = 'asc' | 'desc' | null
 
 interface ParticipantsTableProps {
   participants: ParticipantWithRelations[]
@@ -17,12 +20,89 @@ interface ParticipantsTableProps {
 export function ParticipantsTable({ participants, onEdit, onPhotos }: ParticipantsTableProps) {
   const [selectedParticipant, setSelectedParticipant] = useState<ParticipantWithRelations | null>(null)
   const [qrModalOpen, setQrModalOpen] = useState(false)
+  const [sortField, setSortField] = useState<SortField | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null)
 
 
   const handleViewQRCode = (participant: ParticipantWithRelations) => {
     setSelectedParticipant(participant)
     setQrModalOpen(true)
   }
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Se já está ordenando por este campo, alterna a direção
+      if (sortDirection === 'asc') {
+        setSortDirection('desc')
+      } else if (sortDirection === 'desc') {
+        setSortDirection(null)
+        setSortField(null)
+      } else {
+        setSortDirection('asc')
+      }
+    } else {
+      // Novo campo, começa com asc
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4" />
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="h-4 w-4" />
+    }
+    if (sortDirection === 'desc') {
+      return <ArrowDown className="h-4 w-4" />
+    }
+    return <ArrowUpDown className="h-4 w-4" />
+  }
+
+  const sortedParticipants = useMemo(() => {
+    if (!sortField || !sortDirection) {
+      return participants
+    }
+
+    return [...participants].sort((a, b) => {
+      let aValue: string
+      let bValue: string
+
+      switch (sortField) {
+        case 'name':
+          aValue = a.name.toLowerCase()
+          bValue = b.name.toLowerCase()
+          break
+        case 'school':
+          aValue = (a.event?.school?.name || '').toLowerCase()
+          bValue = (b.event?.school?.name || '').toLowerCase()
+          break
+        case 'event':
+          aValue = (a.event?.name || '').toLowerCase()
+          bValue = (b.event?.name || '').toLowerCase()
+          break
+        case 'turma':
+          aValue = (a.turma || '').toLowerCase()
+          bValue = (b.turma || '').toLowerCase()
+          break
+        case 'qr_code':
+          aValue = (a.qr_code || '').toLowerCase()
+          bValue = (b.qr_code || '').toLowerCase()
+          break
+        default:
+          return 0
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1
+      }
+      return 0
+    })
+  }, [participants, sortField, sortDirection])
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Data não definida'
@@ -52,16 +132,66 @@ export function ParticipantsTable({ participants, onEdit, onPhotos }: Participan
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[150px]">Nome</TableHead>
-                <TableHead className="min-w-[120px] hidden sm:table-cell">Escola</TableHead>
-                <TableHead className="min-w-[120px] hidden md:table-cell">Evento</TableHead>
-                <TableHead className="min-w-[80px]">Turma</TableHead>
-                <TableHead className="min-w-[100px] hidden lg:table-cell">QR Code</TableHead>
+                <TableHead className="min-w-[150px]">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                    onClick={() => handleSort('name')}
+                  >
+                    Nome
+                    {getSortIcon('name')}
+                  </Button>
+                </TableHead>
+                <TableHead className="min-w-[120px] hidden sm:table-cell">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                    onClick={() => handleSort('school')}
+                  >
+                    Escola
+                    {getSortIcon('school')}
+                  </Button>
+                </TableHead>
+                <TableHead className="min-w-[120px] hidden md:table-cell">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                    onClick={() => handleSort('event')}
+                  >
+                    Evento
+                    {getSortIcon('event')}
+                  </Button>
+                </TableHead>
+                <TableHead className="min-w-[80px]">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                    onClick={() => handleSort('turma')}
+                  >
+                    Turma
+                    {getSortIcon('turma')}
+                  </Button>
+                </TableHead>
+                <TableHead className="min-w-[100px] hidden lg:table-cell">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                    onClick={() => handleSort('qr_code')}
+                  >
+                    QR Code
+                    {getSortIcon('qr_code')}
+                  </Button>
+                </TableHead>
                 <TableHead className="text-right min-w-[120px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {participants.map((participant) => (
+              {sortedParticipants.map((participant) => (
                 <TableRow key={participant.id}>
                   <TableCell>
                     <div>

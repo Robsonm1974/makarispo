@@ -211,7 +211,8 @@ export default function ParticipantsPage() {
   return (
     <>
       <Header />
-      <div className="space-y-6">
+      <div className="container mx-auto max-w-7xl px-4 py-6">
+        <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -374,7 +375,8 @@ export default function ParticipantsPage() {
         onClose={closeUploadReport}
         result={uploadResult}
       />
-    </div>
+        </div>
+      </div>
     </>
   )
 }
