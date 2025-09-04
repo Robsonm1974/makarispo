@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, ShoppingCart, User, School, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, User, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -60,7 +60,7 @@ export default function ParticipantPage() {
     if (slug && qr) {
       loadData()
     }
-  }, [slug, qr])
+  }, [slug, qr]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     try {
@@ -142,7 +142,7 @@ export default function ParticipantPage() {
         photos: photosData || []
       }
 
-      setParticipant(participantWithPhotos as any)
+      setParticipant(participantWithPhotos as Participant)
 
       // Carregar produtos do tenant
       const { data: productsData, error: productsError } = await supabase

@@ -7,21 +7,23 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { Search, MessageCircle, Camera, MapPin, Phone, Mail } from 'lucide-react'
 import Image from 'next/image'
+import './photographer-styles.css'
 
 interface PhotographerData {
   id: string
+  email: string
   name: string
-  bio?: string
-  city?: string
-  state?: string
-  email?: string
-  slug?: string
-  whatsapp?: string
-  logo_url?: string
+  whatsapp?: string | null
+  city?: string | null
+  state?: string | null
+  bio?: string | null
   plan?: string
+  logo_url?: string | null
+  slug?: string | null
 }
 
 interface QRSearchForm {
@@ -37,7 +39,7 @@ interface WhatsAppForm {
 }
 
 export default function PhotographerPage() {
-  const { slug } = useParams()
+  const { slug } = useParams<{ slug: string }>()
   const [photographer, setPhotographer] = useState<PhotographerData | null>(null)
   const [loading, setLoading] = useState(true)
   const [qrForm, setQrForm] = useState<QRSearchForm>({ qrCode: '' })
@@ -50,13 +52,51 @@ export default function PhotographerPage() {
   })
   const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false)
 
-  useEffect(() => {
-    if (slug) {
-      loadPhotographer()
+  // Itens informativos (somente UI)
+  const infoItems: { title: string; description: string; tag: string }[] = [
+    {
+      title: 'Gerenciamento Inteligente de Fotos',
+      description: 'Organização e marcação com inteligência artificial. Classifique automaticamente fotos por aluno, turma e evento.',
+      tag: 'Fácil Acesso'
+    },
+    {
+      title: 'Busca de Fotos pelas Famílias',
+      description: 'Famílias podem facilmente encontrar e visualizar fotos de seus filhos usando códigos de acesso',
+      tag: 'Ilimitado'
+    },
+    {
+      title: 'Armazenamento em Nuvem',
+      description: 'Acesse suas fotos de qualquer lugar, a qualquer hora.',
+      tag: 'Pagamento Seguro'
+    },
+    {
+      title: 'Sistema de compras sem login',
+      description: 'Localize, visualize e compre as fotos dos participantes em um só lugar',
+      tag: 'Automatizado'
+    },
+    {
+      title: 'Sistema de Identificação',
+      description: 'Alunos e organização automática das fotos por turma e evento.',
+      tag: 'Personalizado'
+    },
+    {
+      title: 'Site Gratuito para Escolas',
+      description: 'Site personalizado para cada escola participante',
+      tag: 'Portfolio'
+    },
+    {
+      title: 'Segurança e Profissionalismo',
+      description: 'Fotos criptografadas, sem exposição nas redes sociais',
+      tag: 'Tecnologia e ética'
     }
+  ]
+
+  useEffect(() => {
+    if (slug) loadPhotographer()
   }, [slug])
 
   const loadPhotographer = async () => {
+    if (!slug) return
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -66,7 +106,7 @@ export default function PhotographerPage() {
         .single()
 
       if (error) throw error
-      setPhotographer(data)
+      setPhotographer({ ...data, bio: data.bio ?? undefined, city: data.city ?? undefined, state: data.state ?? undefined, logo_url: data.logo_url ?? undefined, slug: data.slug ?? undefined, whatsapp: data.whatsapp ?? undefined })
     } catch (error) {
       console.error('Erro ao carregar fotógrafo:', error)
     } finally {
@@ -76,8 +116,6 @@ export default function PhotographerPage() {
 
   const handleQRSearch = () => {
     if (!qrForm.qrCode.trim()) return
-    
-    // Redirecionar para página do participante
     window.location.href = `/fotografo/${slug}/participante/${qrForm.qrCode}`
   }
 
@@ -85,7 +123,6 @@ export default function PhotographerPage() {
     if (!photographer?.whatsapp) return
 
     const message = `Olá, sou ${whatsappForm.requesterName}, ${whatsappForm.relationship} do participante: ${whatsappForm.participantName}, ${whatsappForm.schoolClass}, da escola ${whatsappForm.schoolName}. Gostaria de solicitar o QR code para localizar e ver as fotos, por favor.`
-    
     const whatsappUrl = `https://wa.me/${photographer.whatsapp}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
     setWhatsappDialogOpen(false)
@@ -116,10 +153,10 @@ export default function PhotographerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 photographer-page">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             {photographer.logo_url && (
               <div className="relative w-16 h-16">
@@ -136,39 +173,25 @@ export default function PhotographerPage() {
               {photographer.bio && (
                 <p className="text-gray-600 mt-1">{photographer.bio}</p>
               )}
-              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                {photographer.city && photographer.state && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4" />
-                    {photographer.city}, {photographer.state}
-                  </span>
-                )}
-                {photographer.email && (
-                  <span className="flex items-center gap-1">
-                    <Mail className="h-4 w-4" />
-                    {photographer.email}
-                  </span>
-                )}
-              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid gap-6 md:grid-cols-2">
           
           {/* Localizar Participante */}
-          <Card className="card-hover">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="card-hover bg-zinc-900 text-zinc-50 border-zinc-800 photographer-card">
+            <CardHeader className="photographer-card-header">
+              <CardTitle className="flex items-center gap-2 photographer-card-title">
                 <Search className="h-5 w-5 text-primary" />
                 Localizar Participante
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <CardContent className="space-y-4 photographer-card-content">
+              <p className="text-sm text-zinc-300">
                 Insira o código QR que você recebeu para ver as fotos do participante.
               </p>
               <div className="space-y-2">
@@ -179,11 +202,12 @@ export default function PhotographerPage() {
                   value={qrForm.qrCode}
                   onChange={(e) => setQrForm({ qrCode: e.target.value })}
                   onKeyPress={(e) => e.key === 'Enter' && handleQRSearch()}
+                  className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-400 photographer-input"
                 />
               </div>
               <Button 
                 onClick={handleQRSearch} 
-                className="w-full"
+                className="w-full photographer-button"
                 disabled={!qrForm.qrCode.trim()}
               >
                 <Camera className="h-4 w-4 mr-2" />
@@ -193,20 +217,20 @@ export default function PhotographerPage() {
           </Card>
 
           {/* Solicitar QR Code */}
-          <Card className="card-hover">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="card-hover bg-zinc-900 text-zinc-50 border-zinc-800 photographer-card">
+            <CardHeader className="photographer-card-header">
+              <CardTitle className="flex items-center gap-2 photographer-card-title">
                 <MessageCircle className="h-5 w-5 text-primary" />
                 Solicitar QR Code
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <CardContent className="space-y-4 photographer-card-content">
+              <p className="text-sm text-zinc-300">
                 Não tem o código QR? Solicite pelo WhatsApp informando os dados do participante.
               </p>
               <Dialog open={whatsappDialogOpen} onOpenChange={setWhatsappDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full border-zinc-600 text-zinc-100 hover:bg-zinc-800 photographer-button-outline">
                     <Phone className="h-4 w-4 mr-2" />
                     Solicitar por WhatsApp
                   </Button>
@@ -263,7 +287,7 @@ export default function PhotographerPage() {
                     </div>
                     <Button 
                       onClick={handleWhatsAppRequest} 
-                      className="w-full"
+                      className="w-full photographer-button"
                       disabled={!whatsappForm.requesterName || !whatsappForm.participantName}
                     >
                       Enviar Solicitação
@@ -271,13 +295,58 @@ export default function PhotographerPage() {
                   </div>
                 </DialogContent>
               </Dialog>
+              <div className="text-xs text-white/80 text-right mt-4">
+                Powered by <span className="font-semibold">Photo Manager</span>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-muted-foreground">
-          <p>Powered by <span className="font-semibold">Photo Manager</span></p>
+        {/* Informational Cards */}
+        <section className="max-w-6xl mx-auto px-4 pb-12 mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {infoItems.map((item, idx) => (
+              <Card key={idx} className="bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-base font-semibold text-zinc-900">
+                      {item.title}
+                    </CardTitle>
+                    <Badge variant="secondary" className="bg-orange-100 text-orange-800 border border-orange-200">
+                      {item.tag}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-zinc-600">
+                    {item.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Footer Bar */}
+        <footer className="photographer-footer-bar mt-8">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span />
+              <p className="text-sm">Telefone para suporte: {photographer?.whatsapp ? photographer.whatsapp : 'não informado'}</p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm opacity-90">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                <span>
+                  {photographer.city && photographer.state ? `${photographer.city}, ${photographer.state}` : 'Localização não informada'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <span>{photographer.email || 'E-mail não informado'}</span>
+              </div>
+            </div>
+          </div>
         </footer>
       </main>
     </div>
