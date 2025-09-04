@@ -4,16 +4,17 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Edit, User, QrCode, Eye } from 'lucide-react'
+import { Edit, User, QrCode, Eye, Camera } from 'lucide-react'
 import { QRCodeModal } from '@/components/modals/qr-code-modal'
 import type { ParticipantWithRelations } from '@/types/participants'
 
 interface ParticipantsTableProps {
   participants: ParticipantWithRelations[]
   onEdit: (participant: ParticipantWithRelations) => void
+  onPhotos: (participant: ParticipantWithRelations) => void
 }
 
-export function ParticipantsTable({ participants, onEdit }: ParticipantsTableProps) {
+export function ParticipantsTable({ participants, onEdit, onPhotos }: ParticipantsTableProps) {
   const [selectedParticipant, setSelectedParticipant] = useState<ParticipantWithRelations | null>(null)
   const [qrModalOpen, setQrModalOpen] = useState(false)
 
@@ -135,6 +136,18 @@ export function ParticipantsTable({ participants, onEdit }: ParticipantsTablePro
                       >
                         <QrCode className="h-4 w-4" />
                         <span className="sr-only">Ver QR Code</span>
+                      </Button>
+                      
+                      {/* Botão Fotos */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => onPhotos(participant)}
+                        title="Gerenciar Fotos"
+                      >
+                        <Camera className="h-4 w-4" />
+                        <span className="sr-only">Gerenciar Fotos</span>
                       </Button>
                       
                       {/* Botão Editar */}

@@ -11,6 +11,7 @@ import { ParticipantDialog } from '@/components/forms/participant-dialog'
 import { ParticipantImportDialog } from '@/components/forms/participant-import-dialog'
 import { ParticipantExportButton } from '@/components/forms/participant-export-button'
 import { ParticipantsTable } from '@/components/tables/participants-table'
+import { ParticipantPhotosModal } from '@/components/modals/participant-photos-modal'
 import { Plus, Users, Upload, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
@@ -24,6 +25,7 @@ export default function ParticipantsPage() {
   const { user } = useAuth()
   const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant, refetch } = useParticipants(eventId)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
+  const [photosParticipant, setPhotosParticipant] = useState<ParticipantWithRelations | null>(null)
   const { isPrinting, printAllQRCodes } = useParticipantBatchPrint()
 
   // Buscar dados do evento quando eventId mudar
@@ -146,6 +148,14 @@ export default function ParticipantsPage() {
     setEditingParticipant(null)
   }
 
+  const openPhotosModal = (participant: ParticipantWithRelations) => {
+    setPhotosParticipant(participant)
+  }
+
+  const closePhotosModal = () => {
+    setPhotosParticipant(null)
+  }
+
   const handleSubmit = async (formData: ParticipantFormData) => {
     if (editingParticipant) {
       await handleUpdateParticipant(formData)
@@ -183,8 +193,7 @@ export default function ParticipantsPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Participantes</h1>
           <p className="text-muted-foreground">
-            Gerencie os participantes do evento
-            {!eventId && ' (selecione um evento)'}
+            Visualize e gerencie 
           </p>
         </div>
         <div className="flex gap-2">
@@ -297,6 +306,7 @@ export default function ParticipantsPage() {
           <ParticipantsTable
             participants={participants}
             onEdit={openEditDialog}
+            onPhotos={openPhotosModal}
           />
         </CardContent>
       </Card>
@@ -308,6 +318,13 @@ export default function ParticipantsPage() {
         onSubmit={handleSubmit}
         onClose={closeDialog}
         onDelete={editingParticipant ? handleDeleteParticipant : undefined}
+      />
+
+      {/* Photos Modal */}
+      <ParticipantPhotosModal
+        participant={photosParticipant}
+        open={!!photosParticipant}
+        onClose={closePhotosModal}
       />
     </div>
   )
