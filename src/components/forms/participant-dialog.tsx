@@ -13,15 +13,25 @@ interface ParticipantDialogProps {
   onSubmit: (data: ParticipantFormData) => Promise<void>
   trigger?: React.ReactNode
   onClose?: () => void
+  open?: boolean
+  onDelete?: (id: string) => Promise<void>
 }
 
 export function ParticipantDialog({ 
   participant, 
   onSubmit, 
   trigger,
-  onClose 
+  onClose,
+  open: externalOpen,
+  onDelete 
 }: ParticipantDialogProps) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  
+  // Se open é fornecido externamente, use-o; caso contrário, use estado interno
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen
+  const setOpen = externalOpen !== undefined ? (value: boolean) => {
+    if (!value) onClose?.()
+  } : setInternalOpen
 
   const handleSubmit = async (data: ParticipantFormData) => {
     try {
@@ -38,9 +48,14 @@ export function ParticipantDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      {trigger && (
+        <DialogTrigger asChild>
+          {trigger}
+        </DialogTrigger>
+      )}
+      {!trigger && externalOpen === undefined && (
+        <DialogTrigger asChild>
           <Button variant="outline" size="sm">
             {participant ? (
               <>
@@ -54,8 +69,8 @@ export function ParticipantDialog({
               </>
             )}
           </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -68,6 +83,7 @@ export function ParticipantDialog({
           //selectedEventId={selectedEventId}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          onDelete={onDelete}
         />
       </DialogContent>
     </Dialog>

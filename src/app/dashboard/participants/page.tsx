@@ -11,9 +11,10 @@ import { ParticipantDialog } from '@/components/forms/participant-dialog'
 import { ParticipantImportDialog } from '@/components/forms/participant-import-dialog'
 import { ParticipantExportButton } from '@/components/forms/participant-export-button'
 import { ParticipantsTable } from '@/components/tables/participants-table'
-import { Plus, Users, Upload } from 'lucide-react'
+import { Plus, Users, Upload, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+import { useParticipantBatchPrint } from '@/hooks/useParticipantBatchPrint'
 import type { ParticipantFormData, ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
 
 export default function ParticipantsPage() {
@@ -23,6 +24,7 @@ export default function ParticipantsPage() {
   const { user } = useAuth()
   const { participants, loading, error, createParticipant, updateParticipant, deleteParticipant, refetch } = useParticipants(eventId)
   const [editingParticipant, setEditingParticipant] = useState<ParticipantWithRelations | null>(null)
+  const { isPrinting, printAllQRCodes } = useParticipantBatchPrint()
 
   // Buscar dados do evento quando eventId mudar
   useEffect(() => {
@@ -125,6 +127,8 @@ export default function ParticipantsPage() {
   const handleDeleteParticipant = async (id: string) => {
     try {
       await deleteParticipant(id)
+      // Fechar o dialog após exclusão bem-sucedida
+      setEditingParticipant(null)
       toast.success('Participante excluído com sucesso!')
     } catch (error) {
       console.error('Erro ao excluir participante:', error)
@@ -186,6 +190,24 @@ export default function ParticipantsPage() {
         <div className="flex gap-2">
           {eventId && eventData && user && (
             <>
+              <Button
+                variant="outline"
+                onClick={() => printAllQRCodes(participants)}
+                disabled={loading || participants.length === 0 || isPrinting}
+                title="Imprimir todos os QR Codes em folha A4"
+              >
+                {isPrinting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                    Imprimindo...
+                  </>
+                ) : (
+                  <>
+                    <Printer className="h-4 w-4 mr-2" />
+                    Imprimir QR Codes
+                  </>
+                )}
+              </Button>
               <ParticipantExportButton
                 participants={participants}
                 disabled={loading || participants.length === 0}
@@ -275,19 +297,18 @@ export default function ParticipantsPage() {
           <ParticipantsTable
             participants={participants}
             onEdit={openEditDialog}
-            onDelete={handleDeleteParticipant}
           />
         </CardContent>
       </Card>
 
       {/* Edit Dialog */}
-      {editingParticipant && (
-        <ParticipantDialog
-          participant={editingParticipant}
-          onSubmit={handleSubmit}
-          onClose={closeDialog}
-        />
-      )}
+      <ParticipantDialog
+        participant={editingParticipant}
+        open={!!editingParticipant}
+        onSubmit={handleSubmit}
+        onClose={closeDialog}
+        onDelete={editingParticipant ? handleDeleteParticipant : undefined}
+      />
     </div>
   )
 }

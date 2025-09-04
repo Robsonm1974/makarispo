@@ -6,15 +6,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Trash2 } from 'lucide-react'
 import type { ParticipantWithRelations, ParticipantFormData } from '@/types/participants'
 
 interface ParticipantFormProps {
   participant?: ParticipantWithRelations
   onSubmit: (data: ParticipantFormData) => Promise<void>
   onCancel?: () => void
+  onDelete?: (id: string) => Promise<void>
 }
 
-export function ParticipantForm({ participant, onSubmit, onCancel }: ParticipantFormProps) {
+export function ParticipantForm({ participant, onSubmit, onCancel, onDelete }: ParticipantFormProps) {
   const [formData, setFormData] = useState<ParticipantFormData>({
     name: '',
     turma: '',
@@ -23,6 +25,8 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
   })
 
   const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     if (participant) {
@@ -45,6 +49,20 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
       console.error('Erro ao salvar participante:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!participant?.id || !onDelete) return
+    
+    setDeleting(true)
+    try {
+      await onDelete(participant.id)
+    } catch (error) {
+      console.error('Erro ao excluir participante:', error)
+    } finally {
+      setDeleting(false)
+      setShowDeleteConfirm(false)
     }
   }
 
@@ -123,15 +141,58 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
       </div>
 
       {/* Botões */}
-      <div className="flex gap-3 justify-end">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
+      <div className="flex gap-3 justify-between">
+        {/* Botão Excluir (apenas em edição) */}
+        <div>
+          {participant && onDelete && (
+            <>
+              {!showDeleteConfirm ? (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={loading || deleting}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir Participante
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={loading || deleting}
+                    size="sm"
+                  >
+                    {deleting ? 'Excluindo...' : 'Confirmar Exclusão'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={loading || deleting}
+                    size="sm"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        
+        {/* Botões principais */}
+        <div className="flex gap-3">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} disabled={loading || deleting}>
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" disabled={loading || deleting}>
+            {loading ? 'Salvando...' : participant ? 'Atualizar Participante' : 'Criar Participante'}
           </Button>
-        )}
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Salvando...' : participant ? 'Atualizar Participante' : 'Criar Participante'}
-        </Button>
+        </div>
       </div>
     </form>
   )
