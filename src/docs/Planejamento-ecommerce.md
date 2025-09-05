@@ -23,11 +23,11 @@ Implementar um sistema de e-commerce completo dentro do Photo Manager, permitind
 - [ ] Checkout completo
 - [ ] Integração com produtos
 
-### **FASE 3: INTEGRAÇÃO DE PAGAMENTOS** (Semana 5-6)
-- [ ] Integração Mercado Pago (prioritário)
-- [ ] Integração PagSeguro
-- [ ] Integração Pagar.me
+### **FASE 3: INTEGRAÇÃO DE PAGAMENTOS** (Semana 3-4)
+- [ ] Integração PagSeguro (checkout hospedado)
 - [ ] Sistema de webhooks
+- [ ] Páginas de retorno
+- [ ] Testes de integração
 
 ### **FASE 4: E-MAILS E NOTIFICAÇÕES** (Semana 7)
 - [ ] E-mails transacionais
@@ -82,25 +82,29 @@ Implementar um sistema de e-commerce completo dentro do Photo Manager, permitind
 - URL de webhook (gerada automaticamente)
 - Teste de conectividade
 
-### **3. INTEGRAÇÃO DE PAGAMENTOS**
+### **3. INTEGRAÇÃO DE PAGAMENTOS (CHECKOUT HOSPEDADO)**
 
-#### **RECOMENDAÇÃO: Mercado Pago (Prioritário)**
-- ✅ API bem documentada
-- ✅ Suporte completo ao Brasil
-- ✅ PIX, cartão, boleto
-- ✅ Webhooks robustos
-- ✅ Taxas: 3.99% + R$ 0.39
+#### **RECOMENDAÇÃO: PagSeguro (Checkout Hospedado)**
+- ✅ **Implementação muito mais simples**
+- ✅ **Sem responsabilidade PCI DSS**
+- ✅ **Interface de pagamento do PagSeguro**
+- ✅ **Redirecionamento automático**
+- ✅ **Webhooks robustos**
+- ✅ **Taxas: 4.99% + R$ 0.39**
 
-#### **Alternativas:**
-- **PagSeguro**: 4.99% + R$ 0.39
-- **Pagar.me**: 3.99% + R$ 0.39
-- **Stripe**: 3.4% + R$ 0.39 (global)
+#### **Fluxo Simplificado:**
+1. **Cliente** finaliza compra no seu site
+2. **Sistema** cria transação no PagSeguro
+3. **Cliente** é redirecionado para PagSeguro
+4. **PagSeguro** processa o pagamento
+5. **Cliente** retorna para seu site
+6. **Webhook** atualiza status do pedido
 
-#### Serviços a Criar:
-- `PaymentService.ts` - Serviço principal
+#### **Serviços Simplificados:**
+- `PagSeguroService.ts` - Criação de transações
 - `WebhookHandler.ts` - Processamento de webhooks
-- `PaymentValidator.ts` - Validação de pagamentos
 - `OrderStatusUpdater.ts` - Atualização de status
+- `CheckoutRedirect.ts` - Redirecionamento para PagSeguro
 
 ---
 
@@ -157,27 +161,34 @@ CREATE TABLE payment_transactions (
 - Validação de estoque
 - Integração com produtos adicionais
 
-### **2. CHECKOUT**
-- Formulário de dados do comprador
-- Seleção de método de pagamento
-- Resumo da compra
-- Redirecionamento para gateway
-- Página de confirmação
+### **2. CHECKOUT HOSPEDADO (SIMPLIFICADO)**
+- Formulário de dados do comprador (nome, email, telefone)
+- Resumo da compra com itens selecionados
+- **Redirecionamento direto para PagSeguro** (checkout hospedado)
+- Página de retorno com confirmação
+- **Sem necessidade de capturar dados de cartão**
 
-### **3. UP-SELL**
+### **3. INTEGRAÇÃO PAGSEGURO (CHECKOUT HOSPEDADO)**
+- Criação de transação via API do PagSeguro
+- Geração de URL de checkout hospedado
+- Redirecionamento automático para PagSeguro
+- Retorno automático após pagamento
+- Processamento de webhooks para atualização de status
+
+### **4. UP-SELL**
 - Sugestões de produtos complementares
 - Ofertas especiais
 - Descontos por quantidade
 - Produtos relacionados
 
-### **4. E-MAILS TRANSACIONAIS**
+### **5. E-MAILS TRANSACIONAIS**
 - Confirmação de pedido
 - Confirmação de pagamento
 - Instruções de retirada
 - Notificação para fotógrafo
 - Templates personalizáveis
 
-### **5. PAINEL DE PEDIDOS**
+### **6. PAINEL DE PEDIDOS**
 - Listagem com filtros (status, período, escola/evento)
 - Detalhes do pedido
 - Status de produção (em produção → pronto → entregue)
