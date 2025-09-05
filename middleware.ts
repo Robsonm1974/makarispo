@@ -1,51 +1,91 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+
+// Rotas públicas que não precisam de autenticação
+const PUBLIC_PATHS = [
+  '/',                           // landing page
+  '/auth/login',                 // página de login
+  '/auth/callback',              // callback do OAuth (NÃO bloquear)
+  '/onboarding',                 // onboarding
+  '/fotografo',                  // páginas públicas do fotógrafo
+  '/lgpd',                       // página LGPD
+  '/politica-de-privacidade',    // política de privacidade
+  '/termos-de-servico',          // termos de serviço
+]
+
+// Prefixos de assets que devem passar direto
+const ASSET_PREFIXES = [
+  '/_next', 
+  '/favicon.ico', 
+  '/images', 
+  '/assets', 
+  '/fonts', 
+  '/public',
+  '/file.svg',
+  '/globe.svg',
+  '/next.svg',
+  '/vercel.svg',
+  '/window.svg'
+]
+
+// Somente estas áreas exigem sessão
+const PROTECTED_PREFIXES = [
+  '/dashboard'
+]
+
+function startsWithAny(pathname: string, list: string[]) {
+  return list.some((p) => pathname === p || pathname.startsWith(p.endsWith('/') ? p : `${p}/`))
+}
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
+  const { pathname, searchParams } = req.nextUrl
+
+  // 1) Deixe passar se for público ou asset
+  const isPublic = startsWithAny(pathname, PUBLIC_PATHS)
+  const isAsset = startsWithAny(pathname, ASSET_PREFIXES)
   
+  if (isPublic || isAsset) {
+    return NextResponse.next()
+  }
+
+  // 2) Só checa sessão nas rotas protegidas
+  const needsAuth = startsWithAny(pathname, PROTECTED_PREFIXES)
+  if (!needsAuth) {
+    return NextResponse.next()
+  }
+
+  // 3) Valida sessão via cookies (SSR)
+  const res = NextResponse.next()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value
+        get: (name: string) => req.cookies.get(name)?.value,
+        set: (name: string, value: string, options: any) => {
+          res.cookies.set({ name, value, ...options })
         },
-        set(name: string, value: string, options: any) {
-          res.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: any) {
-          res.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
+        remove: (name: string, options: any) => {
+          res.cookies.set({ name, value: '', ...options, maxAge: 0 })
         },
       },
     }
   )
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { session } } = await supabase.auth.getSession()
 
-  // Rotas públicas que não precisam de autenticação
-  const publicRoutes = ['/auth/login', '/auth/callback', '/onboarding']
-  const isPublicRoute = publicRoutes.some(route => req.nextUrl.pathname.startsWith(route))
-
-  // Se não está autenticado e não é rota pública, redirecionar para login
-  if (!session && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/auth/login', req.url))
+  if (!session) {
+    const url = req.nextUrl.clone()
+    url.pathname = '/auth/login'
+    // preserva o caminho alvo para pós-login
+    const qs = searchParams.toString()
+    url.searchParams.set('next', pathname + (qs ? `?${qs}` : ''))
+    return NextResponse.redirect(url)
   }
 
-  // Se está autenticado mas não tem tenant e não está no onboarding
-  if (session && !isPublicRoute && req.nextUrl.pathname !== '/onboarding') {
+  // 4) Verificar se o usuário tem tenant configurado
+  if (session && pathname !== '/onboarding') {
     const { data: tenant } = await supabase
       .from('tenants')
       .select('id')
@@ -53,12 +93,14 @@ export async function middleware(req: NextRequest) {
       .single()
 
     if (!tenant) {
-      return NextResponse.redirect(new URL('/onboarding', req.url))
+      const url = req.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
     }
   }
 
-  // Se está autenticado e tem tenant, mas está tentando acessar login/onboarding
-  if (session && (req.nextUrl.pathname === '/auth/login' || req.nextUrl.pathname === '/onboarding')) {
+  // 5) Redirecionar usuários autenticados com tenant para dashboard
+  if (session && (pathname === '/auth/login' || pathname === '/onboarding')) {
     const { data: tenant } = await supabase
       .from('tenants')
       .select('id')
@@ -66,15 +108,16 @@ export async function middleware(req: NextRequest) {
       .single()
 
     if (tenant) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
+      const url = req.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
     }
   }
 
   return res
 }
 
+// Intercepta tudo exceto arquivos estáticos do Next
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
