@@ -36,38 +36,46 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession()
 
   // Rotas públicas que não precisam de autenticação
-  const publicRoutes = ['/', '/auth/login', '/auth/callback', '/onboarding', '/lgpd', '/politica-de-privacidade', '/termos-de-servico', '/fotografo/[slug]']
-  const isPublicRoute = publicRoutes.some(route => req.nextUrl.pathname.startsWith(route))
+  const publicRoutes = [
+    '/',
+    '/auth/login',
+    '/auth/callback',
+    '/onboarding',
+    '/lgpd',
+    '/politica-de-privacidade',
+    '/termos-de-servico'
+  ]
+  
+  // Verificação mais robusta para rotas públicas
+  const isPublicRoute = publicRoutes.includes(req.nextUrl.pathname) || 
+                       req.nextUrl.pathname.startsWith('/fotografo/') ||
+                       req.nextUrl.pathname === '/'
+
+  // Se é rota pública, permitir acesso
+  if (isPublicRoute) {
+    return res
+  }
 
   // Se não está autenticado e não é rota pública, redirecionar para login
-  if (!session && !isPublicRoute) {
+  if (!session) {
     return NextResponse.redirect(new URL('/auth/login', req.url))
   }
 
-  // Se está autenticado mas não tem tenant e não está no onboarding
-  if (session && !isPublicRoute && req.nextUrl.pathname !== '/onboarding') {
-    const { data: tenant } = await supabase
-      .from('tenants')
-      .select('id')
-      .eq('id', session.user.id)
-      .single()
+  // Se está autenticado, verificar se tem tenant
+  const { data: tenant } = await supabase
+    .from('tenants')
+    .select('id')
+    .eq('id', session.user.id)
+    .single()
 
-    if (!tenant) {
-      return NextResponse.redirect(new URL('/onboarding', req.url))
-    }
+  // Se não tem tenant, redirecionar para onboarding
+  if (!tenant && req.nextUrl.pathname !== '/onboarding') {
+    return NextResponse.redirect(new URL('/onboarding', req.url))
   }
 
-  // Se está autenticado e tem tenant, mas está tentando acessar login/onboarding
-  if (session && (req.nextUrl.pathname === '/auth/login' || req.nextUrl.pathname === '/onboarding')) {
-    const { data: tenant } = await supabase
-      .from('tenants')
-      .select('id')
-      .eq('id', session.user.id)
-      .single()
-
-    if (tenant) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
+  // Se tem tenant e está tentando acessar login/onboarding, redirecionar para dashboard
+  if (tenant && (req.nextUrl.pathname === '/auth/login' || req.nextUrl.pathname === '/onboarding')) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
   return res
@@ -75,6 +83,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*);',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
