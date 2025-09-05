@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,7 +23,7 @@ import { useParticipantBatchPrint } from '@/hooks/useParticipantBatchPrint'
 import type { ParticipantFormData, ParticipantWithRelations, ParticipantInsert } from '@/types/participants'
 import type { BatchUploadResult } from '@/hooks/useBatchPhotoUpload'
 
-export default function ParticipantsPage() {
+function ParticipantsContent() {
   const searchParams = useSearchParams()
   const eventId = searchParams.get('event')
   const [eventData, setEventData] = useState<{ tenant_id: string; school_id: string } | null>(null)
@@ -405,5 +405,20 @@ export default function ParticipantsPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function ParticipantsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando participantes...</p>
+        </div>
+      </div>
+    }>
+      <ParticipantsContent />
+    </Suspense>
   )
 }
