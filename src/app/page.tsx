@@ -886,9 +886,9 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Política de Privacidade</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Termos de Serviço</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">LGPD</a></li>
+                <li><a href="/politica-de-privacidade" className="hover:text-primary transition-colors">Política de Privacidade</a></li>
+                <li><a href="/termos-de-servico" className="hover:text-primary transition-colors">Termos de Serviço</a></li>
+                <li><a href="/lgpd" className="hover:text-primary transition-colors">LGPD</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Segurança</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Política de Cookies</a></li>
               </ul>
