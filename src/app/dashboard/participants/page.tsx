@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { SearchInput } from '@/components/ui/input'
 import { Header } from '@/components/ui/header'
 import { useParticipants } from '@/hooks/useParticipants'
 import { ParticipantDialog } from '@/components/forms/participant-dialog'
@@ -36,6 +37,9 @@ export default function ParticipantsPage() {
   const [showBatchUpload, setShowBatchUpload] = useState(false)
   const [showUploadReport, setShowUploadReport] = useState(false)
   const [uploadResult, setUploadResult] = useState<BatchUploadResult | null>(null)
+  
+  // Estado para busca
+  const [searchTerm, setSearchTerm] = useState('')
 
   // Buscar dados do evento quando eventId mudar
   useEffect(() => {
@@ -186,6 +190,11 @@ export default function ParticipantsPage() {
     }
   }
 
+  // Filtrar participantes baseado no termo de busca
+  const filteredParticipants = participants.filter(participant =>
+    participant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -331,14 +340,32 @@ export default function ParticipantsPage() {
       {/* Participants Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Participantes</CardTitle>
-          <CardDescription>
-            Visualize e gerencie todos os participantes do evento
-          </CardDescription>
+          <div className="flex flex-col space-y-4">
+            <div>
+              <CardTitle>Lista de Participantes</CardTitle>
+              <CardDescription>
+                Visualize e gerencie todos os participantes do evento
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1 max-w-sm">
+                <SearchInput
+                  placeholder="Buscar participantes por nome..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              {searchTerm && (
+                <div className="text-sm text-muted-foreground">
+                  {filteredParticipants.length} de {participants.length} participantes
+                </div>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <ParticipantsTable
-            participants={participants}
+            participants={filteredParticipants}
             onEdit={openEditDialog}
             onPhotos={openPhotosModal}
           />

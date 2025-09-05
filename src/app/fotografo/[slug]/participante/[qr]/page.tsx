@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, ShoppingCart, User, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -196,10 +196,10 @@ export default function ParticipantPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Carregando...</p>
+          <p className="text-foreground">Carregando...</p>
         </div>
       </div>
     )
@@ -207,13 +207,13 @@ export default function ParticipantPage() {
 
   if (!participant || !photographer) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="text-center py-8">
-            <h1 className="text-xl font-semibold mb-2">Participante não encontrado</h1>
+            <h1 className="text-xl font-semibold mb-2 text-foreground">Participante não encontrado</h1>
             <p className="text-muted-foreground">O código QR informado não foi encontrado ou não pertence a este fotógrafo.</p>
             <Link href={`/fotografo/${slug}`} className="inline-block mt-4">
-              <Button variant="outline">
+              <Button variant="outline" className="hover:bg-muted/50">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
               </Button>
@@ -225,20 +225,20 @@ export default function ParticipantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+      <header className="bg-background/80 backdrop-blur-sm shadow-sm border-b border-border sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href={`/fotografo/${slug}`}>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="hover:bg-muted/50">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Voltar
                 </Button>
               </Link>
-              <div>
-                <h1 className="text-xl font-bold">{participant.name}</h1>
+              <div className="border-l border-border pl-4">
+                <h1 className="text-2xl font-bold text-foreground">{participant.name}</h1>
                 <p className="text-sm text-muted-foreground">
                   {participant.turma && `${participant.turma} • `}
                   {participant.school.name}
@@ -246,10 +246,10 @@ export default function ParticipantPage() {
               </div>
             </div>
             {getCartItemCount() > 0 && (
-              <Button className="relative">
+              <Button className="relative bg-primary hover:bg-primary/90">
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 Carrinho ({getCartItemCount()})
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs bg-destructive text-destructive-foreground">
                   {getCartItemCount()}
                 </Badge>
               </Button>
@@ -262,39 +262,26 @@ export default function ParticipantPage() {
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid gap-8">
           
-          {/* Informações do Participante */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informações
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <Label className="text-sm font-medium">Nome</Label>
-                  <p className="text-sm text-muted-foreground">{participant.name}</p>
-                </div>
-                {participant.turma && (
-                  <div>
-                    <Label className="text-sm font-medium">Turma</Label>
-                    <p className="text-sm text-muted-foreground">{participant.turma}</p>
-                  </div>
-                )}
-                <div>
-                  <Label className="text-sm font-medium">Escola</Label>
-                  <p className="text-sm text-muted-foreground">{participant.school.name}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Hero Section */}
+          <section className="pt-12 pb-16 bg-gradient-to-br from-background to-muted/20 rounded-lg">
+            <div className="max-w-4xl mx-auto px-4 text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+                Fotografia Escolar
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
+                A melhor recordação que seu filho pode ter...
+              </p>
+              <p className="text-lg text-primary font-semibold">
+                Só depende de você!
+              </p>
+            </div>
+          </section>
 
           {/* Fotos */}
-          <Card>
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <ImageIcon className="h-5 w-5 text-primary" />
                 Fotos ({participant.photos.length})
               </CardTitle>
             </CardHeader>
@@ -307,23 +294,24 @@ export default function ParticipantPage() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {participant.photos.map((photo) => (
-                    <Card key={photo.id} className="overflow-hidden">
-                      <div className="relative aspect-square">
+                    <Card key={photo.id} className="overflow-hidden bg-card/30 backdrop-blur-sm border-border/30 hover:bg-card/50 transition-all duration-200">
+                      <div className="relative aspect-square group">
                         <Image
                           src={photo.photo_url}
                           alt={`Foto de ${participant.name}`}
                           fill
-                          className="object-cover"
+                          className="object-cover transition-transform duration-200 group-hover:scale-105"
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
                       </div>
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Foto Digital</span>
-                          <span className="text-sm font-bold">R$ 10,00</span>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium text-foreground">Foto Digital</span>
+                          <span className="text-sm font-bold text-primary">R$ 10,00</span>
                         </div>
                         <Button 
                           size="sm" 
-                          className="w-full mt-2"
+                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                           onClick={() => addToCart({
                             type: 'photo',
                             id: photo.id,
@@ -344,36 +332,38 @@ export default function ParticipantPage() {
 
           {/* Produtos */}
           {products.length > 0 && (
-            <Card>
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
                   Produtos Disponíveis
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {products.map((product) => (
-                    <Card key={product.id} className="overflow-hidden">
+                    <Card key={product.id} className="overflow-hidden bg-card/30 backdrop-blur-sm border-border/30 hover:bg-card/50 transition-all duration-200">
                       {product.mockup_url && (
-                        <div className="relative aspect-square">
+                        <div className="relative aspect-square group">
                           <Image
                             src={product.mockup_url}
                             alt={product.name}
                             fill
-                            className="object-cover"
+                            className="object-cover transition-transform duration-200 group-hover:scale-105"
                           />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
                         </div>
                       )}
                       <CardContent className="p-4">
-                        <h3 className="font-medium mb-1">{product.name}</h3>
+                        <h3 className="font-medium mb-1 text-foreground">{product.name}</h3>
                         {product.description && (
-                          <p className="text-sm text-muted-foreground mb-2">{product.description}</p>
+                          <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
                         )}
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold">R$ {product.price.toFixed(2)}</span>
+                          <span className="text-lg font-bold text-primary">R$ {product.price.toFixed(2)}</span>
                           <Button 
                             size="sm"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground"
                             onClick={() => addToCart({
                               type: 'product',
                               id: product.id,
@@ -394,29 +384,29 @@ export default function ParticipantPage() {
 
           {/* Carrinho */}
           {cart.length > 0 && (
-            <Card>
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
                   Carrinho de Compras
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {cart.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between border-b pb-2">
+                    <div key={index} className="flex items-center justify-between border-b border-border/30 pb-3">
                       <div>
-                        <p className="font-medium">{item.name}</p>
+                        <p className="font-medium text-foreground">{item.name}</p>
                         <p className="text-sm text-muted-foreground">Quantidade: {item.quantity}</p>
                       </div>
-                      <span className="font-bold">R$ {(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-bold text-primary">R$ {(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
-                  <div className="flex items-center justify-between text-lg font-bold pt-4 border-t">
-                    <span>Total</span>
-                    <span>R$ {getCartTotal().toFixed(2)}</span>
+                  <div className="flex items-center justify-between text-lg font-bold pt-4 border-t border-border/30">
+                    <span className="text-foreground">Total</span>
+                    <span className="text-primary">R$ {getCartTotal().toFixed(2)}</span>
                   </div>
-                  <Button className="w-full" size="lg">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg">
                     Finalizar Compra
                   </Button>
                 </div>
@@ -426,14 +416,11 @@ export default function ParticipantPage() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-muted-foreground">
-          <p>Powered by <span className="font-semibold">Photo Manager</span></p>
+        <footer className="mt-12 text-center text-sm text-muted-foreground border-t border-border/30 pt-8">
+          <p>Powered by <span className="font-semibold text-foreground">Photo Manager</span></p>
         </footer>
       </main>
     </div>
   )
 }
 
-function Label({ children, className = "" }: { children: React.ReactNode, className?: string }) {
-  return <label className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}>{children}</label>
-}

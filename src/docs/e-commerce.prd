@@ -1,0 +1,138 @@
+Implantação do E-commerce no Photo Manager
+Objetivo
+
+Implementar um sistema de e-commerce dentro do Photo Manager, permitindo que pais comprem fotos online e que o fotógrafo receba diretamente pelas vendas.
+
+Escopo
+
+Modelo de pagamento: Direct-to-merchant (cada fotógrafo conecta suas próprias chaves de API; o dinheiro cai direto para ele).
+
+Gateways suportados (fase 1): PagSeguro, Mercado Pago e Pagar.me.
+
+Entrega: retirada/entrega na escola (não há integração logística nesta fase).
+
+Fiscal: não emitir nota fiscal nem recolher impostos pela plataforma.
+
+Comunicação com compradores: e-mails transacionais.
+
+Aviso ao fotógrafo: e-mails + opção futura de notificação push/Telegram.
+
+Funcionalidades principais
+
+Configurações de Pagamento (painel do fotógrafo)
+
+Seleção do gateway e ambiente (sandbox/produção).
+
+Campos para inserir credenciais (chaves/tokens).
+
+Exibição da URL de webhook (para colar no painel do gateway).
+
+Checkboxes para escolher métodos aceitos (PIX, cartão, boleto).
+
+Validação básica da integração.
+
+Loja Pública (pais/escolas)
+
+Carrinho de fotos com nomes dos arquivos e valores.
+
+Criação de pedido local.
+
+Redirecionamento para checkout hospedado do gateway.
+
+Página de confirmação de pedido.
+
+Pedidos e Pagamentos (backend + painel)
+
+Registro do pedido com status inicial pending.
+
+Tratamento de webhooks/notificações de pagamento (PagSeguro, Mercado Pago, Pagar.me).
+
+Atualização de status (paid, refused, refunded, expired).
+
+Registro de histórico de eventos de pagamento (idempotente).
+
+Painel do fotógrafo para acompanhar pedidos (listagem, filtros, detalhe).
+
+E-mails automáticos
+
+Comprador: confirmação do pedido, confirmação do pagamento, instruções de retirada na escola.
+
+Fotógrafo: aviso de nova venda com detalhes (itens, arquivos, valores).
+
+Painel de Pedidos (fotógrafo)
+
+Listagem de pedidos com filtros (status, período, escola/evento).
+
+Detalhes do pedido: comprador, itens com nomes de arquivos, valores, método de pagamento.
+
+Status de produção e entrega (em produção → pronto → entregue).
+
+Opção de exportar CSV.
+
+Notificações adicionais
+
+E-mail como padrão.
+
+Implementar suporte a Web Push/Telegram como opção gratuita de aviso em tempo real.
+
+Segurança e conformidade
+
+Armazenamento seguro de credenciais.
+
+Separação sandbox/produção por tenant.
+
+Tratamento correto de webhooks com assinatura/idempotência.
+
+Conformidade LGPD: não armazenar dados além do necessário.
+
+Entregáveis
+
+Fluxo de compra funcionando end-to-end (checkout → webhook → atualização → e-mails).
+
+Painel de configurações de pagamento por fotógrafo.
+
+Painel de pedidos para fotógrafos.
+
+E-mails transacionais funcionando.
+
+Documentação mínima para o fotógrafo: como pegar chaves, colar webhook e testar.
+
+
+
+
+
+### USE CASES 
+
+##👨‍👩‍👧 Pai/Responsável (Comprador)
+
+Acessa a página pública do fotógrafo e localiza o participante através do QR Code fornecido pela escola/fotógrafo.
+
+Visualiza as fotos disponíveis, seleciona as que deseja adquirir e adiciona ao carrinho de compras.
+
+Revisa o pedido, clica em Finalizar Compra e realiza o pagamento utilizando PIX ou cartão de crédito/débito.
+
+Recebe um e-mail de confirmação com os detalhes do pedido e instruções de retirada na escola.
+
+##📸 Tenant/Fotógrafo (Usuário do SaaS)
+
+Recebe uma notificação de nova venda via Web Push e/ou e-mail, contendo os detalhes do pedido.
+
+Acessa o painel do Photo Manager, onde pode visualizar todas as vendas, filtrá-las e acompanhar o status de cada uma (Pagamento, Produção, Impressão, Finalizado).
+
+Abre o pedido específico para consultar:
+
+Dados do comprador (nome e contato).
+
+Itens adquiridos (nomes dos arquivos, imagens, quantidades, valores).
+
+Forma de pagamento e status atual.
+
+Atualiza o status do pedido conforme o andamento:
+
+“Em produção” → “Impresso” → “Pronto para entrega” → “Finalizado”.
+
+Imprime o pedido/detalhes para organizar a produção.
+
+Após concluir a produção, realiza a entrega do material na escola.
+
+Marca o pedido como Finalizado, encerrando o fluxo.
